@@ -66,20 +66,3 @@ resource "aws_route53_record" "spf" {
 
   count = local.domain_count
 }
-
-resource "aws_route53_record" "xmpp" {
-  zone_id = aws_route53_zone.main[count.index].zone_id
-  name    = "_xmpp-server._tcp"
-  type    = "SRV"
-  ttl     = 60 * 60
-
-  records = [
-    "20 0 5269 alt3.xmpp-server.l.google.com.",
-    "20 0 5269 alt2.xmpp-server.l.google.com.",
-    "20 0 5269 alt1.xmpp-server.l.google.com.",
-    "20 0 5269 alt4.xmpp-server.l.google.com.",
-    "5 0 5269 xmpp-server.l.google.com.",
-  ]
-
-  count = local.domain_count
-}
