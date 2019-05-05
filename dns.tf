@@ -44,7 +44,7 @@ resource "aws_route53_record" "mx" {
   zone_id = aws_route53_zone.main[count.index].zone_id
   name    = ""
   type    = "MX"
-  ttl     = 60 * 5
+  ttl     = 60 * 60
 
   records = [
     "1 aspmx.l.google.com.",
@@ -61,7 +61,7 @@ resource "aws_route53_record" "spf" {
   zone_id = aws_route53_zone.main[count.index].zone_id
   name    = ""
   type    = "SPF"
-  ttl     = 60 * 5
+  ttl     = 60 * 60
   records = ["v=spf1 a include:_spf.google.com ~all"]
 
   count = local.domain_count
