@@ -4,8 +4,7 @@
 
 variable "domains" {
   type = map(object({
-    dkim                     = string
-    google_site_verification = string
+    dkim = string
   }))
 }
 
@@ -35,7 +34,7 @@ resource "aws_route53_record" "google_site_verification" {
   name    = ""
   type    = "TXT"
   ttl     = 60 * 60 * 24
-  records = ["google-site-verification=${var.domains[local.domain_names[count.index]]["google_site_verification"]}"]
+  records = ["google-site-verification=UsO1pcQY7tYt0o_pwtjUqIoKUkYCXSasOfSObBruaXM"]
 
   count = local.domain_count
 }
