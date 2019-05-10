@@ -61,7 +61,7 @@ resource "aws_route53_record" "spf" {
   name    = ""
   type    = "SPF"
   ttl     = 60 * 60
-  records = ["v=spf1 a include:_spf.google.com ~all"]
+  records = ["v=spf1 include:_spf.google.com ~all"]
 
   count = local.domain_count
 }
