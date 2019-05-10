@@ -56,6 +56,7 @@ resource "aws_route53_record" "mx" {
   count = local.domain_count
 }
 
+# TODO: Change `~all` to `-all` (see https://www.bettercloud.com/monitor/spf-dkim-dmarc-email-security/).
 resource "aws_route53_record" "spf" {
   zone_id = aws_route53_zone.main[count.index].zone_id
   name    = ""
