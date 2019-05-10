@@ -29,6 +29,18 @@ resource "aws_route53_record" "dkim" {
   count = local.domain_count
 }
 
+# TODO: Change `p=none` to `p=reject` (see https://support.google.com/a/answer/2466563).
+# TODO: Tweak DMARC policy (see https://dmarcian.com/dmarc-inspector/).
+resource "aws_route53_record" "dmarc" {
+  zone_id = aws_route53_zone.main[count.index].zone_id
+  name    = "_dmarc"
+  type    = "TXT"
+  ttl     = 60 * 60
+  records = ["v=DMARC1; p=none; rua=mailto:josh@joshuaspence.com"]
+
+  count = local.domain_count
+}
+
 resource "aws_route53_record" "google_site_verification" {
   zone_id = aws_route53_zone.main[count.index].zone_id
   name    = ""
