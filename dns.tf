@@ -36,7 +36,7 @@ resource "aws_route53_record" "dmarc" {
   name    = "_dmarc"
   type    = "TXT"
   ttl     = 60 * 60
-  records = ["v=DMARC1; p=none; rua=mailto:josh@joshuaspence.com"]
+  records = ["v=DMARC1; p=none; rua=mailto:josh+dmarc@joshuaspence.com; ruf=mailto:josh+dmarc@joshuaspence.com"]
 
   count = local.domain_count
 }
