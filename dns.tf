@@ -4,19 +4,19 @@
 
 variable "domains" {
   type = map(object({
-    dkim = string
+    dkim_public_key     = string
+    dmarc_reporting_uri = string
   }))
 }
 
 locals {
-  domain_count = length(var.domains)
-  domain_names = keys(var.domains)
+  # Convert `var.domains` into a list so that we can access it with numeric indices (i.e. `count.index`).
+  domains = [for domain, params in var.domains : merge(params, map("name", domain))]
 }
 
 resource "aws_route53_zone" "main" {
-  name = local.domain_names[count.index]
-
-  count = local.domain_count
+  name  = local.domains[count.index].name
+  count = length(local.domains)
 }
 
 resource "aws_route53_record" "dkim" {
@@ -24,9 +24,8 @@ resource "aws_route53_record" "dkim" {
   name    = "google._domainkey"
   type    = "TXT"
   ttl     = 60 * 60
-  records = ["v=DKIM1; k=rsa; p=${var.domains[local.domain_names[count.index]]["dkim"]}"]
-
-  count = local.domain_count
+  records = [format("v=DKIM1; k=rsa; p=%s", local.domains[count.index].dkim_public_key)]
+  count   = length(local.domains)
 }
 
 # TODO: Change `p=none` to `p=reject` (see https://support.google.com/a/answer/2466563).
@@ -36,9 +35,9 @@ resource "aws_route53_record" "dmarc" {
   name    = "_dmarc"
   type    = "TXT"
   ttl     = 60 * 60
-  records = ["v=DMARC1; p=none; rua=mailto:josh+dmarc@joshuaspence.com; ruf=mailto:josh+dmarc@joshuaspence.com"]
+  records = [format("v=DMARC1; p=none; rua=%s; ruf=%s", local.domains[count.index].dmarc_reporting_uri, local.domains[count.index].dmarc_reporting_uri)]
 
-  count = local.domain_count
+  count = length(local.domains)
 }
 
 resource "aws_route53_record" "google_site_verification" {
@@ -48,7 +47,7 @@ resource "aws_route53_record" "google_site_verification" {
   ttl     = 60 * 60 * 24
   records = ["google-site-verification=UsO1pcQY7tYt0o_pwtjUqIoKUkYCXSasOfSObBruaXM"]
 
-  count = local.domain_count
+  count = length(local.domains)
 }
 
 resource "aws_route53_record" "mx" {
@@ -65,7 +64,7 @@ resource "aws_route53_record" "mx" {
     "10 aspmx3.googlemail.com.",
   ]
 
-  count = local.domain_count
+  count = length(local.domains)
 }
 
 # TODO: Change `~all` to `-all` (see https://www.bettercloud.com/monitor/spf-dkim-dmarc-email-security/).
@@ -76,5 +75,5 @@ resource "aws_route53_record" "spf" {
   ttl     = 60 * 60
   records = ["v=spf1 include:_spf.google.com ~all"]
 
-  count = local.domain_count
+  count = length(local.domains)
 }
