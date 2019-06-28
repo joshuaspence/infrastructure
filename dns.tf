@@ -4,8 +4,15 @@
 
 variable "domains" {
   type = map(object({
-    dkim_public_key          = string
-    dmarc_reporting_uri      = string
+    dkim = object({
+      public_key = string
+    })
+
+    dmarc = object({
+      aggregate_reporting_uri = string
+      forensic_reporting_uri  = string
+    })
+
     google_site_verification = string
   }))
 }
@@ -26,7 +33,7 @@ resource "aws_route53_record" "dkim" {
   name    = "google._domainkey"
   type    = "TXT"
   ttl     = 60 * 60
-  records = [format("v=DKIM1; k=rsa; p=%s", local.domains[count.index].dkim_public_key)]
+  records = [format("v=DKIM1; k=rsa; p=%s", local.domains[count.index].dkim.public_key)]
   count   = length(local.domains)
 }
 
@@ -37,7 +44,7 @@ resource "aws_route53_record" "dmarc" {
   name    = "_dmarc"
   type    = "TXT"
   ttl     = 60 * 60
-  records = [format("v=DMARC1; p=none; rua=%s", local.domains[count.index].dmarc_reporting_uri)]
+  records = [format("v=DMARC1; p=none; rua=%s; ruf=%s; fo=1", local.domains[count.index].dmarc.aggregate_reporting_uri, local.domains[count.index].dmarc.forensic_reporting_uri)]
   count   = length(local.domains)
 }
 
