@@ -48,15 +48,6 @@ resource "aws_route53_record" "dmarc" {
   count   = length(local.domains)
 }
 
-resource "aws_route53_record" "google_site_verification" {
-  zone_id = aws_route53_zone.main[count.index].zone_id
-  name    = ""
-  type    = "TXT"
-  ttl     = 60 * 60 * 24
-  records = [format("google-site-verification=%s", local.domains[count.index].google_site_verification)]
-  count   = length(local.domains)
-}
-
 resource "aws_route53_record" "mx" {
   zone_id = aws_route53_zone.main[count.index].zone_id
   name    = ""
@@ -78,8 +69,13 @@ resource "aws_route53_record" "mx" {
 resource "aws_route53_record" "spf" {
   zone_id = aws_route53_zone.main[count.index].zone_id
   name    = ""
-  type    = "SPF"
+  type    = "TXT"
   ttl     = 60 * 60
-  records = ["v=spf1 include:_spf.google.com ~all"]
+  records = [
+    "v=spf1 include:_spf.google.com ~all",
+
+    # TODO: Does this record need to live at the apex?
+    format("google-site-verification=%s", local.domains[count.index].google_site_verification),
+  ]
   count   = length(local.domains)
 }
