@@ -4,14 +4,16 @@
 
 variable "domains" {
   type = map(object({
-    dkim_public_key     = string
-    dmarc_reporting_uri = string
+    dkim_public_key          = string
+    dmarc_reporting_uri      = string
+    google_site_verification = string
   }))
 }
 
 locals {
-  # Convert `var.domains` into a list so that we can access it with numeric indices (i.e. `count.index`).
-  domains = [for domain, params in var.domains : merge(params, map("name", domain))]
+  # Convert `var.domains` into a list so that we can access it with numeric 
+  # indices (i.e. `count.index`).
+  domains = [for domain, params in var.domains : merge(params, { name = domain })]
 }
 
 resource "aws_route53_zone" "main" {
@@ -35,9 +37,8 @@ resource "aws_route53_record" "dmarc" {
   name    = "_dmarc"
   type    = "TXT"
   ttl     = 60 * 60
-  records = [format("v=DMARC1; p=none; rua=%s; ruf=%s", local.domains[count.index].dmarc_reporting_uri, local.domains[count.index].dmarc_reporting_uri)]
-
-  count = length(local.domains)
+  records = [format("v=DMARC1; p=none; rua=%s", local.domains[count.index].dmarc_reporting_uri)]
+  count   = length(local.domains)
 }
 
 resource "aws_route53_record" "google_site_verification" {
@@ -45,9 +46,8 @@ resource "aws_route53_record" "google_site_verification" {
   name    = ""
   type    = "TXT"
   ttl     = 60 * 60 * 24
-  records = ["google-site-verification=UsO1pcQY7tYt0o_pwtjUqIoKUkYCXSasOfSObBruaXM"]
-
-  count = length(local.domains)
+  records = [format("google-site-verification=%s", local.domains[count.index].google_site_verification)]
+  count   = length(local.domains)
 }
 
 resource "aws_route53_record" "mx" {
@@ -74,6 +74,5 @@ resource "aws_route53_record" "spf" {
   type    = "SPF"
   ttl     = 60 * 60
   records = ["v=spf1 include:_spf.google.com ~all"]
-
-  count = length(local.domains)
+  count   = length(local.domains)
 }
