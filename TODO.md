@@ -18,11 +18,15 @@
 - [`aws_iam_account_password_policy`](https://www.terraform.io/docs/providers/aws/r/iam_account_password_policy.html)
 - `aws_iot_*`
 - `aws_inspector_*`
+- `aws_licensemanager_*`
 - `aws_macie_*`
 - [`aws_resourcegroups_group`](https://www.terraform.io/docs/providers/aws/r/resourcegroups_group.html)
 - `aws_route53_*`
 - `aws_s3_*`
 - [`aws_secretmanager_secret`](https://www.terraform.io/docs/providers/aws/r/secretsmanager_secret.html)
 - `aws_securityhub_*`
+- `aws_ses_`
+- `aws_servicecatalog_*`
+- `aws_storagegateway_*`
 - `aws_vpc_*`
 
