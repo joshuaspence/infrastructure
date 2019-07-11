@@ -43,7 +43,7 @@ resource "aws_route53_record" "dmarc" {
   name    = "_dmarc"
   type    = "TXT"
   ttl     = 60 * 60
-  records = [format("v=DMARC1; p=none; rua=%s", local.domains[count.index].dmarc.aggregate_reporting_uri)]
+  records = [format("v=DMARC1; p=quarantine; rua=%s", local.domains[count.index].dmarc.aggregate_reporting_uri)]
   count   = length(local.domains)
 }
 
