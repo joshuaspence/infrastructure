@@ -5,8 +5,7 @@ domains = {
     }
 
     dmarc = {
-      aggregate_reporting_uri = "mailto:d15bd919d737293@rep.dmarcanalyzer.com"
-		  forensic_reporting_uri  = "mailto:d15bd919d737293@for.dmarcanalyzer.com"
+      aggregate_reporting_uri = "mailto:josh+dmarc@joshuaspence.com"
     }
 
 		google_site_verification = "UsO1pcQY7tYt0o_pwtjUqIoKUkYCXSasOfSObBruaXM"
@@ -18,8 +17,7 @@ domains = {
 		}
 
 		dmarc = {
-      aggregate_reporting_uri = "mailto:d15bd919d737293@rep.dmarcanalyzer.com"
-		  forensic_reporting_uri  = "mailto:d15bd919d737293@for.dmarcanalyzer.com"
+      aggregate_reporting_uri = "mailto:josh+dmarc@joshuaspence.com.au"
     }
 
 		google_site_verification = "UsO1pcQY7tYt0o_pwtjUqIoKUkYCXSasOfSObBruaXM"
