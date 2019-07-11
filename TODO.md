@@ -29,4 +29,22 @@
 - `aws_servicecatalog_*`
 - `aws_storagegateway_*`
 - `aws_vpc_*`
+- https://github.com/terraform-providers/terraform-provider-aws/issues/88
 
+# Other
+- [`ciscoasa`](https://www.terraform.io/docs/providers/ciscoasa/index.html)
+- [`cronitor`](https://github.com/nauxliu/terraform-provider-cronitor)
+- [`datadog`](https://www.terraform.io/docs/providers/datadog/index.html)
+- [`dropbox`](https://github.com/callensm/terraform-provider-dropbox)
+- [`dyn`](https://www.terraform.io/docs/providers/dyn/index.html)
+- [`github`](https://www.terraform.io/docs/providers/github/index.html)
+- [`glue`](https://github.com/MikeSouza/terraform-provider-glue)
+- [`httpfileupload`](https://github.com/GSLabDev/terraform-provider-httpfileupload)
+- [`jira`](https://github.com/anubhavmishra/terraform-provider-jira) / [`jira`](https://github.com/anubhavmishra/terraform-provider-jira)
+- [`kubernetes`](https://www.terraform.io/docs/providers/kubernetes/index.html)
+- [`logzio`](https://github.com/jonboydell/logzio_terraform_provider)
+- [`opsgenie`](https://www.terraform.io/docs/providers/opsgenie/index.html)
+- [`pagerduty`](https://www.terraform.io/docs/providers/pagerduty/index.html)
+- [`restapi`](https://github.com/Mastercard/terraform-provider-restapi)
+- [`updown`](https://github.com/mvisonneau/terraform-provider-updown)
+- [`uptimerobot`](https://github.com/louy/terraform-provider-uptimerobot)
