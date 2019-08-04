@@ -8,18 +8,18 @@ domains = {
       aggregate_reporting_uri = "mailto:josh+dmarc@joshuaspence.com"
     }
 
-		google_site_verification = "UsO1pcQY7tYt0o_pwtjUqIoKUkYCXSasOfSObBruaXM"
+    google_site_verification = "UsO1pcQY7tYt0o_pwtjUqIoKUkYCXSasOfSObBruaXM"
   }
 
   "joshuaspence.com.au" = {
     dkim = {
       public_key = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCAjWainf+pFKnIfV50dzBD6xuxK5+mZSdZ0iWJ3nyf5TKhdnkiRn/6yvgVIqxLQUAZijNonliq6Sjw9ZSd9HWGJHWiMNXmOfjiqkCnLpZcPrVYPnG+YLhznNcF0/5Y3mRU4r/BCQlNz95k6Z88gJ7aX6t3zZr/VPekhasgWLztWQIDAQAB"
-		}
+    }
 
-		dmarc = {
+    dmarc = {
       aggregate_reporting_uri = "mailto:josh+dmarc@joshuaspence.com.au"
     }
 
-		google_site_verification = "UsO1pcQY7tYt0o_pwtjUqIoKUkYCXSasOfSObBruaXM"
+    google_site_verification = "UsO1pcQY7tYt0o_pwtjUqIoKUkYCXSasOfSObBruaXM"
   }
 }
