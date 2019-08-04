@@ -1,3 +1,7 @@
+terraform {
+  required_version = ">= 0.12.6"
+}
+
 provider "aws" {
   region              = "ap-southeast-2"
   profile             = "personal"
