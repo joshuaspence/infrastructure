@@ -1,4 +1,5 @@
 # AWS
+- `aws_appmesh_*`
 - [`aws_backup_plan`](https://www.terraform.io/docs/providers/aws/r/backup_plan.html)
 - [`aws_budgets_budget`](https://www.terraform.io/docs/providers/aws/r/budgets_budget.html)
 - [`aws_cloudtrail`](https://www.terraform.io/docs/providers/aws/r/cloudtrail.html)
@@ -9,6 +10,7 @@
 - `aws_dx_*`
 - [`aws_ebs_default_kms_key`](https://www.terraform.io/docs/providers/aws/r/ebs_default_kms_key.html)
 - [`aws_ebs_encryption_by_default`](https://www.terraform.io/docs/providers/aws/r/ebs_encryption_by_default.html)
+- [`aws_ecs_service`](https://www.terraform.io/docs/providers/aws/r/ecs_service.html)
 - [`aws_ec2_client_vpn_endpoint`](https://www.terraform.io/docs/providers/aws/r/ec2_client_vpn_endpoint.html)
 - [`aws_ec2_client_vpn_network_association`](https://www.terraform.io/docs/providers/aws/r/ec2_client_vpn_network_association.html)
 - `aws_glacier_*`
@@ -18,8 +20,8 @@
 - [`aws_iam_account_password_policy`](https://www.terraform.io/docs/providers/aws/r/iam_account_password_policy.html)
 - `aws_iot_*`
 - `aws_inspector_*`
-- `aws_licensemanager_*`
 - `aws_macie_*`
+- `aws_opsworks_*` (see https://aws.amazon.com/opsworks/puppetenterprise/)
 - [`aws_resourcegroups_group`](https://www.terraform.io/docs/providers/aws/r/resourcegroups_group.html)
 - `aws_route53_*`
 - `aws_s3_*`
@@ -27,9 +29,12 @@
 - `aws_securityhub_*`
 - `aws_ses_`
 - `aws_servicecatalog_*`
+- `aws_ssm_*`
 - `aws_storagegateway_*`
 - `aws_vpc_*`
 - https://github.com/terraform-providers/terraform-provider-aws/issues/88
+- https://aws.amazon.com/premiumsupport/technology/trusted-advisor/
+- https://aws.amazon.com/well-architected-tool/
 
 # Other
 - [`ciscoasa`](https://www.terraform.io/docs/providers/ciscoasa/index.html)
