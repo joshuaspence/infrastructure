@@ -9,7 +9,7 @@ provider "aws" {
 }
 
 provider "gsuite" {
-  credentials             = pathexpand("~/.gsuite/personal-245112-62ef53c394de.json")
+  credentials             = pathexpand("~/.gsuite/personal.json")
   impersonated_user_email = "josh@joshuaspence.com"
 
   oauth_scopes = [
