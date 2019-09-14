@@ -9,17 +9,18 @@ resource "aws_acm_certificate" "main" {
 }
 
 resource "aws_route53_record" "acm_validation" {
-  zone_id = aws_route53_zone.main[aws_acm_certificate.main.domain_validation_options[count.index].domain_name].zone_id
-  name    = aws_acm_certificate.main.domain_validation_options[count.index].resource_record_name
-  type    = aws_acm_certificate.main.domain_validation_options[count.index].resource_record_type
-  ttl     = 60
-  records = [aws_acm_certificate.main.domain_validation_options[count.index].resource_record_value]
-
-  # TODO: Use `for_each` instead of `count`.
-  count   = length(local.domains)
+  zone_id  = aws_route53_zone.main[each.key].zone_id
+  name     = each.value.resource_record_name
+  type     = each.value.resource_record_type
+  ttl      = 60
+  records  = [each.value.resource_record_value]
+  for_each = { for certificate in aws_acm_certificate.main.domain_validation_options : certificate.domain_name => certificate }
 }
 
 resource "aws_acm_certificate_validation" "main" {
-  certificate_arn         = aws_acm_certificate.main.arn
-  validation_record_fqdns = aws_route53_record.acm_validation[*].fqdn
+  certificate_arn = aws_acm_certificate.main.arn
+
+  # TODO: We shouldn't need `values(...)` here, see
+  # https://github.com/hashicorp/terraform/issues/22476.
+  validation_record_fqdns = values(aws_route53_record.acm_validation)[*].fqdn
 }
