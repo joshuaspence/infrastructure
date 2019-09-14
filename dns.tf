@@ -19,6 +19,8 @@ locals {
   # TODO: Get rid of this.
   domains = [for domain, params in var.domains : merge(params, { name = domain })]
 
+  # TODO: Expose a `primary_domain` variable instead of assuming that the first
+  # domain is the primary domain.
   primary_domain = local.domains[0].name
 }
 
@@ -57,8 +59,8 @@ resource "aws_route53_record" "mx" {
     "1 aspmx.l.google.com.",
     "5 alt1.aspmx.l.google.com.",
     "5 alt2.aspmx.l.google.com.",
-    "10 aspmx2.googlemail.com.",
-    "10 aspmx3.googlemail.com.",
+    "10 alt3.aspmx.l.google.com.",
+    "10 alt4.aspmx.l.google.com.",
   ]
 
   for_each = var.domains
