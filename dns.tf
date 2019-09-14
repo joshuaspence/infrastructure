@@ -4,10 +4,6 @@ variable "domains" {
       public_key = string
     })
 
-    dmarc = object({
-      aggregate_reporting_uri = string
-    })
-
     google_site_verification = string
   }))
 }
@@ -45,7 +41,7 @@ resource "aws_route53_record" "dmarc" {
   name     = "_dmarc"
   type     = "TXT"
   ttl      = 60 * 60
-  records  = [format("v=DMARC1; p=none; rua=%s", each.value.dmarc.aggregate_reporting_uri)]
+  records  = [format("v=DMARC1; p=none; rua=%s", gsuite_group.postmaster.email)]
   for_each = var.domains
 }
 
