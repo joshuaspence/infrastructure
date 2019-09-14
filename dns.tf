@@ -68,15 +68,17 @@ resource "aws_route53_record" "mx" {
 
 # TODO: Change `~all` to `-all` (see https://www.bettercloud.com/monitor/spf-dkim-dmarc-email-security/).
 resource "aws_route53_record" "spf" {
-  zone_id  = aws_route53_zone.main[each.key].zone_id
-  name     = ""
-  type     = "TXT"
-  ttl      = 60 * 60
-  records  = [
+  zone_id = aws_route53_zone.main[each.key].zone_id
+  name    = ""
+  type    = "TXT"
+  ttl     = 60 * 60
+
+  records = [
     "v=spf1 include:_spf.google.com ~all",
 
     # TODO: Does this record need to live at the apex?
     format("google-site-verification=%s", each.value.google_site_verification),
   ]
+
   for_each = var.domains
 }
