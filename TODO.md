@@ -53,4 +53,3 @@
 - [`restapi`](https://github.com/Mastercard/terraform-provider-restapi)
 - [`updown`](https://github.com/mvisonneau/terraform-provider-updown)
 - [`uptimerobot`](https://github.com/louy/terraform-provider-uptimerobot)
-- Change postmaster email address

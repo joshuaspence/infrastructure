@@ -41,7 +41,7 @@ resource "aws_route53_record" "dmarc" {
   name     = "_dmarc"
   type     = "TXT"
   ttl      = 60 * 60
-  records  = [format("v=DMARC1; p=none; rua=%s", gsuite_group.postmaster.email)]
+  records  = [format("v=DMARC1; p=none; rua=%s", gsuite_group.dmarc_reports.email)]
   for_each = var.domains
 }
 

@@ -11,16 +11,13 @@ resource "gsuite_user" "josh" {
   primary_email = format("josh@%s", gsuite_domain.main.domain_name)
 }
 
-# NOTE: I wanted the email address for this group to be
-# `postmaster@joshuaspence.com` but `postmaster@...` is reserved,
-# see https://support.google.com/a/answer/33389?hl=en.
-resource "gsuite_group" "postmaster" {
-  email = format("mailauth-reports@%s", gsuite_domain.main.domain_name)
-  name  = "Postmaster"
+resource "gsuite_group" "dmarc_reports" {
+  email = format("dmarc@%s", gsuite_domain.main.domain_name)
+  name  = "DMARC Reports"
 }
 
-resource "gsuite_group_members" "postmaster" {
-  group_email = gsuite_group.postmaster.email
+resource "gsuite_group_members" "dmarc_reports" {
+  group_email = gsuite_group.dmarc_reports.email
 
   member {
     role  = "OWNER"
