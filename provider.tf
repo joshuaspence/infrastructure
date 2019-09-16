@@ -8,6 +8,10 @@ provider "aws" {
   allowed_account_ids = ["287139315271"]
 }
 
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
 provider "gsuite" {
   credentials             = pathexpand("~/.gsuite/personal.json")
   impersonated_user_email = "josh@joshuaspence.com"
