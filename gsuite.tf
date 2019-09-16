@@ -16,6 +16,10 @@ resource "gsuite_group" "dmarc_reports" {
   name  = "DMARC Reports"
 }
 
+resource "gsuite_group_settings" "dmarc_reports" {
+  email = gsuite_group.dmarc_reports.email
+}
+
 resource "gsuite_group_members" "dmarc_reports" {
   group_email = gsuite_group.dmarc_reports.email
 
