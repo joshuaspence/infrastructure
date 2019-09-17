@@ -1,4 +1,5 @@
 variable "domains" {
+  # TODO: Add `aliases` to this object.
   type = map(object({
     dkim = object({
       public_key = string

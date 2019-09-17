@@ -1,3 +1,4 @@
+# TODO: Manage alias domains.
 resource "gsuite_domain" "main" {
   domain_name = var.primary_domain
 }
