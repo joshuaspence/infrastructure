@@ -1,6 +1,6 @@
 resource "aws_acm_certificate" "main" {
-  domain_name               = local.primary_domain
-  subject_alternative_names = slice(local.domains[*].name, 1, length(local.domains))
+  domain_name               = var.primary_domain
+  subject_alternative_names = [for domain in keys(var.domains) : domain if domain != var.primary_domain]
   validation_method         = "DNS"
 
   lifecycle {

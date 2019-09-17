@@ -15,3 +15,5 @@ domains = {
     google_site_verification = "UsO1pcQY7tYt0o_pwtjUqIoKUkYCXSasOfSObBruaXM"
   }
 }
+
+primary_domain = "joshuaspence.com"

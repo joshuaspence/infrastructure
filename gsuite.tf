@@ -1,5 +1,5 @@
 resource "gsuite_domain" "main" {
-  domain_name = local.primary_domain
+  domain_name = var.primary_domain
 }
 
 resource "gsuite_user" "josh" {

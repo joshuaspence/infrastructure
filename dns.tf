@@ -8,16 +8,8 @@ variable "domains" {
   }))
 }
 
-locals {
-  # Convert `var.domains` into a list so that we can access it with numeric 
-  # indices (i.e. `count.index`).
-  #
-  # TODO: Get rid of this.
-  domains = [for domain, params in var.domains : merge(params, { name = domain })]
-
-  # TODO: Expose a `primary_domain` variable instead of assuming that the first
-  # domain is the primary domain.
-  primary_domain = local.domains[0].name
+variable "primary_domain" {
+  type = "string"
 }
 
 resource "aws_route53_zone" "main" {
