@@ -4,7 +4,10 @@ variable "domains" {
       public_key = string
     })
 
-    google_site_verification = string
+    google_site_verification = object({
+      key   = string
+      value = string
+    })
   }))
 }
 
@@ -37,6 +40,17 @@ resource "aws_route53_record" "dmarc" {
   for_each = var.domains
 }
 
+# TODO: Ideally the validation record would be pulled out of the GSuite API,
+# see https://github.com/DeviaVir/terraform-provider-gsuite/issues/67.
+resource "aws_route53_record" "google_site_verification" {
+  zone_id  = aws_route53_zone.main[each.key].zone_id
+  name     = each.value.google_site_verification.key
+  type     = "CNAME"
+  ttl      = 60 * 60
+  records  = [format("gv-%s.dv.googlehosted.com", each.value.google_site_verification.value)]
+  for_each = var.domains
+}
+
 # TODO: Consider increasing TTL.
 resource "aws_route53_record" "mx" {
   zone_id = aws_route53_zone.main[each.key].zone_id
@@ -61,15 +75,6 @@ resource "aws_route53_record" "spf" {
   name    = ""
   type    = "TXT"
   ttl     = 60 * 60
-
-  records = [
-    "v=spf1 include:_spf.google.com ~all",
-
-    # TODO: Does this record need to live at the apex?
-    # TODO: Ideally the validation record would be pulled out of the GSuite API,
-    #   see https://github.com/DeviaVir/terraform-provider-gsuite/issues/67.
-    format("google-site-verification=%s", each.value.google_site_verification),
-  ]
-
+  records = ["v=spf1 include:_spf.google.com ~all"]
   for_each = var.domains
 }
