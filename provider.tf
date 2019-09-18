@@ -7,9 +7,8 @@ variable "aws_region" {
 }
 
 provider "aws" {
-  region              = var.aws_region
-  profile             = "personal"
-  allowed_account_ids = ["287139315271"]
+  region  = var.aws_region
+  profile = "personal"
 }
 
 data "aws_availability_zones" "available" {
