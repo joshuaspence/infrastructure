@@ -1,5 +1,4 @@
 variable "domains" {
-  # TODO: Add `aliases` to this object.
   type = map(object({
     dkim = object({
       public_key = string
@@ -10,7 +9,7 @@ variable "domains" {
 }
 
 variable "primary_domain" {
-  type = "string"
+  type = string
 }
 
 resource "aws_route53_zone" "main" {
@@ -38,6 +37,7 @@ resource "aws_route53_record" "dmarc" {
   for_each = var.domains
 }
 
+# TODO: Consider increasing TTL.
 resource "aws_route53_record" "mx" {
   zone_id = aws_route53_zone.main[each.key].zone_id
   name    = ""
