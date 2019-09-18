@@ -1,3 +1,7 @@
+aws_region                     = "ap-southeast-2"
+gsuite_impersonated_user_email = "josh@joshuaspence.com"
+primary_domain                 = "joshuaspence.com"
+
 domains = {
   "joshuaspence.com" = {
     dkim = {
@@ -15,5 +19,3 @@ domains = {
     google_site_verification = "UsO1pcQY7tYt0o_pwtjUqIoKUkYCXSasOfSObBruaXM"
   }
 }
-
-primary_domain = "joshuaspence.com"
