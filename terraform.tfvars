@@ -12,7 +12,7 @@ domains = {
 
     google_site_verification = {
       key   = "a6bfmanqta6v"
-			value = "7cfhlaayo7k56n"
+      value = "7cfhlaayo7k56n"
     }
   }
 
@@ -23,7 +23,7 @@ domains = {
 
     google_site_verification = {
       key   = "wbgozhdmu5fo"
-			value = "ck24ekzqntivoz"
+      value = "ck24ekzqntivoz"
     }
   }
 }

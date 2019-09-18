@@ -52,26 +52,28 @@ resource "aws_route53_record" "google_site_verification" {
 }
 
 resource "aws_route53_record" "mx" {
-  zone_id  = aws_route53_zone.main[each.key].zone_id
-  name     = ""
-  type     = "MX"
-  ttl      = 60 * 60
-  records  = [
+  zone_id = aws_route53_zone.main[each.key].zone_id
+  name    = ""
+  type    = "MX"
+  ttl     = 60 * 60
+
+  records = [
     "1 aspmx.l.google.com.",
     "5 alt1.aspmx.l.google.com.",
     "5 alt2.aspmx.l.google.com.",
     "10 alt3.aspmx.l.google.com.",
     "10 alt4.aspmx.l.google.com.",
   ]
+
   for_each = var.domains
 }
 
 # TODO: Change `~all` to `-all` (see https://www.bettercloud.com/monitor/spf-dkim-dmarc-email-security/).
 resource "aws_route53_record" "spf" {
-  zone_id = aws_route53_zone.main[each.key].zone_id
-  name    = ""
-  type    = "TXT"
-  ttl     = 60 * 60
-  records = ["v=spf1 include:_spf.google.com ~all"]
+  zone_id  = aws_route53_zone.main[each.key].zone_id
+  name     = ""
+  type     = "TXT"
+  ttl      = 60 * 60
+  records  = ["v=spf1 include:_spf.google.com ~all"]
   for_each = var.domains
 }
