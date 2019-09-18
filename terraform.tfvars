@@ -1,8 +1,8 @@
-aws_profile                    = "personal"
-aws_region                     = "ap-southeast-2"
+aws_profile = "personal"
+aws_region  = "ap-southeast-2"
+
 gsuite_credentials_file        = "~/.gsuite/personal.json"
 gsuite_impersonated_user_email = "josh@joshuaspence.com"
-primary_domain                 = "joshuaspence.com"
 
 domains = {
   "joshuaspence.com" = {
@@ -27,3 +27,5 @@ domains = {
     }
   }
 }
+
+primary_domain = "joshuaspence.com"
