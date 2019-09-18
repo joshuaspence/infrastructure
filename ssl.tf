@@ -18,9 +18,6 @@ resource "aws_route53_record" "acm_validation" {
 }
 
 resource "aws_acm_certificate_validation" "main" {
-  certificate_arn = aws_acm_certificate.main.arn
-
-  # TODO: We shouldn't need `values(...)` here, see
-  # https://github.com/hashicorp/terraform/issues/22476.
-  validation_record_fqdns = values(aws_route53_record.acm_validation)[*].fqdn
+  certificate_arn         = aws_acm_certificate.main.arn
+  validation_record_fqdns = [for record in aws_route53_record.acm_validation : record.fqdn]
 }
