@@ -6,9 +6,13 @@ variable "aws_region" {
   type = string
 }
 
+variable "aws_profile" {
+  type = string
+}
+
 provider "aws" {
   region  = var.aws_region
-  profile = "personal"
+  profile = var.aws_profile
 }
 
 data "aws_availability_zones" "available" {
