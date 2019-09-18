@@ -19,12 +19,16 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
+variable "gsuite_credentials_file" {
+  type = string
+}
+
 variable "gsuite_impersonated_user_email" {
   type = string
 }
 
 provider "gsuite" {
-  credentials             = pathexpand("~/.gsuite/personal.json")
+  credentials             = pathexpand(var.gsuite_credentials_file)
   impersonated_user_email = var.gsuite_impersonated_user_email
 
   oauth_scopes = [
