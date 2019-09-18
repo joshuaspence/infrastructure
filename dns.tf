@@ -66,6 +66,8 @@ resource "aws_route53_record" "spf" {
     "v=spf1 include:_spf.google.com ~all",
 
     # TODO: Does this record need to live at the apex?
+    # TODO: Ideally the validation record would be pulled out of the GSuite API,
+    #   see https://github.com/DeviaVir/terraform-provider-gsuite/issues/67.
     format("google-site-verification=%s", each.value.google_site_verification),
   ]
 
