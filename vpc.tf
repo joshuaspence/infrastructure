@@ -15,6 +15,10 @@ locals {
 
   private_subnet_cidr_blocks = [for ii in range(var.vpc_subnet_count) : cidrsubnet(var.vpc_cidr_block, local.subnet_bits, ii)]
   public_subnet_cidr_blocks  = [for ii in range(var.vpc_subnet_count) : cidrsubnet(var.vpc_cidr_block, local.subnet_bits, pow(2, local.subnet_bits - 1) + ii)]
+
+  vpc_tags = {
+    "kubernetes.io/cluster/${var.kubernetes_cluster_name}" = "shared"
+  }
 }
 
 resource "random_shuffle" "aws_availability_zones" {
@@ -36,7 +40,9 @@ module "vpc" {
   create_database_subnet_group    = false
   create_elasticache_subnet_group = false
   create_redshift_subnet_group    = false
-  enable_dns_hostnames            = true
-  enable_dns_support              = true
   enable_nat_gateway              = true
+
+  private_subnet_tags = merge(local.vpc_tags, { "kubernetes.io/role/internal-elb" = 1 })
+  public_subnet_tags  = merge(local.vpc_tags, { "kubernetes.io/role/elb" = 1 })
+  vpc_tags            = local.vpc_tags
 }
