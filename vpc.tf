@@ -11,8 +11,10 @@ variable "vpc_subnet_count" {
 }
 
 locals {
-  subnet_bits = ceil(log(2 * var.vpc_subnet_count, 2))
-
+  # Split the VPC CIDR block into enough equally-sized ranges to accommodate
+  # `var.vpc_subnet_count` public subnets and `var.vpc_subnet_count` private 
+  # subnets.
+  subnet_bits                = ceil(log(2 * var.vpc_subnet_count, 2))
   private_subnet_cidr_blocks = [for ii in range(var.vpc_subnet_count) : cidrsubnet(var.vpc_cidr_block, local.subnet_bits, ii)]
   public_subnet_cidr_blocks  = [for ii in range(var.vpc_subnet_count) : cidrsubnet(var.vpc_cidr_block, local.subnet_bits, pow(2, local.subnet_bits - 1) + ii)]
 
