@@ -42,7 +42,9 @@ module "vpc" {
   create_database_subnet_group    = false
   create_elasticache_subnet_group = false
   create_redshift_subnet_group    = false
-  enable_nat_gateway              = true
+
+  enable_nat_gateway = true
+  single_nat_gateway = true
 
   private_subnet_tags = merge(local.vpc_tags, { "kubernetes.io/role/internal-elb" = 1 })
   public_subnet_tags  = merge(local.vpc_tags, { "kubernetes.io/role/elb" = 1 })
