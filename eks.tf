@@ -9,10 +9,11 @@ module "eks" {
   subnets      = concat(module.vpc.private_subnets, module.vpc.public_subnets)
   vpc_id       = module.vpc.vpc_id
 
+  # TODO: Review these settings.
   worker_additional_security_group_ids = []
   worker_groups                        = [
     {
-      instance_type = "t3.medium"
+      instance_type = "t3a.small"
     }
   ]
   worker_groups_launch_template = []
