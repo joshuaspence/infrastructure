@@ -12,7 +12,7 @@ module "eks" {
   worker_additional_security_group_ids = []
   worker_groups                        = [
     {
-      instance_type = "t2.nano"
+      instance_type = "t3.medium"
     }
   ]
   worker_groups_launch_template = []
