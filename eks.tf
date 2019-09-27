@@ -9,32 +9,19 @@ module "eks" {
   subnets      = concat(module.vpc.private_subnets, module.vpc.public_subnets)
   vpc_id       = module.vpc.vpc_id
 
-  # TODO: Review these settings.
-  worker_additional_security_group_ids = []
-  worker_groups                        = [
+  # TODO: Possibly use launch templates instead of launch configurations?
+  # TODO: Possibly use spot instances?
+  # TODO: Configure `asg_min_size`, `asg_max_size` and `asg_desired_capacity`.
+  # TODO: Possibly configure `cpu_credits`.
+  # TODO: Possibly enable `protect_from_scale_in`.
+  worker_groups = [
     {
       instance_type = "t3a.small"
     }
   ]
-  worker_groups_launch_template = []
-  workers_additional_policies   = []
   workers_group_defaults = {
-    asg_desired_capacity                     = 1
-    asg_max_size                             = 3
-    asg_min_size                             = 1
-    autoscaling_enabled                      = false
-    cpu_credits                              = "standard"
-    enable_monitoring                        = false
-    kubelet_extra_args                       = ""
-    on_demand_allocation_strategy            = null
-    on_demand_base_capacity                  = 0
-    on_demand_percentage_above_base_capacity = 0
-    override_instance_types                  = []
-    protect_from_scale_in                    = false
-    spot_allocation_strategy                 = "lowest-price"
-    spot_instance_pools                      = 10
-    spot_max_price                           = 10
-    spot_price                               = ""
+    autoscaling_enabled = true
+    enable_monitoring   = false
   }
 
   manage_aws_auth       = false
