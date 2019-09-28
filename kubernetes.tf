@@ -9,6 +9,8 @@ provider "kubernetes" {
   load_config_file       = false
 }
 
+# TODO: This should be managed by the `terraform-aws-modules/eks/aws` module
+# after https://github.com/terraform-aws-modules/terraform-aws-eks/pull/355.
 resource "kubernetes_config_map" "aws_auth" {
   metadata {
     name      = "aws-auth"
