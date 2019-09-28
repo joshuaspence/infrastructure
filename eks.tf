@@ -3,7 +3,8 @@ variable "kubernetes_cluster_name" {
 }
 
 module "eks" {
-  source = "terraform-aws-modules/eks/aws"
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 6.0"
 
   cluster_name = var.kubernetes_cluster_name
   subnets      = concat(module.vpc.private_subnets, module.vpc.public_subnets)
