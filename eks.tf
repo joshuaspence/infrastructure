@@ -38,6 +38,7 @@ module "eks" {
   }
 }
 
+# TODO: This should be managed by the `terraform-aws-modules/eks/aws` module.
 resource "local_file" "kubeconfig" {
   content  = module.eks.kubeconfig
   filename = pathexpand("~/.kube/config")
