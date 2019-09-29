@@ -17,8 +17,10 @@ resource "gsuite_group" "dmarc_reports" {
   name  = "DMARC Reports"
 }
 
+# TODO: Check whether more settings should be configured.
 resource "gsuite_group_settings" "dmarc_reports" {
-  email = gsuite_group.dmarc_reports.email
+  email                          = gsuite_group.dmarc_reports.email
+  include_in_global_address_list = false
 }
 
 resource "gsuite_group_members" "dmarc_reports" {
