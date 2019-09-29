@@ -1,3 +1,9 @@
+/**
+ * TODO: We should use the `terraform-aws-modules/acm/aws` module but it
+ * currently assumes that all domains belong to the same `aws_route53_zone`.
+ * See https://github.com/terraform-aws-modules/terraform-aws-acm/issues/21.
+ */
+
 resource "aws_acm_certificate" "main" {
   domain_name               = var.primary_domain
   subject_alternative_names = [for domain in keys(var.domains) : domain if domain != var.primary_domain]
