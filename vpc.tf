@@ -28,6 +28,7 @@ resource "random_shuffle" "aws_availability_zones" {
   result_count = var.vpc_subnet_count
 }
 
+# TODO: Enable some VPC endpoints and VPC endpoint services.
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 2.0"

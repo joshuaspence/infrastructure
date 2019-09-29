@@ -6,6 +6,7 @@
 - `aws_cloudwatch_*`
 - `aws_config_*`
 - [`aws_cur_report_definition`](https://www.terraform.io/docs/providers/aws/r/cur_report_definition.html)
+- [`aws_customer_gateway`](https://www.terraform.io/docs/providers/aws/r/customer_gateway.html)
 - [`aws_dlm_lifecycle_policy`](https://www.terraform.io/docs/providers/aws/r/dlm_lifecycle_policy.html)
 - `aws_dx_*`
 - [`aws_ebs_default_kms_key`](https://www.terraform.io/docs/providers/aws/r/ebs_default_kms_key.html)
@@ -13,8 +14,10 @@
 - [`aws_ecs_service`](https://www.terraform.io/docs/providers/aws/r/ecs_service.html)
 - [`aws_ec2_client_vpn_endpoint`](https://www.terraform.io/docs/providers/aws/r/ec2_client_vpn_endpoint.html)
 - [`aws_ec2_client_vpn_network_association`](https://www.terraform.io/docs/providers/aws/r/ec2_client_vpn_network_association.html)
+- [`aws_ec2_transit_gateway`](https://www.terraform.io/docs/providers/aws/r/ec2_transit_gateway.html)
 - `aws_glacier_*`
 - `aws_guardduty_*`
+- [`aws_flog_log`](https://www.terraform.io/docs/providers/aws/r/flow_log.html)
 - [`aws_iam_access_key`](https://www.terraform.io/docs/providers/aws/r/iam_access_key.html)
 - [`aws_iam_account_alias`](https://www.terraform.io/docs/providers/aws/r/iam_account_alias.html)
 - [`aws_iam_account_password_policy`](https://www.terraform.io/docs/providers/aws/r/iam_account_password_policy.html)
@@ -32,6 +35,7 @@
 - `aws_ssm_*`
 - `aws_storagegateway_*`
 - `aws_vpc_*`
+- [`aws_vpn_gateway`](https://www.terraform.io/docs/providers/aws/r/vpn_gateway.html)
 - https://github.com/terraform-providers/terraform-provider-aws/issues/88
 - https://aws.amazon.com/premiumsupport/technology/trusted-advisor/
 - https://aws.amazon.com/well-architected-tool/
