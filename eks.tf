@@ -6,9 +6,11 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 6.0"
 
-  cluster_name                    = var.kubernetes_cluster_name
-  subnets                         = concat(module.vpc.private_subnets, module.vpc.public_subnets)
-  vpc_id                          = module.vpc.vpc_id
+  cluster_name = var.kubernetes_cluster_name
+  subnets      = concat(module.vpc.private_subnets, module.vpc.public_subnets)
+  vpc_id       = module.vpc.vpc_id
+
+  # TODO: Disable public access to cluster endpoint.
   cluster_endpoint_private_access = true
   cluster_endpoint_public_access  = true
 
