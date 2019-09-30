@@ -17,7 +17,7 @@
 - [`aws_ec2_transit_gateway`](https://www.terraform.io/docs/providers/aws/r/ec2_transit_gateway.html)
 - `aws_glacier_*`
 - `aws_guardduty_*`
-- [`aws_flog_log`](https://www.terraform.io/docs/providers/aws/r/flow_log.html)
+- [`aws_flow_log`](https://www.terraform.io/docs/providers/aws/r/flow_log.html)
 - [`aws_iam_access_key`](https://www.terraform.io/docs/providers/aws/r/iam_access_key.html)
 - [`aws_iam_account_alias`](https://www.terraform.io/docs/providers/aws/r/iam_account_alias.html)
 - [`aws_iam_account_password_policy`](https://www.terraform.io/docs/providers/aws/r/iam_account_password_policy.html)
