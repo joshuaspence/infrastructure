@@ -1,7 +1,6 @@
 # AWS
 - `aws_appmesh_*`
 - [`aws_budgets_budget`](https://www.terraform.io/docs/providers/aws/r/budgets_budget.html)
-- [`aws_cloudtrail`](https://www.terraform.io/docs/providers/aws/r/cloudtrail.html)
 - `aws_cloudwatch_*`
 - `aws_config_*`
 - [`aws_cur_report_definition`](https://www.terraform.io/docs/providers/aws/r/cur_report_definition.html)
@@ -13,19 +12,15 @@
 - [`aws_ec2_client_vpn_endpoint`](https://www.terraform.io/docs/providers/aws/r/ec2_client_vpn_endpoint.html)
 - [`aws_ec2_client_vpn_network_association`](https://www.terraform.io/docs/providers/aws/r/ec2_client_vpn_network_association.html)
 - [`aws_ec2_transit_gateway`](https://www.terraform.io/docs/providers/aws/r/ec2_transit_gateway.html)
-- `aws_guardduty_*`
 - [`aws_flow_log`](https://www.terraform.io/docs/providers/aws/r/flow_log.html)
 - [`aws_iam_access_key`](https://www.terraform.io/docs/providers/aws/r/iam_access_key.html)
 - [`aws_iam_account_alias`](https://www.terraform.io/docs/providers/aws/r/iam_account_alias.html)
 - [`aws_iam_account_password_policy`](https://www.terraform.io/docs/providers/aws/r/iam_account_password_policy.html)
 - `aws_iot_*`
-- `aws_inspector_*`
-- `aws_macie_*`
 - `aws_opsworks_*` (see https://aws.amazon.com/opsworks/puppetenterprise/)
 - [`aws_resourcegroups_group`](https://www.terraform.io/docs/providers/aws/r/resourcegroups_group.html)
 - `aws_s3_*`
 - [`aws_secretmanager_secret`](https://www.terraform.io/docs/providers/aws/r/secretsmanager_secret.html)
-- `aws_securityhub_*`
 - `aws_ses_`
 - `aws_servicecatalog_*`
 - `aws_ssm_*`
