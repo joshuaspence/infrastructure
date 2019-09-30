@@ -26,7 +26,7 @@
 - `aws_macie_*`
 - `aws_opsworks_*` (see https://aws.amazon.com/opsworks/puppetenterprise/)
 - [`aws_resourcegroups_group`](https://www.terraform.io/docs/providers/aws/r/resourcegroups_group.html)
-- `aws_route53_*`
+- `aws_route53_resolver_*`
 - `aws_s3_*`
 - [`aws_secretmanager_secret`](https://www.terraform.io/docs/providers/aws/r/secretsmanager_secret.html)
 - `aws_securityhub_*`
