@@ -53,3 +53,11 @@ module "vpc" {
   public_subnet_tags  = merge(local.vpc_tags, { "kubernetes.io/role/elb" = 1 })
   vpc_tags            = local.vpc_tags
 }
+
+resource "aws_route53_zone" "private" {
+  name = "private"
+
+  vpc {
+    vpc_id = module.vpc.vpc_id
+  }
+}
