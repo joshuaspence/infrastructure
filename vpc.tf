@@ -33,23 +33,21 @@ module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 2.0"
 
-  azs             = random_shuffle.aws_availability_zones.result
-  cidr            = var.vpc_cidr_block
-  private_subnets = local.private_subnet_cidr_blocks
-  public_subnets  = local.public_subnet_cidr_blocks
+  azs                 = random_shuffle.aws_availability_zones.result
+  cidr                = var.vpc_cidr_block
+  private_subnets     = local.private_subnet_cidr_blocks
+  private_subnet_tags = merge(local.vpc_tags, { "kubernetes.io/role/internal-elb" = 1 })
+  public_subnets      = local.public_subnet_cidr_blocks
+  public_subnet_tags  = merge(local.vpc_tags, { "kubernetes.io/role/elb" = 1 })
+  vpc_tags            = local.vpc_tags
 
   create_database_subnet_group    = false
   create_elasticache_subnet_group = false
   create_redshift_subnet_group    = false
-
-  enable_dns_hostnames = true
-  enable_dns_support   = true
-  enable_nat_gateway   = true
-  single_nat_gateway   = true
-
-  private_subnet_tags = merge(local.vpc_tags, { "kubernetes.io/role/internal-elb" = 1 })
-  public_subnet_tags  = merge(local.vpc_tags, { "kubernetes.io/role/elb" = 1 })
-  vpc_tags            = local.vpc_tags
+  enable_dns_hostnames            = true
+  enable_dns_support              = true
+  enable_nat_gateway              = true
+  single_nat_gateway              = true
 }
 
 resource "aws_route53_zone" "private" {
