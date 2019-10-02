@@ -1,7 +1,3 @@
-variable "vpc_name" {
-  type = string
-}
-
 variable "vpc_cidr_block" {
   type = string
 }
@@ -37,10 +33,8 @@ module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 2.0"
 
-  name = var.vpc_name
-  cidr = var.vpc_cidr_block
-
   azs             = random_shuffle.aws_availability_zones.result
+  cidr            = var.vpc_cidr_block
   private_subnets = local.private_subnet_cidr_blocks
   public_subnets  = local.public_subnet_cidr_blocks
 
