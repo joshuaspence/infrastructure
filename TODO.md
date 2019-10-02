@@ -43,4 +43,6 @@
 - [`restapi`](https://github.com/Mastercard/terraform-provider-restapi)
 - [`updown`](https://github.com/mvisonneau/terraform-provider-updown)
 - [`uptimerobot`](https://github.com/louy/terraform-provider-uptimerobot)
-- [`tflint`](https://github.com/wata727/tflint)
+- [`tflint`](https://github.com/wata727/tflintu)
+- [`pre-commit-terraform`](https://github.com/antonbabenko/pre-commit-terraform)
+- [`terraform-docs`](https://github.com/segmentio/terraform-docs)
