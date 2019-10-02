@@ -23,6 +23,10 @@ locals {
   }
 }
 
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
 resource "random_shuffle" "aws_availability_zones" {
   input        = data.aws_availability_zones.available.names
   result_count = var.vpc_subnet_count

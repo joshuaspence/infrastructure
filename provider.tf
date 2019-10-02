@@ -15,10 +15,6 @@ provider "aws" {
   profile = var.aws_profile
 }
 
-data "aws_availability_zones" "available" {
-  state = "available"
-}
-
 variable "gsuite_credentials_file" {
   type = string
 }
