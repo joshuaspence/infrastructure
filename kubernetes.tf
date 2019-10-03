@@ -1,14 +1,3 @@
-data "aws_eks_cluster_auth" "main" {
-  name = module.eks.cluster_id
-}
-
-provider "kubernetes" {
-  host                   = module.eks.cluster_endpoint
-  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-  token                  = data.aws_eks_cluster_auth.main.token
-  load_config_file       = false
-}
-
 # TODO: This should be managed by the `terraform-aws-modules/eks/aws` module
 # after https://github.com/terraform-aws-modules/terraform-aws-eks/pull/355.
 resource "kubernetes_config_map" "aws_auth" {
