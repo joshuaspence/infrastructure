@@ -15,6 +15,7 @@ variable "primary_domain" {
   type = string
 }
 
+# TODO: Enable query logs (see https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/query-logs.html).
 resource "aws_route53_zone" "main" {
   name     = each.key
   for_each = var.domains
