@@ -29,7 +29,6 @@ resource "aws_route53_record" "dkim" {
   for_each = var.domains
 }
 
-# TODO: Change `p=none` to `p=reject` (see https://support.google.com/a/answer/2466563).
 # TODO: Tweak DMARC policy (see https://dmarcian.com/dmarc-inspector/ and https://blog.returnpath.com/demystifying-the-dmarc-record/).
 resource "aws_route53_record" "dmarc" {
   zone_id  = aws_route53_zone.main[each.key].zone_id
