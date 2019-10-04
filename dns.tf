@@ -45,7 +45,7 @@ resource "aws_route53_record" "google_site_verification" {
   zone_id  = aws_route53_zone.main[each.key].zone_id
   name     = each.value.google_site_verification.key
   type     = "CNAME"
-  ttl      = 60 * 60
+  ttl      = 24 * 60 * 60
   records  = [format("gv-%s.dv.googlehosted.com", each.value.google_site_verification.value)]
   for_each = var.domains
 }
