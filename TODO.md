@@ -17,7 +17,6 @@
 - `aws_s3_*`
 - [`aws_secretmanager_secret`](https://www.terraform.io/docs/providers/aws/r/secretsmanager_secret.html)
 - `aws_ses_`
-- `aws_servicecatalog_*`
 - `aws_ssm_*`
 - `aws_storagegateway_*`
 - `aws_vpc_*`
