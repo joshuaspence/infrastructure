@@ -22,7 +22,6 @@
 - https://aws.amazon.com/well-architected-tool/
 
 # Other
-- [`ciscoasa`](https://www.terraform.io/docs/providers/ciscoasa/index.html)
 - [`cronitor`](https://github.com/nauxliu/terraform-provider-cronitor)
 - [`datadog`](https://www.terraform.io/docs/providers/datadog/index.html)
 - [`dropbox`](https://github.com/callensm/terraform-provider-dropbox)
