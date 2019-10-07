@@ -10,7 +10,6 @@
 - [`aws_ec2_transit_gateway`](https://www.terraform.io/docs/providers/aws/r/ec2_transit_gateway.html)
 - [`aws_flow_log`](https://www.terraform.io/docs/providers/aws/r/flow_log.html)
 - [`aws_iam_access_key`](https://www.terraform.io/docs/providers/aws/r/iam_access_key.html)
-- [`aws_iam_account_alias`](https://www.terraform.io/docs/providers/aws/r/iam_account_alias.html)
 - [`aws_iam_account_password_policy`](https://www.terraform.io/docs/providers/aws/r/iam_account_password_policy.html)
 - `aws_iot_*`
 - `aws_opsworks_*` (see https://aws.amazon.com/opsworks/puppetenterprise/)
