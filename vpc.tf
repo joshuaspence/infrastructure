@@ -10,6 +10,7 @@ variable "vpc_subnet_count" {
   type = string
 }
 
+# TODO: Use the `cidrsubnets` function added in Terraform 0.12.10.
 locals {
   # Split the VPC CIDR block into enough equally-sized ranges to accommodate
   # `var.vpc_subnet_count` public subnets and `var.vpc_subnet_count` private 
