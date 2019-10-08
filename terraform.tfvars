@@ -28,8 +28,9 @@ domains = {
   }
 }
 
-kubernetes_cluster_name = "main"
-primary_domain          = "joshuaspence.com"
-vpc_cidr_block          = "10.0.0.0/24"
-vpc_name                = "main"
-vpc_subnet_count        = 2
+kubernetes_cluster_name    = "main"
+kubernetes_cluster_version = "1.14"
+primary_domain             = "joshuaspence.com"
+vpc_cidr_block             = "10.0.0.0/24"
+vpc_name                   = "main"
+vpc_subnet_count           = 2
