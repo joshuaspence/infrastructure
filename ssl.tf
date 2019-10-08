@@ -4,6 +4,7 @@
  * See https://github.com/terraform-aws-modules/terraform-aws-acm/issues/21.
  */
 
+# TODO: Enable certificate transparency logging.
 resource "aws_acm_certificate" "main" {
   domain_name               = var.primary_domain
   subject_alternative_names = [for domain in keys(var.domains) : domain if domain != var.primary_domain]
