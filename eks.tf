@@ -34,6 +34,26 @@ module "eks" {
   # TODO: Possibly configure `cpu_credits`.
   # TODO: Possibly enable `protect_from_scale_in`.
   worker_groups_launch_template = [
+    # asg_desired_capacity
+    # asg_max_size
+    # asg_min_size
+    # asg_recreate_on_change
+    # instance_type
+    # key_name
+    # bootstrap_extra_args
+    # kubelet_extra_args
+    # subnets
+    # autoscaling_enabled
+    # protect_from_scale_in
+    # root_kms_key_id
+    # root_encrypted
+    # cpu_credits
+    # market_type
+    # override_instance_types
+    # on_demand_allocation_strategy
+    # on_demand_base_capacity
+    # on_demand_percentage_above_base_capacity
+
     {
       instance_type = "t3a.small"
     }
@@ -41,6 +61,7 @@ module "eks" {
   workers_group_defaults = {
     autoscaling_enabled = true
     enable_monitoring   = false
+    key_name            = null
   }
 }
 
