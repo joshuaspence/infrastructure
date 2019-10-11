@@ -29,10 +29,6 @@ module "eks" {
     AWS_PROFILE = var.aws_profile
   }
 
-  # TODO: Possibly use spot instances?
-  # TODO: Configure `asg_min_size`, `asg_max_size` and `asg_desired_capacity`.
-  # TODO: Possibly configure `cpu_credits`.
-  # TODO: Possibly enable `protect_from_scale_in`.
   worker_groups_launch_template = [
     # asg_desired_capacity
     # asg_max_size
