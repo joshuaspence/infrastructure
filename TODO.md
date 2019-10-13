@@ -12,7 +12,6 @@
 - `aws_ses_`
 - `aws_ssm_*`
 - `aws_storagegateway_*`
-- `aws_vpc_*`
 - https://github.com/terraform-providers/terraform-provider-aws/issues/88
 - https://aws.amazon.com/premiumsupport/technology/trusted-advisor/
 - https://aws.amazon.com/well-architected-tool/
