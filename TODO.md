@@ -5,7 +5,6 @@
 - `aws_config_*`
 - [`aws_cur_report_definition`](https://www.terraform.io/docs/providers/aws/r/cur_report_definition.html)
 - [`aws_ec2_transit_gateway`](https://www.terraform.io/docs/providers/aws/r/ec2_transit_gateway.html)
-- [`aws_flow_log`](https://www.terraform.io/docs/providers/aws/r/flow_log.html)
 - `aws_iot_*`
 - `aws_opsworks_*` (see https://aws.amazon.com/opsworks/puppetenterprise/)
 - `aws_s3_*`
