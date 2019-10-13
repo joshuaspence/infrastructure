@@ -4,8 +4,6 @@
 - `aws_cloudwatch_*`
 - `aws_config_*`
 - [`aws_cur_report_definition`](https://www.terraform.io/docs/providers/aws/r/cur_report_definition.html)
-- [`aws_ebs_default_kms_key`](https://www.terraform.io/docs/providers/aws/r/ebs_default_kms_key.html)
-- [`aws_ebs_encryption_by_default`](https://www.terraform.io/docs/providers/aws/r/ebs_encryption_by_default.html)
 - [`aws_ecs_service`](https://www.terraform.io/docs/providers/aws/r/ecs_service.html)
 - [`aws_ec2_transit_gateway`](https://www.terraform.io/docs/providers/aws/r/ec2_transit_gateway.html)
 - [`aws_flow_log`](https://www.terraform.io/docs/providers/aws/r/flow_log.html)
