@@ -6,14 +6,13 @@ variable "kubernetes_cluster_version" {
   type = string
 }
 
-# TODO: Tweak logging settings.
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 6.0"
 
   cluster_name              = var.kubernetes_cluster_name
   cluster_version           = var.kubernetes_cluster_version
-  cluster_enabled_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+  cluster_enabled_log_types = ["api", "controllerManager", "scheduler"]
   subnets                   = concat(module.vpc.private_subnets, module.vpc.public_subnets)
   vpc_id                    = module.vpc.vpc_id
 
