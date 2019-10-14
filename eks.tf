@@ -57,6 +57,9 @@ module "eks" {
     autoscaling_enabled = true
     enable_monitoring   = false
     key_name            = null
+
+    # TODO: Figure out why worker nodes can't join the cluster without a public IP.
+    public_ip = true
   }
 }
 
