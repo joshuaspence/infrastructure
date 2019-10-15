@@ -59,6 +59,7 @@ module "eks" {
     key_name            = null
 
     # TODO: Figure out why worker nodes can't join the cluster without a public IP.
+    # I think this will be fixed by https://github.com/terraform-providers/terraform-provider-aws/issues/6777.
     public_ip = true
   }
 }
