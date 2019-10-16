@@ -48,6 +48,7 @@ module "vpc" {
   public_subnet_tags  = merge(local.vpc_tags, { "kubernetes.io/role/elb" = 1 })
   vpc_tags            = local.vpc_tags
 
+  # TODO: Disable NAT gateways as they are very expensive.
   create_database_subnet_group    = false
   create_elasticache_subnet_group = false
   create_redshift_subnet_group    = false
