@@ -18,7 +18,6 @@
 # Other
 - [`cronitor`](https://github.com/nauxliu/terraform-provider-cronitor)
 - [`datadog`](https://www.terraform.io/docs/providers/datadog/index.html)
-- [`dropbox`](https://github.com/callensm/terraform-provider-dropbox)
 - [`github`](https://www.terraform.io/docs/providers/github/index.html)
 - [`glue`](https://github.com/MikeSouza/terraform-provider-glue)
 - [`httpfileupload`](https://github.com/GSLabDev/terraform-provider-httpfileupload)
