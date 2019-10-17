@@ -10,6 +10,16 @@ variable "vpc_subnet_count" {
   type = string
 }
 
+variable "vpc_enable_nat_gateway" {
+  type    = bool
+  default = true
+}
+
+variable "vpc_single_nat_gateway" {
+  type    = bool
+  default = false
+}
+
 # TODO: Use the `cidrsubnets` function added in Terraform 0.12.10.
 locals {
   # Split the VPC CIDR block into enough equally-sized ranges to accommodate
@@ -54,8 +64,8 @@ module "vpc" {
   create_redshift_subnet_group    = false
   enable_dns_hostnames            = true
   enable_dns_support              = true
-  enable_nat_gateway              = true
-  single_nat_gateway              = true
+  enable_nat_gateway              = var.vpc_enable_nat_gateway
+  single_nat_gateway              = var.vpc_single_nat_gateway
 }
 
 resource "aws_route53_zone" "private" {
