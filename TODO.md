@@ -23,7 +23,6 @@
 - [`github`](https://www.terraform.io/docs/providers/github/index.html)
 - [`glue`](https://github.com/MikeSouza/terraform-provider-glue)
 - [`httpfileupload`](https://github.com/GSLabDev/terraform-provider-httpfileupload)
-- [`jira`](https://github.com/anubhavmishra/terraform-provider-jira) / [`jira`](https://github.com/anubhavmishra/terraform-provider-jira)
 - [`logzio`](https://github.com/jonboydell/logzio_terraform_provider)
 - [`opsgenie`](https://www.terraform.io/docs/providers/opsgenie/index.html)
 - [`restapi`](https://github.com/Mastercard/terraform-provider-restapi)
