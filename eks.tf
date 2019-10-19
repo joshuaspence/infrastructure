@@ -6,6 +6,7 @@ variable "kubernetes_cluster_version" {
   type = string
 }
 
+# TODO: `subnets` should include both public and private subnets.
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 6.0"
@@ -13,7 +14,7 @@ module "eks" {
   cluster_name              = var.kubernetes_cluster_name
   cluster_version           = var.kubernetes_cluster_version
   cluster_enabled_log_types = ["api", "controllerManager", "scheduler"]
-  subnets                   = concat(module.vpc.private_subnets, module.vpc.public_subnets)
+  subnets                   = module.vpc.public_subnets
   vpc_id                    = module.vpc.vpc_id
 
   # TODO: Disable public access to cluster endpoint.
