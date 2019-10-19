@@ -26,4 +26,4 @@
 - [`tflint`](https://github.com/wata727/tflintu)
 - [`pre-commit-terraform`](https://github.com/antonbabenko/pre-commit-terraform)
 - [`terraform-docs`](https://github.com/segmentio/terraform-docs)
-- `.travis.yml`
+- `.travis.yml` (or GitHub actions)
