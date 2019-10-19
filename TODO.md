@@ -15,14 +15,6 @@
 - https://aws.amazon.com/well-architected-tool/
 
 # Other
-- [`cronitor`](https://github.com/nauxliu/terraform-provider-cronitor)
-- [`datadog`](https://www.terraform.io/docs/providers/datadog/index.html)
-- [`httpfileupload`](https://github.com/GSLabDev/terraform-provider-httpfileupload)
-- [`logzio`](https://github.com/jonboydell/logzio_terraform_provider)
-- [`opsgenie`](https://www.terraform.io/docs/providers/opsgenie/index.html)
-- [`restapi`](https://github.com/Mastercard/terraform-provider-restapi)
-- [`updown`](https://github.com/mvisonneau/terraform-provider-updown)
-- [`uptimerobot`](https://github.com/louy/terraform-provider-uptimerobot)
 - [`tflint`](https://github.com/wata727/tflintu)
 - [`pre-commit-terraform`](https://github.com/antonbabenko/pre-commit-terraform)
 - [`terraform-docs`](https://github.com/segmentio/terraform-docs)
