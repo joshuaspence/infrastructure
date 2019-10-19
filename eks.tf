@@ -6,7 +6,6 @@ variable "kubernetes_cluster_version" {
   type = string
 }
 
-# TODO: `subnets` should include both public and private subnets.
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 6.0"
@@ -14,7 +13,7 @@ module "eks" {
   cluster_name              = var.kubernetes_cluster_name
   cluster_version           = var.kubernetes_cluster_version
   cluster_enabled_log_types = ["api", "controllerManager", "scheduler"]
-  subnets                   = module.vpc.public_subnets
+  subnets                   = concat(module.vpc.private_subnets, module.vpc.public_subnets)
   vpc_id                    = module.vpc.vpc_id
 
   # TODO: Disable public access to cluster endpoint.
@@ -33,7 +32,6 @@ module "eks" {
     # asg_recreate_on_change
     # bootstrap_extra_args
     # kubelet_extra_args
-    # subnets
     # root_kms_key_id
     # root_encrypted
     # cpu_credits
@@ -58,6 +56,9 @@ module "eks" {
     # TODO: Figure out why worker nodes can't join the cluster without a public IP.
     # I think this will be fixed by https://github.com/terraform-providers/terraform-provider-aws/issues/6777.
     public_ip = true
+
+    # TODO: We should be utilizing the private subnets as well.
+    subnets = module.vpc.public_subnets
   }
 }
 
