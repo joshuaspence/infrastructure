@@ -47,8 +47,8 @@ module "eks" {
     }
   ]
   workers_group_defaults = {
-    asg_desired_capacity  = 0
-    asg_min_size          = 0
+    asg_desired_capacity  = 1
+    asg_min_size          = 1
     autoscaling_enabled   = true
     enable_monitoring     = false
     protect_from_scale_in = true
