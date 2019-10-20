@@ -1,3 +1,8 @@
+/**
+ * TODO: All `helm_release` resources should depend on the `eks` module, see
+ * https://github.com/hashicorp/terraform/issues/2430.
+ */
+
 # TODO: Check version of `cluster-autoscaler`.
 resource "helm_release" "autoscaler" {
   name   = "autoscaler"
