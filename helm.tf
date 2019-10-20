@@ -5,8 +5,9 @@
 
 # TODO: Check version of `cluster-autoscaler`.
 resource "helm_release" "autoscaler" {
-  name   = "autoscaler"
-  chart  = "stable/cluster-autoscaler"
+  name      = "autoscaler"
+  chart     = "stable/cluster-autoscaler"
+  namespace = "kube-system"
 
   set {
     name  = "autoDiscovery.clusterName"
@@ -32,4 +33,26 @@ resource "helm_release" "autoscaler" {
     name  = "rbac.create"
     value = "true"
   }
+}
+
+resource "helm_release" "dashboard" {
+  name      = "dashboard"
+  chart     = "stable/kubernetes-dashboard"
+  namespace = "kube-system"
+
+  # image.tag
+  # annotations
+  # replicaCount
+  # extraArgs
+  # extraEnv
+  # podAnnotations
+  # enableSkipLogin
+  # enableInsecureLogin
+  # service.loadBalancerSourceRanges
+  # ingress.labels
+  # ingress.annotations
+  # ingress.enabled
+  # ingress.paths
+  # ingress.hosts
+  # ingress.tls
 }
