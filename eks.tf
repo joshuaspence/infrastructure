@@ -8,7 +8,7 @@ variable "kubernetes_cluster_version" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 6.0"
+  version = "~> 7.0"
 
   cluster_name              = var.kubernetes_cluster_name
   cluster_version           = var.kubernetes_cluster_version
@@ -22,8 +22,8 @@ module "eks" {
 
   manage_aws_auth       = false
   write_aws_auth_config = false
-  write_kubeconfig      = false
 
+  config_output_path                         = pathexpand("~/.kube/config")
   kubeconfig_aws_authenticator_env_variables = {
     AWS_PROFILE = var.aws_profile
   }
@@ -60,12 +60,6 @@ module "eks" {
     # TODO: We should be utilizing the private subnets as well.
     subnets = module.vpc.public_subnets
   }
-}
-
-# TODO: Remove this after https://github.com/terraform-aws-modules/terraform-aws-eks/pull/549.
-resource "local_file" "kubeconfig" {
-  content  = module.eks.kubeconfig
-  filename = pathexpand("~/.kube/config")
 }
 
 # TODO: This should be managed by the `terraform-aws-modules/eks/aws` modul
