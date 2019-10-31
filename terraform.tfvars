@@ -37,3 +37,8 @@ vpc_subnet_count          = 2
 
 # TODO: Remove this.
 vpc_enable_nat_gateway = false
+
+home_assistant_config = {
+  host    = "home-assistant.local"
+  version = "0.101.0"
+}

@@ -3,28 +3,30 @@
  * TODO: Add Kubernetes dashboard.
  */
 
+variable "home_assistant_config" {
+  type = object({
+    host    = string
+    version = string
+  })
+}
+
 # TODO: Should this be installed into its own namespace?
 resource "helm_release" "home_assistant" {
   name  = "home-assistant"
   chart = "stable/home-assistant"
 
-  # service.type
-  # service.port
-  # service.annotations
-  # service.clusterIP
-  # service.externalIPs
-  # service.loadBalancerIP
-  # service.loadBalancerSourceRanges
-  # hostNetwork
-  # service.nodePort
-  # ingress.enabled
-  # ingress.annotations
-  # ingress.path
-  # ingress.hosts
-  # ingress.tls
-
   set {
     name  = "image.tag"
-    value = "0.101.0"
+    value = var.home_assistant_config.version
+  }
+
+  set {
+    name  = "ingress.enabled"
+    value = true
+  }
+
+  set {
+    name  = "ingress.hosts"
+    value = format("{%s}", var.home_assistant_config.host)
   }
 }
