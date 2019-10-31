@@ -29,9 +29,7 @@ locals {
   private_subnet_cidr_blocks = [for ii in range(var.vpc_subnet_count) : cidrsubnet(var.vpc_cidr_block, local.subnet_bits, ii)]
   public_subnet_cidr_blocks  = [for ii in range(var.vpc_subnet_count) : cidrsubnet(var.vpc_cidr_block, local.subnet_bits, pow(2, local.subnet_bits - 1) + ii)]
 
-  vpc_tags = {
-    "kubernetes.io/cluster/${var.kubernetes_cluster_name}" = "shared"
-  }
+  vpc_tags = {}
 }
 
 data "aws_availability_zones" "available" {
@@ -53,9 +51,9 @@ module "vpc" {
   azs                 = random_shuffle.aws_availability_zones.result
   cidr                = var.vpc_cidr_block
   private_subnets     = local.private_subnet_cidr_blocks
-  private_subnet_tags = merge(local.vpc_tags, { "kubernetes.io/role/internal-elb" = 1 })
+  private_subnet_tags = merge(local.vpc_tags, {})
   public_subnets      = local.public_subnet_cidr_blocks
-  public_subnet_tags  = merge(local.vpc_tags, { "kubernetes.io/role/elb" = 1 })
+  public_subnet_tags  = merge(local.vpc_tags, {})
   vpc_tags            = local.vpc_tags
 
   # TODO: Disable NAT gateways as they are very expensive.
