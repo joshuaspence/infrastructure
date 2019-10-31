@@ -42,3 +42,16 @@ home_assistant_config = {
   host    = "home-assistant.local"
   version = "0.101.0"
 }
+
+prometheus_config = {
+  hosts = {
+    alertmanager = "alertmanager.local"
+    prometheus   = "prometheus.local"
+  }
+
+  versions = {
+    alertmanager  = "0.19.0"
+    node_exporter = "0.18.1"
+		prometheus    = "2.13.1"
+	}
+}
