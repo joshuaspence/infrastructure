@@ -1,3 +1,8 @@
+/**
+ * TODO: Add ingress controller or load balancer.
+ * TODO: Add Kubernetes dashboard.
+ */
+
 # TODO: Should this be installed into its own namespace?
 resource "helm_release" "home_assistant" {
   name  = "home-assistant"
