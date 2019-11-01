@@ -56,6 +56,11 @@ resource "helm_release" "prometheus" {
   }
 
   set {
+    name  = "alertmanager.baseURL"
+    value = format("http://%s", var.prometheus_config.hosts.alertmanager)
+  }
+
+  set {
     name  = "alertmanager.ingress.enabled"
     value = true
   }
