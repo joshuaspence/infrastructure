@@ -7,7 +7,7 @@ variable "vpc_cidr_block" {
 }
 
 variable "vpc_subnet_count" {
-  type = string
+  type = number
 }
 
 variable "vpc_enable_nat_gateway" {
