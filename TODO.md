@@ -26,3 +26,4 @@
 # Helm
 - Kubernetes dashboard
 - Ingress controller
+- Install apps into their own namespaces?

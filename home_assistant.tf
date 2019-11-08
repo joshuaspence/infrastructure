@@ -5,7 +5,6 @@ variable "home_assistant_config" {
   })
 }
 
-# TODO: Should this be installed into its own namespace?
 resource "helm_release" "home_assistant" {
   name  = "home-assistant"
   chart = "stable/home-assistant"
