@@ -1,8 +1,3 @@
-/**
- * TODO: Add ingress controller or load balancer.
- * TODO: Add Kubernetes dashboard.
- */
-
 variable "home_assistant_config" {
   type = object({
     host    = string
