@@ -27,3 +27,4 @@
 - Kubernetes dashboard
 - Ingress controller
 - Install apps into their own namespaces?
+- Possible parameters for `helm_release`: `force_update`, `reuse`, `recreate_pods`
