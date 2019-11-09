@@ -5,6 +5,7 @@ variable "home_assistant_config" {
   })
 }
 
+# TODO: Fix network discovery.
 resource "helm_release" "home_assistant" {
   name  = "home-assistant"
   chart = "stable/home-assistant"
