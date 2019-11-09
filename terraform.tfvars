@@ -42,3 +42,9 @@ home_assistant_config = {
   host    = "home-assistant.local"
   version = "0.101.0"
 }
+
+unifi_config = {
+  host     = "unifi.local"
+  timezone = "Australia/Sydney"
+  version  = "5.12.22"
+}
