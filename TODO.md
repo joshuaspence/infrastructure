@@ -10,6 +10,7 @@
 - [`aws_secretmanager_secret`](https://www.terraform.io/docs/providers/aws/r/secretsmanager_secret.html)
 - `aws_ses_`
 - `aws_ssm_*`
+- [`aws_s3_account_public_access_block`](https://www.terraform.io/docs/providers/aws/r/s3_account_public_access_block.html)
 - https://github.com/terraform-providers/terraform-provider-aws/issues/88
 - https://aws.amazon.com/premiumsupport/technology/trusted-advisor/
 - https://aws.amazon.com/well-architected-tool/
