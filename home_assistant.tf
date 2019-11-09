@@ -6,6 +6,7 @@ variable "home_assistant_config" {
 }
 
 # TODO: Fix network discovery.
+# TODO: Manage configuration using config maps.
 resource "helm_release" "home_assistant" {
   name  = "home-assistant"
   chart = "stable/home-assistant"
