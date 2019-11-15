@@ -28,3 +28,4 @@
 - Ingress controller
 - Install apps into their own namespaces?
 - Possible parameters for `helm_release`: `force_update`, `reuse`, `recreate_pods`
+- Setup TLS (see https://docs.bitnami.com/kubernetes/how-to/secure-kubernetes-services-with-ingress-tls-letsencrypt/)
