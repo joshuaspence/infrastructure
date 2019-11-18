@@ -15,9 +15,6 @@
 - https://aws.amazon.com/premiumsupport/technology/trusted-advisor/
 - https://aws.amazon.com/well-architected-tool/
 
-# Google
-- https://www.terraform.io/docs/providers/google/r/container_cluster.html
-
 # Other
 - [`tflint`](https://github.com/wata727/tflintu)
 - [`pre-commit-terraform`](https://github.com/antonbabenko/pre-commit-terraform)
