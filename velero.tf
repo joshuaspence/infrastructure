@@ -88,4 +88,9 @@ resource "helm_release" "velero" {
     name  = "snapshotsEnabled"
     value = false
   }
+
+  set {
+    name  = "deployRestic"
+    value = true
+  }
 }

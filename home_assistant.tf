@@ -23,6 +23,11 @@ resource "helm_release" "home_assistant" {
 
   set {
     name  = "ingress.hosts"
-    value = format("{%s}", var.home_assistant_config.host)
+    value = format("{%s}", join(",", [var.home_assistant_config.host]))
+  }
+
+  set {
+    name  = format("podAnnotations.%s", replace("backup.velero.io/backup-volumes", ".", "\\."))
+    value = join(",", ["config"])
   }
 }

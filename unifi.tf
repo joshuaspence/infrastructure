@@ -28,11 +28,16 @@ resource "helm_release" "unifi" {
 
   set {
     name  = "ingress.hosts"
-    value = format("{%s}", var.unifi_config.host)
+    value = format("{%s}", join(",", [var.unifi_config.host]))
   }
 
   set {
     name  = "timezone"
     value = var.unifi_config.timezone
+  }
+
+  set {
+    name  = format("podAnnotations.%s", replace("backup.velero.io/backup-volumes", ".", "\\."))
+    value = join(",", ["unifi-data"])
   }
 }
