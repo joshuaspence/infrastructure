@@ -49,7 +49,6 @@ resource "aws_iam_access_key" "velero" {
   user = aws_iam_user.velero.name
 }
 
-# TODO: Update to the latest version (1.2.0).
 # TODO: Encrypt backups.
 # TODO: Set `metrics.enabled` and `metrics.serviceMonitor.enabled`.
 # TODO: Add schedules.
@@ -57,6 +56,17 @@ resource "helm_release" "velero" {
   name      = "velero"
   chart     = "stable/velero"
   namespace = "velero"
+
+  # TODO: Remove this after https://github.com/helm/charts/pull/18492 has been merged.
+  set {
+    name  = "image.repository"
+    value = "velero/velero"
+  }
+
+  set {
+    name  = "image.tag"
+    value = "v1.2.0"
+  }
 
   set {
     name  = "configuration.backupStorageLocation.name"
@@ -91,5 +101,25 @@ resource "helm_release" "velero" {
   set {
     name  = "deployRestic"
     value = true
+  }
+
+  set {
+    name  = "initContainers[0].name"
+    value = "aws"
+  }
+
+  set {
+    name  = "initContainers[0].image"
+    value = "velero/velero-plugin-for-aws:v1.0.0"
+  }
+
+  set {
+    name  = "initContainers[0].volumeMounts[0].name"
+    value = "plugins"
+  }
+
+  set {
+    name  = "initContainers[0].volumeMounts[0].mountPath"
+    value = "/target"
   }
 }
