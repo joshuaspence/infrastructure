@@ -30,13 +30,6 @@ domains = {
 
 kubernetes_config_context = "minikube"
 primary_domain            = "joshuaspence.com"
-vpc_cidr_block            = "10.0.0.0/24"
-vpc_name                  = "main"
-vpc_single_nat_gateway    = true
-vpc_subnet_count          = 2
-
-# TODO: Remove this.
-vpc_enable_nat_gateway = false
 
 home_assistant_config = {
   host    = "home-assistant.local"
