@@ -41,3 +41,9 @@ unifi_config = {
   timezone = "Australia/Sydney"
   version  = "5.12.22"
 }
+
+velero_config = {
+  bucket         = "spence-velero"
+  plugin_version = "1.0.0"
+  version        = "1.2.0"
+}

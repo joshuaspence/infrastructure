@@ -1,6 +1,14 @@
+variable "velero_config" {
+  type = object({
+    bucket         = string
+    plugin_version = string
+    version        = string
+  })
+}
+
 # TODO: Enable server-side encryption.
 resource "aws_s3_bucket" "velero" {
-  bucket = "spence-velero"
+  bucket = var.velero_config.bucket
 }
 
 resource "aws_s3_bucket_policy" "velero" {
@@ -65,7 +73,7 @@ resource "helm_release" "velero" {
 
   set {
     name  = "image.tag"
-    value = "v1.2.0"
+    value = format("v%s", var.velero_config.version)
   }
 
   set {
@@ -110,7 +118,7 @@ resource "helm_release" "velero" {
 
   set {
     name  = "initContainers[0].image"
-    value = "velero/velero-plugin-for-aws:v1.0.0"
+    value = format("velero/velero-plugin-for-aws:v%s", var.velero_config.plugin_version)
   }
 
   set {
