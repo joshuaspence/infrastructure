@@ -8,7 +8,7 @@ gsuite_impersonated_user_email = "josh@joshuaspence.com"
 domains = {
   "joshuaspence.com" = {
     dkim = {
-      public_key = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC+NreQPu/w8G6yacO/UFBo8TA1sWhStJDtDkeelHymiNuDKTsq5zckGhrqxBjKOnVgDxE5rbdTL5ByS8bHnF0AgtXAKUkuNBfNpkUaud0hbW1qbVy7ijn629KKKJ/NzuoAUtO+EfJWoWeNfK/AT3Ipe84NyjolVmbPP66lm6vxFwIDAQAB"
+      public_key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwrXHtW9q5xyPkIn04BYd5Y8NUfqnPMV0m1bIYI4eRxrRhXd4fCkfqUagk2Hq5LueK3rIZZxAnLr+JE+P/yc88o9mw6sJRjYziAl3gPpazQN9M19MWzXrMCg173UQW8roifseeKyxYordE0qfruuKWRv+5SW7Q7S6VVcCkWnh0iRGP0tHBXwsHXJbIILwKKe9Ktu3kVidp4NoUE5zTSZ4xb/f9FhEMbsigzAKoOmjqUECLVOizPWdGOitJgts/NfpVl5Hzg5RrEcbIHXjAXUGhfaUWgsEzCl3AIGtPm0d2Wo2tvI7NV+toNA3vq6w+o1ahQ4t5E7r5RDmC+GKaSui8QIDAQAB"
     }
 
     google_site_verification = {
@@ -19,7 +19,7 @@ domains = {
 
   "joshuaspence.com.au" = {
     dkim = {
-      public_key = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCAjWainf+pFKnIfV50dzBD6xuxK5+mZSdZ0iWJ3nyf5TKhdnkiRn/6yvgVIqxLQUAZijNonliq6Sjw9ZSd9HWGJHWiMNXmOfjiqkCnLpZcPrVYPnG+YLhznNcF0/5Y3mRU4r/BCQlNz95k6Z88gJ7aX6t3zZr/VPekhasgWLztWQIDAQAB"
+      public_key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjlEsrW+9/6VDQMpawsOhqLBilFAbRRnKZ4BQL62wM56aef3USRFHV7P+VuzUN7aFxtxWYGsWXia8q8e1tppGgv+c7unAcYymzgKYa1271pCUV57OoH7iehiQxVQ3tvXaeGYF+I+H8CeZTKoD4ukD6bsX1lzx16Tve3+0aR3xhImLb9ezzHYLZkyilY47+LbLbuOwUU9RxJsQGg1O41hg15RvFDJrNEnSj3eLeg6V/k9ZbQ8jVeiryEXdPAhBKSmeACCUmpIYL0HXzTAD5ABXIgdC4jUgdqvgUSut8LW2yTXxbHHFfQ13YwbNLEUuJr3XG9sx8c74CNSg0qgkN+4FAwIDAQAB"
     }
 
     google_site_verification = {
