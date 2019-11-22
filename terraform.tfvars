@@ -1,5 +1,6 @@
-aws_profile = "personal"
-aws_region  = "ap-southeast-2"
+aws_account_id = "287139315271"
+aws_profile    = "personal"
+aws_region     = "ap-southeast-2"
 
 gsuite_credentials_file        = "~/.gsuite/personal.json"
 gsuite_impersonated_user_email = "josh@joshuaspence.com"

@@ -22,10 +22,14 @@ variable "aws_profile" {
   type = string
 }
 
-# TODO: Possibly set `allowed_account_ids`.
+variable "aws_account_id" {
+  type = string
+}
+
 provider "aws" {
-  region  = var.aws_region
-  profile = var.aws_profile
+  region              = var.aws_region
+  profile             = var.aws_profile
+  allowed_account_ids = [var.aws_account_id]
 }
 
 #===============================================================================
