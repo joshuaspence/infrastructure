@@ -27,7 +27,7 @@ resource "helm_release" "home_assistant" {
   }
 
   set {
-    name  = format("podAnnotations.%s", replace("backup.velero.io/backup-volumes", ".", "\\."))
+    name  = format("podAnnotations.%s", local.velero_pod_annotation)
     value = join(",", ["config"])
   }
 }

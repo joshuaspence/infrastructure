@@ -1,3 +1,7 @@
+locals {
+  velero_pod_annotation = replace("backup.velero.io/backup-volumes", ".", "\\.")
+}
+
 variable "velero_config" {
   type = object({
     bucket         = string

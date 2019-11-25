@@ -38,7 +38,7 @@ resource "helm_release" "unifi" {
   }
 
   set {
-    name  = format("podAnnotations.%s", replace("backup.velero.io/backup-volumes", ".", "\\."))
+    name  = format("podAnnotations.%s", local.velero_pod_annotation)
     value = join(",", ["unifi-data"])
   }
 }
