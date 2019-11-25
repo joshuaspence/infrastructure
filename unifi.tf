@@ -21,6 +21,7 @@ resource "helm_release" "unifi" {
     value = true
   }
 
+  # The backend requires HTTPS and doesn't seem to respect `X-Forwarded-Proto`.
   set {
     name  = format("ingress.annotations.%s", replace("nginx.ingress.kubernetes.io/backend-protocol", ".", "\\."))
     value = "HTTPS"
