@@ -40,7 +40,7 @@ home_assistant_config = {
 unifi_config = {
   host     = "unifi.local"
   timezone = "Australia/Sydney"
-  version  = "5.12.22"
+  version  = "5.12.35"
 }
 
 velero_config = {
