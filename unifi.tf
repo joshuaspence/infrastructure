@@ -6,7 +6,7 @@ variable "unifi_config" {
   })
 }
 
-# TODO: Use external MongoDB.
+# TODO: Use external MongoDB (see `mongodb.*` and `persistence.*`).
 resource "helm_release" "unifi" {
   name  = "unifi"
   chart = "stable/unifi"
