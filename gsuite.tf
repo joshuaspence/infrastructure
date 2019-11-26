@@ -3,6 +3,7 @@ resource "gsuite_domain" "main" {
   domain_name = var.primary_domain
 }
 
+# TODO: Move user definition to `terraform.tfvars`.
 resource "gsuite_user" "josh" {
   name = {
     family_name = "Spence"
@@ -26,6 +27,7 @@ resource "gsuite_group_settings" "dmarc_reports" {
 resource "gsuite_group_members" "dmarc_reports" {
   group_email = gsuite_group.dmarc_reports.email
 
+  # TODO: Move group membership to `terraform.tfvars`.
   member {
     role  = "OWNER"
     email = gsuite_user.josh.primary_email
