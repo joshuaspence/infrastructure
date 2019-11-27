@@ -25,7 +25,7 @@ resource "aws_route53_record" "dkim" {
   name     = "google._domainkey"
   type     = "TXT"
   ttl      = 60 * 60
-  records  = [join("\"\"", [for chunk in chunklist(split("", format("v=DKIM1; k=rsa; p=%s", each.value.dkim.public_key)), 255): join("", chunk)])]
+  records  = [join("\"\"", [for chunk in chunklist(split("", format("v=DKIM1; k=rsa; p=%s", each.value.dkim.public_key)), 255) : join("", chunk)])]
   for_each = var.domains
 }
 
