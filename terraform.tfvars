@@ -29,6 +29,19 @@ domains = {
   }
 }
 
+gsuite_users = {
+  josh = {
+    given_name  = "Joshua"
+    family_name = "Spence"
+  }
+}
+
+gsuite_group_members = {
+  dmarc_reports = {
+    josh = "OWNER"
+  }
+}
+
 kubernetes_config_context = "minikube"
 primary_domain            = "joshuaspence.com"
 
