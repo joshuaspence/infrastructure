@@ -1,7 +1,3 @@
-locals {
-  velero_pod_annotation = replace("backup.velero.io/backup-volumes", ".", "\\.")
-}
-
 variable "velero_config" {
   type = object({
     bucket         = string
@@ -108,11 +104,6 @@ resource "helm_release" "velero" {
   set {
     name  = "snapshotsEnabled"
     value = false
-  }
-
-  set {
-    name  = "deployRestic"
-    value = true
   }
 
   set {
