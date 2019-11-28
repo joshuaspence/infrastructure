@@ -14,8 +14,6 @@
 - https://aws.amazon.com/well-architected-tool/
 
 # Other
-- [`pre-commit-terraform`](https://github.com/antonbabenko/pre-commit-terraform)
-- [`terraform-docs`](https://github.com/segmentio/terraform-docs)
 - `.travis.yml` (or GitHub actions)
 - Opsgenie
 
