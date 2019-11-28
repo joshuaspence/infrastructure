@@ -1,5 +1,5 @@
 .PHONY: all
-all: fmt lint
+all: fmt validate lint
 
 .PHONY: fmt
 fmt:
@@ -8,3 +8,7 @@ fmt:
 .PHONY: lint
 lint:
 	tflint
+
+.PHONY: validate
+validate:
+	terraform validate
