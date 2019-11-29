@@ -31,6 +31,7 @@
 - Auth proxy
 - metallb
 - kured
+- Possibly set `wait = false` on `helm_release`
 
 # Kubernetes
 - Vertical Pod Autoscaler
