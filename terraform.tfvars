@@ -50,11 +50,6 @@ home_assistant_config = {
   version = "0.101.0"
 }
 
-openebs_config = {
-  ndm_version = "0.4.4"
-  version     = "1.4.0"
-}
-
 unifi_config = {
   host     = "unifi.local"
   timezone = "Australia/Sydney"
