@@ -14,6 +14,11 @@ resource "gsuite_user" "main" {
   name          = each.value
   primary_email = format("%s@%s", each.key, gsuite_domain.main.domain_name)
   for_each      = var.gsuite_users
+
+  # TODO: Remove this.
+  lifecycle {
+    ignore_changes = [recovery_email, recovery_phone]
+  }
 }
 
 variable "gsuite_group_members" {
