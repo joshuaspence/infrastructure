@@ -65,12 +65,6 @@ resource "helm_release" "velero" {
   chart     = "stable/velero"
   namespace = "velero"
 
-  # TODO: Remove this after https://github.com/helm/charts/pull/18492 has been merged.
-  set {
-    name  = "image.repository"
-    value = "velero/velero"
-  }
-
   set {
     name  = "image.tag"
     value = format("v%s", var.velero_config.version)
