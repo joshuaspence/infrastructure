@@ -47,7 +47,7 @@ primary_domain            = "joshuaspence.com"
 
 home_assistant_config = {
   host    = "home-assistant.local"
-  version = "0.101.0"
+  version = "0.103.0"
 }
 
 unifi_config = {
