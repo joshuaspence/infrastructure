@@ -65,9 +65,6 @@ gsuite_group_members = {
 }
 
 kubernetes_config_context = "minikube"
-
-# TODO: Change this to `spence.family` or `spence.network`.
-# See https://support.google.com/a/answer/7009324.
 primary_domain            = "joshuaspence.com"
 
 home_assistant_config = {
