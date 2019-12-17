@@ -27,6 +27,28 @@ domains = {
       value = "ck24ekzqntivoz"
     }
   }
+
+  "spence.family" = {
+    dkim = {
+      public_key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq61MZIowkam1HHRMzd67r/kWIFLa4v4Z6Wd5QTbSMu91IafFmCVRuaMe2Vrf3VuBcQhL1dqgIJHVN+tyYpB3UB5o5X7sP/keX8t6S/fi9H6gnQz5RvAk2qSMFC34KIBJGs5I2U/dzMip4wXHkuEOEtngZnC++WJLtC34bbtPaAXd6ychEaevMfEXbW5Fv5V/cac8me4QLIIAC8Tjj6yQ+G9fn3lhdRpQoIZiLJVFmZMgftoyxhkeqRwaeCxxrZHhRsN0Y8SWOvCzGKePN5CUF+4tYeB728fFeZTqHULj4Cc5NnogdFMuynC1Wd2M7S+Y0hyMvj8XL1JLC2011YURAQIDAQAB"
+    }
+
+    google_site_verification = {
+      key   = "dkxbd6ayrn2v"
+      value = "mbz5rfkvm54ygt"
+    }
+  }
+
+  "spence.network" = {
+    dkim = {
+      public_key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArJayHFIe8sCPC5ZejP3kCrx9QpJvBkb+rLR3TR9RlL8jtzsYHT9jWWSfhycc9d5JxPr95VudoUJ1hS/WUX19rmFp3GBJVf/YAA9nbusGTBEgdBdiXMfyPf7fx0KjUqy/eihnAuVFiW3+gwbNS1c/yC8miArVBGAS+kyfrHFo3Wfv5Vinz3vYxh21jpdQvLrqSCxwW5s/dQjbG82v+HxbWXohwbVsmvamX3n8TLIGxTDH4No1igCagK9pCvs5azKJocxbCQh5QZQbkGP8Ew7WaRTuXucWycIcy2oRMkGlslscPbaysFc/+7QUqdifZK8qsqEbe/o+iWVRKtQqVLCktwIDAQAB"
+    }
+
+    google_site_verification = {
+      key   = "mppc52chhwxw"
+      value = "jk7rvyosvozhpf"
+    }
+  }
 }
 
 gsuite_users = {
