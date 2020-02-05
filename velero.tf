@@ -61,9 +61,10 @@ resource "aws_iam_access_key" "velero" {
 # TODO: Set `metrics.enabled` and `metrics.serviceMonitor.enabled`.
 # TODO: Add schedules.
 resource "helm_release" "velero" {
-  name      = "velero"
-  chart     = "stable/velero"
-  namespace = "velero"
+  name       = "velero"
+  chart      = "velero"
+  repository = data.helm_repository.stable.metadata[0].name
+  namespace  = "velero"
 
   set {
     name  = "image.tag"

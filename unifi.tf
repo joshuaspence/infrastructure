@@ -8,8 +8,9 @@ variable "unifi_config" {
 
 # TODO: Use external MongoDB (see `mongodb.*` and `persistence.*`).
 resource "helm_release" "unifi" {
-  name  = "unifi"
-  chart = "stable/unifi"
+  name       = "unifi"
+  chart      = "unifi"
+  repository = data.helm_repository.stable.metadata[0].name
 
   set {
     name  = "image.tag"

@@ -65,7 +65,12 @@ provider "helm" {
     config_context = var.kubernetes_config_context
   }
 
-  version = ">= 0.10.4"
+  version = ">= 1.0.0"
+}
+
+data "helm_repository" "stable" {
+  name = "stable"
+  url  = "https://kubernetes-charts.storage.googleapis.com"
 }
 
 #===============================================================================

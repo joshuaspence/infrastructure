@@ -8,8 +8,9 @@ variable "home_assistant_config" {
 # TODO: Fix network discovery.
 # TODO: Manage configuration using config maps.
 resource "helm_release" "home_assistant" {
-  name  = "home-assistant"
-  chart = "stable/home-assistant"
+  name       = "home-assistant"
+  chart      = "home-assistant"
+  repository = data.helm_repository.stable.metadata[0].name
 
   set {
     name  = "image.tag"
