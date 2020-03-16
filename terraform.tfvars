@@ -62,6 +62,10 @@ gsuite_group_members = {
   dmarc_reports = {
     josh = "OWNER"
   }
+
+  shopping_list = {
+    josh = "OWNER"
+  }
 }
 
 kubernetes_config_context = "minikube"
