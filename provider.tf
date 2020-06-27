@@ -55,32 +55,3 @@ provider "gsuite" {
     "https://www.googleapis.com/auth/apps.groups.settings",
   ]
 }
-
-#===============================================================================
-# Helm
-#===============================================================================
-
-provider "helm" {
-  kubernetes {
-    config_context = var.kubernetes_config_context
-  }
-
-  version = ">= 1.0.0"
-}
-
-data "helm_repository" "stable" {
-  name = "stable"
-  url  = "https://kubernetes-charts.storage.googleapis.com"
-}
-
-#===============================================================================
-# Kubernetes
-#===============================================================================
-
-variable "kubernetes_config_context" {
-  type = string
-}
-
-provider "kubernetes" {
-  config_context = var.kubernetes_config_context
-}

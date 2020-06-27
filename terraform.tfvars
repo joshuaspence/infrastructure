@@ -68,22 +68,4 @@ gsuite_group_members = {
   }
 }
 
-kubernetes_config_context = "minikube"
-primary_domain            = "joshuaspence.com"
-
-home_assistant_config = {
-  host    = "home-assistant.local"
-  version = "0.103.0"
-}
-
-unifi_config = {
-  host     = "unifi.local"
-  timezone = "Australia/Sydney"
-  version  = "5.12.35"
-}
-
-velero_config = {
-  bucket         = "spence-velero"
-  plugin_version = "1.0.0"
-  version        = "1.2.0"
-}
+primary_domain = "joshuaspence.com"
