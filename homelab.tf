@@ -1,5 +1,6 @@
 resource "aws_iam_user" "cert_manager" {
   name = "cert-manager"
+  path = "/homelab/"
 }
 
 resource "aws_iam_access_key" "cert_manager" {
@@ -35,6 +36,7 @@ resource "aws_iam_user_policy" "cert_manager" {
 
 resource "aws_iam_user" "external_dns" {
   name = "external-dns"
+  path = "/homelab/"
 }
 
 resource "aws_iam_access_key" "external_dns" {
@@ -48,11 +50,11 @@ data "aws_iam_policy_document" "external_dns" {
       "route53:ListResourceRecordSets",
     ]
 
-    resources = ["arn:aws:route53:::hostedzone/*"]
+    resources = formatlist("arn:aws:route53:::hostedzone/%s", [aws_route53_zone.main["spence.network"].zone_id])
   }
 
   statement {
-    actions = ["route53:ListHostedZones"]
+    actions   = ["route53:ListHostedZones"]
     resources = ["*"]
   }
 }
