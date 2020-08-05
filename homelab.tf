@@ -3,10 +3,6 @@ resource "aws_iam_user" "external_dns" {
   path = "/homelab/"
 }
 
-resource "aws_iam_access_key" "external_dns" {
-  user = aws_iam_user.external_dns.name
-}
-
 data "aws_iam_policy_document" "external_dns" {
   statement {
     actions = [
@@ -26,4 +22,15 @@ data "aws_iam_policy_document" "external_dns" {
 resource "aws_iam_user_policy" "external_dns" {
   user   = aws_iam_user.external_dns.name
   policy = data.aws_iam_policy_document.external_dns.json
+}
+
+resource "aws_iam_access_key" "external_dns" {
+  user    = aws_iam_user.external_dns.name
+  pgp_key = "keybase:joshuaspence"
+}
+
+output "aws_iam_access_key" {
+  value = {
+    external_dns = aws_iam_access_key.external_dns
+  }
 }
