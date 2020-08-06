@@ -1,3 +1,40 @@
+resource "aws_iam_user" "cert_manager" {
+  name = "cert-manager"
+  path = "/homelab/"
+}
+
+# See https://cert-manager.io/docs/configuration/acme/dns01/route53/#set-up-an-iam-role
+data "aws_iam_policy_document" "cert_manager" {
+  statement {
+    actions   = ["route53:GetChange"]
+    resources = ["arn:aws:route53:::change/*"]
+  }
+
+  statement {
+    actions = [
+      "route53:ChangeResourceRecordSets",
+      "route53:ListResourceRecordSets",
+    ]
+
+    resources = formatlist("arn:aws:route53:::hostedzone/%s", [aws_route53_zone.main["spence.network"].zone_id])
+  }
+
+  statement {
+    actions   = ["route53:ListHostedZonesByName"]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_user_policy" "cert_manager" {
+  user   = aws_iam_user.cert_manager.name
+  policy = data.aws_iam_policy_document.cert_manager.json
+}
+
+resource "aws_iam_access_key" "cert_manager" {
+  user    = aws_iam_user.cert_manager.name
+  pgp_key = "keybase:joshuaspence"
+}
+
 resource "aws_iam_user" "external_dns" {
   name = "external-dns"
   path = "/homelab/"
@@ -31,6 +68,7 @@ resource "aws_iam_access_key" "external_dns" {
 
 output "aws_iam_access_key" {
   value = {
+    cert_manager = aws_iam_access_key.cert_manager
     external_dns = aws_iam_access_key.external_dns
   }
 }
