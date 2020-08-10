@@ -9,9 +9,3 @@ resource "tfe_workspace" "home" {
   organization = tfe_organization.main.name
   operations   = false
 }
-
-resource "tfe_workspace" "home_k8s" {
-  name         = "home-k8s"
-  organization = tfe_organization.main.name
-  operations   = false
-}
