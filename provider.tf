@@ -1,5 +1,19 @@
 terraform {
-  required_version = ">= 0.12.6"
+  required_version = ">= 0.13"
+
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+
+    gsuite = {
+      source = "DeviaVir/gsuite"
+    }
+
+    tfe = {
+      source = "hashicorp/tfe"
+    }
+  }
 
   backend "remote" {
     organization = "spence"
@@ -16,14 +30,29 @@ terraform {
 
 variable "aws_region" {
   type = string
+
+  validation {
+    condition     = can(regex("^[a-z]{2}-[a-z]+-[0-9]$", var.aws_region))
+    error_message = "AWS region should be a valid AWS region."
+  }
 }
 
 variable "aws_profile" {
   type = string
+
+  validation {
+    condition     = contains([for matches in regexall("\\[(.*)\\]", file("~/.aws/credentials")): matches[0]], var.aws_profile)
+    error_message = "AWS profile not found in ~/.aws/credentials."
+  }
 }
 
 variable "aws_account_id" {
   type = string
+
+  validation {
+    condition     = can(regex("^\\d{12}$", var.aws_account_id))
+    error_message = "Invalid AWS account ID."
+  }
 }
 
 provider "aws" {
@@ -38,6 +67,11 @@ provider "aws" {
 
 variable "gsuite_credentials_file" {
   type = string
+
+  validation {
+    condition     = fileexists(var.gsuite_credentials_file)
+    error_message = "Gsuite credentials file does not exist."
+  }
 }
 
 variable "gsuite_impersonated_user_email" {

@@ -17,7 +17,7 @@ resource "gsuite_user" "main" {
 
   # TODO: Remove this.
   lifecycle {
-    ignore_changes = [recovery_email, recovery_phone]
+    ignore_changes = [aliases, recovery_email, recovery_phone]
   }
 }
 

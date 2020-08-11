@@ -11,6 +11,7 @@ variable "domains" {
   }))
 }
 
+# TODO: Add validation.
 variable "primary_domain" {
   type = string
 }
