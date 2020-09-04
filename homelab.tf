@@ -18,11 +18,6 @@ data "aws_iam_policy_document" "cert_manager" {
 
     resources = formatlist("arn:aws:route53:::hostedzone/%s", [aws_route53_zone.main["spence.network"].zone_id])
   }
-
-  statement {
-    actions   = ["route53:ListHostedZonesByName"]
-    resources = ["*"]
-  }
 }
 
 resource "aws_iam_user_policy" "cert_manager" {
