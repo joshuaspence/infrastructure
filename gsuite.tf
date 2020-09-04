@@ -25,6 +25,7 @@ variable "gsuite_group_members" {
   type = object({
     dmarc_reports = map(string)
     shopping_list = map(string)
+    sysadmin      = map(string)
   })
 }
 
@@ -62,6 +63,24 @@ resource "gsuite_group_members" "shopping_list" {
 
   dynamic "member" {
     for_each = var.gsuite_group_members.shopping_list
+
+    content {
+      role  = member.value
+      email = gsuite_user.main[member.key].primary_email
+    }
+  }
+}
+
+resource "gsuite_group" "sysadmin" {
+  email = format("sysadmin@%s", gsuite_domain.main.domain_name)
+  name  = "System Administrators"
+}
+
+resource "gsuite_group_members" "sysadmin" {
+  group_email = gsuite_group.sysadmin.email
+
+  dynamic "member" {
+    for_each = var.gsuite_group_members.sysadmin
 
     content {
       role  = member.value

@@ -66,6 +66,10 @@ gsuite_group_members = {
   shopping_list = {
     josh = "OWNER"
   }
+
+  sysadmin = {
+    josh = "OWNER"
+  }
 }
 
 primary_domain = "joshuaspence.com"
