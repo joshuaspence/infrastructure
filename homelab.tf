@@ -35,6 +35,7 @@ resource "aws_iam_user" "external_dns" {
   path = "/homelab/"
 }
 
+# See https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/aws.md.
 data "aws_iam_policy_document" "external_dns" {
   statement {
     actions = [
