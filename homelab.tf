@@ -68,15 +68,3 @@ output "aws_iam_access_key" {
     external_dns = aws_iam_access_key.external_dns
   }
 }
-
-resource "random_string" "home_assistant_project_suffix" {
-  length  = 5
-  upper   = false
-  special = false
-}
-
-resource "google_project" "home_assistant" {
-  name       = "Home Assistant"
-  project_id = "home-assistant-${random_string.home_assistant_project_suffix.result}"
-  org_id     = data.google_organization.main.org_id
-}
