@@ -10,6 +10,10 @@ terraform {
       source = "hashicorp/google"
     }
 
+    google-beta = {
+      source = "hashicorp/google-beta"
+    }
+
     gsuite = {
       source = "DeviaVir/gsuite"
     }
@@ -70,6 +74,12 @@ provider "aws" {
 #===============================================================================
 
 provider "google" {}
+
+provider "google-beta" {
+  # TODO: Why is this needed?
+  credentials           = pathexpand(var.gsuite_credentials_file)
+  user_project_override = true
+}
 
 data "google_organization" "main" {
   domain = var.primary_domain
