@@ -4,7 +4,9 @@ resource "unifi_site" "default" {
 
 data "unifi_ap_group" "default" {}
 
-data "unifi_user_group" "default" {}
+resource "unifi_user_group" "default" {
+  name = "Default"
+}
 
 resource "unifi_network" "lan" {
   name    = "LAN"
@@ -30,5 +32,5 @@ resource "unifi_wlan" "wifi" {
 
   ap_group_ids  = [data.unifi_ap_group.default.id]
   network_id    = unifi_network.lan.id
-  user_group_id = data.unifi_user_group.default.id
+  user_group_id = unifi_user_group.default.id
 }
