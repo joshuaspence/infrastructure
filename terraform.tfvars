@@ -5,6 +5,8 @@ aws_region     = "ap-southeast-2"
 gsuite_credentials_file        = "~/.gsuite/personal.json"
 gsuite_impersonated_user_email = "josh@joshuaspence.com"
 
+unifi_config_file = "~/.unifi.yaml"
+
 domains = {
   "joshuaspence.com" = {
     dkim = {

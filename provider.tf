@@ -21,6 +21,10 @@ terraform {
     tfe = {
       source = "hashicorp/tfe"
     }
+
+    unifi = {
+      source = "paultyng/unifi"
+    }
   }
 
   backend "remote" {
@@ -119,3 +123,27 @@ provider "gsuite" {
 #===============================================================================
 
 provider "tfe" {}
+
+#===============================================================================
+# Unifi
+#===============================================================================
+
+variable "unifi_config_file" {
+  type = string
+
+  validation {
+    condition     = fileexists(var.unifi_config_file)
+    error_message = "Unifi config file does not exist."
+  }
+}
+
+locals {
+  unifi_config = yamldecode(file(var.unifi_config_file))
+}
+
+provider "unifi" {
+  username       = local.unifi_config.username
+  password       = local.unifi_config.password
+  api_url        = local.unifi_config.api_url
+  allow_insecure = true
+}
