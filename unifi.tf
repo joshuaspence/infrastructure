@@ -2,12 +2,6 @@ resource "unifi_site" "default" {
   description = "Default"
 }
 
-data "unifi_ap_group" "default" {}
-
-resource "unifi_user_group" "default" {
-  name = "Default"
-}
-
 resource "unifi_network" "lan" {
   name    = "LAN"
   purpose = "corporate"
@@ -18,6 +12,12 @@ resource "unifi_network" "lan" {
   dhcp_enabled = true
   dhcp_start   = "10.0.0.6"
   dhcp_stop    = "10.0.0.254"
+}
+
+data "unifi_ap_group" "default" {}
+
+resource "unifi_user_group" "default" {
+  name = "Default"
 }
 
 variable "wifi_passphrase" {
