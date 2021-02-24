@@ -53,7 +53,7 @@ variable "aws_profile" {
   type = string
 
   validation {
-    condition     = contains([for matches in regexall("\\[(.*)\\]", file("~/.aws/credentials")): matches[0]], var.aws_profile)
+    condition     = contains([for matches in regexall("\\[(.*)\\]", file("~/.aws/credentials")) : matches[0]], var.aws_profile)
     error_message = "AWS profile not found in ~/.aws/credentials."
   }
 }
