@@ -74,4 +74,9 @@ gsuite_group_members = {
   }
 }
 
+home_lan = {
+  domain = "local"
+  subnet = "192.168.1.1/24"
+}
+
 primary_domain = "joshuaspence.com"

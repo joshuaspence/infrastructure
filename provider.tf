@@ -145,5 +145,5 @@ provider "unifi" {
   username       = local.unifi_config.username
   password       = local.unifi_config.password
   api_url        = local.unifi_config.api_url
-  allow_insecure = true
+  allow_insecure = local.unifi_config.allow_insecure
 }
