@@ -23,6 +23,17 @@ resource "unifi_network" "lan" {
   domain_name  = var.home_lan.domain
 }
 
+resource "unifi_network" "wan" {
+  name    = "WAN"
+  purpose = "wan"
+
+  network_group    = "LAN"
+  wan_networkgroup = "WAN"
+  wan_ip           = "192.168.1.1"
+  wan_type         = "dhcp"
+  dhcp_lease       = 0
+}
+
 data "unifi_ap_group" "default" {}
 
 resource "unifi_user_group" "default" {
