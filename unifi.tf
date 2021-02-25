@@ -1,5 +1,5 @@
 resource "unifi_site" "default" {
-  description = "Default"
+  description = "Home"
 }
 
 variable "home_lan" {
@@ -32,6 +32,7 @@ resource "unifi_network" "wan" {
   wan_ip           = "192.168.1.1"
   wan_type         = "dhcp"
   dhcp_lease       = 0
+
 }
 
 data "unifi_ap_group" "default" {}
