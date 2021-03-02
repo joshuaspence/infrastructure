@@ -2,6 +2,36 @@ resource "unifi_site" "default" {
   description = "Home"
 }
 
+data "unifi_ap_group" "default" {}
+
+resource "unifi_user_group" "default" {
+  name = "Default"
+}
+
+
+#===============================================================================
+# WAN network
+#===============================================================================
+
+resource "unifi_network" "wan" {
+  name    = "WAN"
+  purpose = "wan"
+
+  wan_ip           = "192.168.1.1"
+  wan_networkgroup = "WAN"
+  wan_type         = "dhcp"
+
+  # TODO: Remove this after https://github.com/paultyng/terraform-provider-unifi/issues/107.
+  lifecycle {
+    ignore_changes = [dhcp_lease, ipv6_interface_type, network_group]
+  }
+}
+
+
+#===============================================================================
+# LAN networks
+#===============================================================================
+
 variable "home_networks" {
   type = map(object({
     name    = string
@@ -29,28 +59,6 @@ resource "unifi_network" "lan" {
   domain_name  = "local"
 
   for_each = var.home_networks
-}
-
-resource "unifi_network" "wan" {
-  name    = "WAN"
-  purpose = "wan"
-
-  network_group    = "WAN"
-  wan_networkgroup = "WAN"
-  wan_ip           = "192.168.1.1"
-  wan_type         = "dhcp"
-  dhcp_lease       = 0
-
-  # TODO: Remove this.
-  lifecycle {
-    ignore_changes = [ipv6_interface_type, network_group]
-  }
-}
-
-data "unifi_ap_group" "default" {}
-
-resource "unifi_user_group" "default" {
-  name = "Default"
 }
 
 resource "unifi_wlan" "wifi" {
