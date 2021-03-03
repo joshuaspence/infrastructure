@@ -24,11 +24,10 @@ resource "unifi_network" "main" {
   network_group = "LAN"
   vlan_id       = var.home_networks.main.vlan
   subnet        = var.home_networks.main.subnet
-
-  domain_name  = "local"
-  dhcp_enabled = true
-  dhcp_start   = cidrhost(var.home_networks.main.subnet, 6)
-  dhcp_stop    = cidrhost(var.home_networks.main.subnet, -2)
+  domain_name   = "local"
+  dhcp_enabled  = true
+  dhcp_start    = cidrhost(var.home_networks.main.subnet, 6)
+  dhcp_stop     = cidrhost(var.home_networks.main.subnet, -2)
 }
 
 resource "unifi_network" "iot" {
@@ -38,11 +37,10 @@ resource "unifi_network" "iot" {
   network_group = "LAN"
   vlan_id       = var.home_networks.iot.vlan
   subnet        = var.home_networks.iot.subnet
-
-  domain_name  = "local"
-  dhcp_enabled = true
-  dhcp_start   = cidrhost(var.home_networks.iot.subnet, 6)
-  dhcp_stop    = cidrhost(var.home_networks.iot.subnet, -2)
+  domain_name   = "local"
+  dhcp_enabled  = true
+  dhcp_start    = cidrhost(var.home_networks.iot.subnet, 6)
+  dhcp_stop     = cidrhost(var.home_networks.iot.subnet, -2)
 }
 
 resource "unifi_network" "not" {
@@ -52,9 +50,8 @@ resource "unifi_network" "not" {
   network_group = "LAN"
   vlan_id       = var.home_networks.not.vlan
   subnet        = var.home_networks.not.subnet
-
-  domain_name  = "local"
-  dhcp_enabled = true
-  dhcp_start   = cidrhost(var.home_networks.not.subnet, 6)
-  dhcp_stop    = cidrhost(var.home_networks.not.subnet, -2)
+  domain_name   = "local"
+  dhcp_enabled  = true
+  dhcp_start    = cidrhost(var.home_networks.not.subnet, 6)
+  dhcp_stop     = cidrhost(var.home_networks.not.subnet, -2)
 }
