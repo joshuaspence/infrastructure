@@ -32,42 +32,117 @@ resource "unifi_network" "wan" {
 #===============================================================================
 
 variable "home_networks" {
-  type = map(object({
-    name    = string
-    vlan_id = number
-    subnet  = string
+  type = object({
+    main = object({
+      subnet = string
+      vlan   = number
+    })
 
-    wifi = object({
+    iot = object({
+      subnet = string
+      vlan   = number
+    })
+
+    not = object({
+      subnet = string
+      vlan   = number
+    })
+  })
+}
+
+resource "unifi_network" "main" {
+  name    = "LAN"
+  purpose = "corporate"
+
+  network_group = "LAN"
+  vlan_id       = var.home_networks.main.vlan
+  subnet        = var.home_networks.main.subnet
+
+  domain_name  = "local"
+  dhcp_enabled = true
+  dhcp_start   = cidrhost(var.home_networks.main.subnet, 6)
+  dhcp_stop    = cidrhost(var.home_networks.main.subnet, -2)
+}
+
+resource "unifi_network" "iot" {
+  name    = "IoT"
+  purpose = "corporate"
+
+  network_group = "LAN"
+  vlan_id       = var.home_networks.iot.vlan
+  subnet        = var.home_networks.iot.subnet
+
+  domain_name  = "local"
+  dhcp_enabled = true
+  dhcp_start   = cidrhost(var.home_networks.iot.subnet, 6)
+  dhcp_stop    = cidrhost(var.home_networks.iot.subnet, -2)
+}
+
+resource "unifi_network" "not" {
+  name    = "NoT"
+  purpose = "corporate"
+
+  network_group = "LAN"
+  vlan_id       = var.home_networks.not.vlan
+  subnet        = var.home_networks.not.subnet
+
+  domain_name  = "local"
+  dhcp_enabled = true
+  dhcp_start   = cidrhost(var.home_networks.not.subnet, 6)
+  dhcp_stop    = cidrhost(var.home_networks.not.subnet, -2)
+}
+
+
+#===============================================================================
+# WLAN networks
+#===============================================================================
+
+variable "home_wifi" {
+  type = object({
+    main = object({
       ssid       = string
       passphrase = string
     })
-  }))
+
+    iot = object({
+      ssid       = string
+      passphrase = string
+    })
+
+    not = object({
+      ssid       = string
+      passphrase = string
+    })
+  })
 }
 
-resource "unifi_network" "lan" {
-  name    = each.value.name
-  purpose = "corporate"
 
-  vlan_id       = each.value.vlan_id
-  subnet        = each.value.subnet
-  network_group = "LAN"
-
-  dhcp_enabled = true
-  dhcp_start   = cidrhost(each.value.subnet, 6)
-  dhcp_stop    = cidrhost(each.value.subnet, -2)
-  domain_name  = "local"
-
-  for_each = var.home_networks
-}
-
-resource "unifi_wlan" "wifi" {
-  name       = each.value.wifi.ssid
+resource "unifi_wlan" "main" {
+  name       = var.home_wifi.main.ssid
   security   = "wpapsk"
-  passphrase = each.value.wifi.passphrase
+  passphrase = var.home_wifi.main.passphrase
 
+  network_id    = unifi_network.main.id
   ap_group_ids  = [data.unifi_ap_group.default.id]
-  network_id    = unifi_network.lan[each.key].id
   user_group_id = unifi_user_group.default.id
+}
 
-  for_each = var.home_networks
+resource "unifi_wlan" "iot" {
+  name       = var.home_wifi.iot.ssid
+  security   = "wpapsk"
+  passphrase = var.home_wifi.iot.passphrase
+
+  network_id    = unifi_network.iot.id
+  ap_group_ids  = [data.unifi_ap_group.default.id]
+  user_group_id = unifi_user_group.default.id
+}
+
+resource "unifi_wlan" "not" {
+  name       = var.home_wifi.not.ssid
+  security   = "wpapsk"
+  passphrase = var.home_wifi.not.passphrase
+
+  network_id    = unifi_network.not.id
+  ap_group_ids  = [data.unifi_ap_group.default.id]
+  user_group_id = unifi_user_group.default.id
 }

@@ -74,4 +74,22 @@ gsuite_group_members = {
   }
 }
 
+home_networks = {
+  # TODO: Move this to `192.168.0.0/24`.
+  main = {
+    subnet = "192.168.1.0/24"
+    vlan   = null
+  }
+
+  iot = {
+    subnet = "192.168.10.0/24"
+    vlan   = 10
+  }
+
+  not = {
+    subnet = "192.168.20.0/24"
+    vlan   = 20
+  }
+}
+
 primary_domain = "joshuaspence.com"
