@@ -19,30 +19,27 @@ variable "home_wifi" {
 
 
 resource "unifi_wlan" "main" {
-  name       = var.home_wifi.main.ssid
-  security   = "wpapsk"
-  passphrase = var.home_wifi.main.passphrase
-
+  name          = var.home_wifi.main.ssid
+  security      = "wpapsk"
+  passphrase    = var.home_wifi.main.passphrase
   network_id    = unifi_network.main.id
   ap_group_ids  = [data.unifi_ap_group.default.id]
   user_group_id = unifi_user_group.default.id
 }
 
 resource "unifi_wlan" "iot" {
-  name       = var.home_wifi.iot.ssid
-  security   = "wpapsk"
-  passphrase = var.home_wifi.iot.passphrase
-
+  name          = var.home_wifi.iot.ssid
+  security      = "wpapsk"
+  passphrase    = var.home_wifi.iot.passphrase
   network_id    = unifi_network.iot.id
   ap_group_ids  = [data.unifi_ap_group.default.id]
   user_group_id = unifi_user_group.default.id
 }
 
 resource "unifi_wlan" "not" {
-  name       = var.home_wifi.not.ssid
-  security   = "wpapsk"
-  passphrase = var.home_wifi.not.passphrase
-
+  name          = var.home_wifi.not.ssid
+  security      = "wpapsk"
+  passphrase    = var.home_wifi.not.passphrase
   network_id    = unifi_network.not.id
   ap_group_ids  = [data.unifi_ap_group.default.id]
   user_group_id = unifi_user_group.default.id
