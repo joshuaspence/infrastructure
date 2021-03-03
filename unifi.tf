@@ -25,21 +25,22 @@ resource "unifi_network" "wan" {
 
 
 
-variable "unifi_users" {
+variable "unifi_clients" {
   type = map(object({
-    mac      = string
-    name     = string
-    note     = optional(string)
+    mac  = string
+    name = string
+    note = optional(string)
+
     network  = optional(string)
     fixed_ip = optional(string)
   }))
 }
 
 locals {
-  network_ids = {
-    main = unifi_network.main.id
-    iot  = unifi_network.iot.id
-    not  = unifi_network.not.id
+  unifi_networks = {
+    main = unifi_network.main
+    iot  = unifi_network.iot
+    not  = unifi_network.not
   }
 }
 
@@ -48,8 +49,8 @@ resource "unifi_user" "client" {
   name = each.value.name
   note = each.value.note
 
-  network_id = each.value.network != null ? local.network_ids[each.value.network] : null
+  network_id = each.value.network != null ? local.unifi_networks[each.value.network].id : null
   fixed_ip   = each.value.fixed_ip
 
-  for_each = var.unifi_users
+  for_each = var.unifi_clients
 }

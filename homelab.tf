@@ -67,4 +67,6 @@ output "aws_iam_access_key" {
     cert_manager = aws_iam_access_key.cert_manager
     external_dns = aws_iam_access_key.external_dns
   }
+
+  sensitive = true
 }
