@@ -35,7 +35,10 @@ terraform {
     }
   }
 
-  experiments = [module_variable_optional_attrs]
+  experiments = [
+    module_variable_optional_attrs,
+    provider_sensitive_attrs,
+  ]
 }
 
 #===============================================================================

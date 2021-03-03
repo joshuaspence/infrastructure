@@ -21,6 +21,10 @@ resource "unifi_network" "wan" {
   }
 }
 
+
+
+
+
 variable "unifi_users" {
   type = map(object({
     mac      = string
@@ -40,11 +44,12 @@ locals {
 }
 
 resource "unifi_user" "client" {
-  mac        = each.value.mac
-  name       = each.value.name
-  fixed_ip   = each.value.fixed_ip
+  mac  = each.value.mac
+  name = each.value.name
+  note = each.value.note
+
   network_id = each.value.network != null ? local.network_ids[each.value.network] : null
-  note       = each.value.note
+  fixed_ip   = each.value.fixed_ip
 
   for_each = var.unifi_users
 }
