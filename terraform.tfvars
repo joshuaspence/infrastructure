@@ -75,7 +75,6 @@ gsuite_group_members = {
 }
 
 home_networks = {
-  # TODO: Move this to `192.168.0.0/24`.
   main = {
     subnet = "192.168.1.0/24"
     vlan   = null
