@@ -1,3 +1,7 @@
+/**
+ * TODO: There are a lot of extra settings available in the UI.
+ */
+
 variable "home_wifi" {
   type = object({
     main = object({
