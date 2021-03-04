@@ -2,8 +2,6 @@ resource "unifi_site" "default" {
   description = "Home"
 }
 
-data "unifi_ap_group" "default" {}
-
 resource "unifi_user_group" "default" {
   name = "Default"
 }
@@ -20,10 +18,6 @@ resource "unifi_network" "wan" {
     ignore_changes = [dhcp_lease, ipv6_interface_type, network_group, wan_ip]
   }
 }
-
-
-
-
 
 variable "unifi_clients" {
   type = map(object({

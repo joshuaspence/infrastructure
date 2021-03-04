@@ -2,6 +2,8 @@
  * TODO: There are a lot of extra settings available in the UI.
  */
 
+data "unifi_ap_group" "default" {}
+
 variable "home_wifi" {
   type = object({
     main = object({
