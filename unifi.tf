@@ -28,7 +28,7 @@ resource "unifi_network" "wan" {
 variable "unifi_clients" {
   type = map(object({
     mac  = string
-    name = string
+    name = optional(string)
     note = optional(string)
 
     network  = optional(string)
@@ -46,7 +46,7 @@ locals {
 
 resource "unifi_user" "client" {
   mac  = each.value.mac
-  name = each.value.name
+  name = coalesce(each.value.name, title(replace(each.key, "_", " ")))
   note = each.value.note
 
   network_id = each.value.network != null ? local.unifi_networks[each.value.network].id : null
