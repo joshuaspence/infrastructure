@@ -35,14 +35,3 @@ resource "unifi_user" "client" {
 
   for_each = var.unifi_clients
 }
-
-/**
- * TODO: Manage data from the following API endpoints:
- *
- * - `/api/s/${SITE}/rest/dynamicdns`
- * - `/api/s/${SITE}/rest/routing`
- * - `/api/s/${SITE}/rest/setting`
- * - `/api/s/${SITE}/self`
- * - `/api/s/${SITE}/stat/device` / `/api/s/${SITE}/rest/device/${ID}`
- * - `/api/s/${SITE}/stat/sysinfo`
- */
