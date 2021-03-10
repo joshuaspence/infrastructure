@@ -23,7 +23,8 @@ terraform {
     }
 
     unifi = {
-      source = "paultyng/unifi"
+      source  = "paultyng/unifi"
+      version = ">= 0.22.0"
     }
   }
 

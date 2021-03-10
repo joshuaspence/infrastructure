@@ -13,9 +13,10 @@ resource "unifi_network" "wan" {
 
 # TODO: Set `icmp_typename`, see https://github.com/paultyng/terraform-provider-unifi/pull/108.
 resource "unifi_firewall_rule" "wan_ping" {
-  name       = "ICMP Ping"
-  ruleset    = "WAN_LOCAL"
-  rule_index = 2000
-  action     = "accept"
-  protocol   = "icmp"
+  name          = "ICMP Ping"
+  ruleset       = "WAN_LOCAL"
+  rule_index    = 2000
+  action        = "accept"
+  protocol      = "icmp"
+  icmp_typename = "echo-request"
 }
