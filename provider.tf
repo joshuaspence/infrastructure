@@ -139,7 +139,12 @@ variable "unifi_config_file" {
 
   validation {
     condition     = fileexists(var.unifi_config_file)
-    error_message = "Unifi config file does not exist."
+    error_message = "Unifi configuration file does not exist."
+  }
+
+  validation {
+    condition     = can(yamldecode(file(var.unifi_config_file)))
+    error_message = "Unifi configuration file does not contain valid YAML."
   }
 }
 
