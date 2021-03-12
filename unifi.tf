@@ -1,9 +1,3 @@
-/**
- * TODO: Manage the following resources:
- *
- * - Devices and device settings (see https://github.com/paultyng/terraform-provider-unifi/issues/15).
- */
-
 resource "unifi_site" "default" {
   description = "Home"
 }
