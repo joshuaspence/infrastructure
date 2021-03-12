@@ -33,17 +33,33 @@ resource "unifi_firewall_rule" "not_ntp" {
   protocol   = "udp"
   rule_index = 2000
   ruleset    = "WAN_OUT"
-  logging    = true
 
   src_network_id = unifi_network.not.id
   dst_port       = 123
 }
 
-resource "unifi_firewall_rule" "not_wan" {
+resource "unifi_firewall_group" "not_wan_silent" {
+  name    = "NoT WAN Silent Ports"
+  type    = "port-group"
+  members = [80, 443, 50443, 60443]
+}
+
+resource "unifi_firewall_rule" "not_wan_silent" {
   name       = "Drop outbound NoT WAN traffic"
   action     = "drop"
   protocol   = "all"
   rule_index = 2100
+  ruleset    = "WAN_OUT"
+
+  src_network_id         = unifi_network.not.id
+  dst_firewall_group_ids = [unifi_firewall_group.not_wan_silent.id]
+}
+
+resource "unifi_firewall_rule" "not_wan_logged" {
+  name       = "Drop outbound NoT WAN traffic"
+  action     = "drop"
+  protocol   = "all"
+  rule_index = 2101
   ruleset    = "WAN_OUT"
   logging    = true
 
