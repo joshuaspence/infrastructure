@@ -1,11 +1,3 @@
-resource "unifi_site" "default" {
-  description = "Home"
-}
-
-resource "unifi_user_group" "default" {
-  name = "Default"
-}
-
 variable "unifi_clients" {
   type = map(object({
     mac  = string
@@ -17,21 +9,48 @@ variable "unifi_clients" {
   }))
 }
 
-locals {
-  unifi_networks = {
-    main = unifi_network.main
-    iot  = unifi_network.iot
-    not  = unifi_network.not
-  }
+variable "home_networks" {
+  type = object({
+    main = object({
+      subnet = string
+      vlan   = number
+    })
+
+    iot = object({
+      subnet = string
+      vlan   = number
+    })
+
+    not = object({
+      subnet = string
+      vlan   = number
+    })
+  })
 }
 
-resource "unifi_user" "client" {
-  mac  = each.value.mac
-  name = coalesce(each.value.name, title(replace(each.key, "_", " ")))
-  note = each.value.note
+variable "home_wifi" {
+  type = object({
+    main = object({
+      ssid       = string
+      passphrase = string
+    })
 
-  network_id = each.value.network != null ? local.unifi_networks[each.value.network].id : null
-  fixed_ip   = each.value.fixed_ip
+    iot = object({
+      ssid       = string
+      passphrase = string
+    })
 
-  for_each = var.unifi_clients
+    not = object({
+      ssid       = string
+      passphrase = string
+    })
+  })
+}
+
+module "unifi" {
+  source = "./unifi"
+
+  home_networks = var.home_networks
+  home_wifi     = var.home_wifi
+  unifi_clients = var.unifi_clients
 }
