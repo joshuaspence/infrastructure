@@ -1,7 +1,3 @@
-/**
- * TODO: There are a lot of extra settings available in the UI.
- */
-
 data "unifi_ap_group" "default" {}
 
 resource "unifi_wlan" "main" {
