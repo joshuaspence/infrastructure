@@ -24,5 +24,3 @@ resource "unifi_user" "client" {
 
   for_each = var.clients
 }
-
-data "unifi_ap_group" "default" {}
