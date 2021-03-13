@@ -6,17 +6,6 @@ resource "unifi_user_group" "default" {
   name = "Default"
 }
 
-variable "unifi_clients" {
-  type = map(object({
-    mac  = string
-    name = optional(string)
-    note = optional(string)
-
-    network  = optional(string)
-    fixed_ip = optional(string)
-  }))
-}
-
 locals {
   unifi_networks = {
     main = unifi_network.main
@@ -33,5 +22,5 @@ resource "unifi_user" "client" {
   network_id = each.value.network != null ? local.unifi_networks[each.value.network].id : null
   fixed_ip   = each.value.fixed_ip
 
-  for_each = var.unifi_clients
+  for_each = var.clients
 }

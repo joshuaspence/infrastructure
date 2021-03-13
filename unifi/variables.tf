@@ -1,4 +1,4 @@
-variable "unifi_clients" {
+variable "clients" {
   type = map(object({
     mac  = string
     name = optional(string)
@@ -9,7 +9,7 @@ variable "unifi_clients" {
   }))
 }
 
-variable "home_networks" {
+variable "networks" {
   type = object({
     main = object({
       subnet = string
@@ -28,7 +28,7 @@ variable "home_networks" {
   })
 }
 
-variable "home_wifi" {
+variable "wlans" {
   type = object({
     main = object({
       ssid       = string
@@ -45,12 +45,4 @@ variable "home_wifi" {
       passphrase = string
     })
   })
-}
-
-module "unifi" {
-  source = "./unifi"
-
-  clients  = var.unifi_clients
-  networks = var.home_networks
-  wlans    = var.home_wifi
 }

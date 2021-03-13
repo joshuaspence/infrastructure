@@ -4,30 +4,10 @@
 
 data "unifi_ap_group" "default" {}
 
-variable "home_wifi" {
-  type = object({
-    main = object({
-      ssid       = string
-      passphrase = string
-    })
-
-    iot = object({
-      ssid       = string
-      passphrase = string
-    })
-
-    not = object({
-      ssid       = string
-      passphrase = string
-    })
-  })
-}
-
-
 resource "unifi_wlan" "main" {
-  name          = var.home_wifi.main.ssid
+  name          = var.wlans.main.ssid
   security      = "wpapsk"
-  passphrase    = var.home_wifi.main.passphrase
+  passphrase    = var.wlans.main.passphrase
   network_id    = unifi_network.main.id
   ap_group_ids  = [data.unifi_ap_group.default.id]
   user_group_id = unifi_user_group.default.id
@@ -37,9 +17,9 @@ resource "unifi_wlan" "main" {
 }
 
 resource "unifi_wlan" "iot" {
-  name          = var.home_wifi.iot.ssid
+  name          = var.wlans.iot.ssid
   security      = "wpapsk"
-  passphrase    = var.home_wifi.iot.passphrase
+  passphrase    = var.wlans.iot.passphrase
   network_id    = unifi_network.iot.id
   ap_group_ids  = [data.unifi_ap_group.default.id]
   user_group_id = unifi_user_group.default.id
@@ -49,9 +29,9 @@ resource "unifi_wlan" "iot" {
 }
 
 resource "unifi_wlan" "not" {
-  name          = var.home_wifi.not.ssid
+  name          = var.wlans.not.ssid
   security      = "wpapsk"
-  passphrase    = var.home_wifi.not.passphrase
+  passphrase    = var.wlans.not.passphrase
   network_id    = unifi_network.not.id
   ap_group_ids  = [data.unifi_ap_group.default.id]
   user_group_id = unifi_user_group.default.id
