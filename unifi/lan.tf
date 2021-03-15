@@ -16,6 +16,7 @@ resource "unifi_wlan" "main" {
   security      = "wpapsk"
   passphrase    = var.wlans.main.passphrase
   network_id    = unifi_network.main.id
+  ap_group_ids  = [data.unifi_ap_group.default.id]
   user_group_id = unifi_user_group.default.id
 
   no2ghz_oui = false
