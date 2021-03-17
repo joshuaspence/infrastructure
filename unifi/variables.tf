@@ -10,39 +10,15 @@ variable "clients" {
 }
 
 variable "networks" {
-  type = object({
-    main = object({
-      subnet = string
-      vlan   = number
-    })
-
-    iot = object({
-      subnet = string
-      vlan   = number
-    })
-
-    not = object({
-      subnet = string
-      vlan   = number
-    })
-  })
+  type = map(object({
+    subnet = string
+    vlan   = number
+  }))
 }
 
 variable "wlans" {
-  type = object({
-    main = object({
-      ssid       = string
-      passphrase = string
-    })
-
-    iot = object({
-      ssid       = string
-      passphrase = string
-    })
-
-    not = object({
-      ssid       = string
-      passphrase = string
-    })
-  })
+  type = map(object({
+    ssid       = string
+    passphrase = string
+  }))
 }
