@@ -7,6 +7,6 @@ resource "unifi_network" "wan" {
 
   # TODO: Remove this after https://github.com/paultyng/terraform-provider-unifi/issues/107.
   lifecycle {
-    ignore_changes = [dhcp_lease, ipv6_interface_type, network_group, wan_ip]
+    ignore_changes = [dhcp_lease, ipv6_interface_type, network_group]
   }
 }
