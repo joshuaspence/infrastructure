@@ -13,7 +13,7 @@ variable "networks" {
   type = map(object({
     name   = string
     subnet = string
-    vlan   = number
+    vlan   = optional(number)
 
     wifi = object({
       ssid       = string
