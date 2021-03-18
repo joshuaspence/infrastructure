@@ -9,7 +9,7 @@ variable "unifi_clients" {
   }))
 }
 
-variable "home_networks" {
+variable "unifi_networks" {
   type = map(object({
     name   = string
     subnet = string
@@ -26,5 +26,5 @@ module "unifi" {
   source = "./unifi"
 
   clients  = var.unifi_clients
-  networks = var.home_networks
+  networks = var.unifi_networks
 }
