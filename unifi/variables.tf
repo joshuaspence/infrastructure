@@ -14,12 +14,10 @@ variable "networks" {
     name   = string
     subnet = string
     vlan   = number
-  }))
-}
 
-variable "wlans" {
-  type = map(object({
-    ssid       = string
-    passphrase = string
+    wifi = object({
+      ssid       = string
+      passphrase = string
+    })
   }))
 }

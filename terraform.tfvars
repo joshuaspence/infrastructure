@@ -74,24 +74,4 @@ gsuite_group_members = {
   }
 }
 
-home_networks = {
-  main = {
-    name   = "LAN"
-    subnet = "192.168.1.0/24"
-    vlan   = null
-  }
-
-  iot = {
-    name   = "IoT"
-    subnet = "192.168.10.0/24"
-    vlan   = 10
-  }
-
-  not = {
-    name   = "NoT"
-    subnet = "192.168.20.0/24"
-    vlan   = 20
-  }
-}
-
 primary_domain = "joshuaspence.com"

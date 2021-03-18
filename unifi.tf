@@ -14,13 +14,11 @@ variable "home_networks" {
     name   = string
     subnet = string
     vlan   = number
-  }))
-}
 
-variable "home_wlans" {
-  type = map(object({
-    ssid       = string
-    passphrase = string
+    wifi = object({
+      ssid       = string
+      passphrase = string
+    })
   }))
 }
 
@@ -29,5 +27,4 @@ module "unifi" {
 
   clients  = var.unifi_clients
   networks = var.home_networks
-  wlans    = var.home_wlans
 }
