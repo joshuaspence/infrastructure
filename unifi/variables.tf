@@ -11,6 +11,7 @@ variable "clients" {
 
 variable "networks" {
   type = map(object({
+    name   = string
     subnet = string
     vlan   = number
   }))

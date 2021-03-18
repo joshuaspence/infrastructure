@@ -11,6 +11,7 @@ variable "unifi_clients" {
 
 variable "home_networks" {
   type = map(object({
+    name   = string
     subnet = string
     vlan   = number
   }))

@@ -1,19 +1,3 @@
-locals {
-  networks = {
-    main = {
-      name = "LAN"
-    }
-
-    iot = {
-      name = "IoT"
-    }
-
-    not = {
-      name = "NoT"
-    }
-  }
-}
-
 resource "unifi_network" "network" {
   name    = each.value.name
   purpose = "corporate"
@@ -26,7 +10,7 @@ resource "unifi_network" "network" {
   dhcp_start    = cidrhost(var.networks[each.key].subnet, 6)
   dhcp_stop     = cidrhost(var.networks[each.key].subnet, -2)
 
-  for_each = local.networks
+  for_each = var.networks
 }
 
 resource "unifi_wlan" "wlan" {
@@ -40,5 +24,5 @@ resource "unifi_wlan" "wlan" {
   no2ghz_oui = false
   wlan_band  = "both"
 
-  for_each = local.networks
+  for_each = var.networks
 }
