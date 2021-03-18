@@ -1,7 +1,7 @@
 resource "unifi_firewall_group" "iot_not" {
   name    = "IoT and NoT networks"
   type    = "address-group"
-  members = [unifi_network.iot.subnet, unifi_network.not.subnet]
+  members = [unifi_network.network["iot"].subnet, unifi_network.network["not"].subnet]
 }
 
 resource "unifi_firewall_rule" "lan_established" {
@@ -34,7 +34,7 @@ resource "unifi_firewall_rule" "not_ntp" {
   rule_index = 2000
   ruleset    = "WAN_OUT"
 
-  src_network_id = unifi_network.not.id
+  src_network_id = unifi_network.network["not"].id
   dst_port       = 123
 }
 
@@ -51,7 +51,7 @@ resource "unifi_firewall_rule" "not_wan_silent" {
   rule_index = 2100
   ruleset    = "WAN_OUT"
 
-  src_network_id         = unifi_network.not.id
+  src_network_id         = unifi_network.network["not"].id
   dst_firewall_group_ids = [unifi_firewall_group.not_wan_silent.id]
 }
 
@@ -63,5 +63,5 @@ resource "unifi_firewall_rule" "not_wan_logged" {
   ruleset    = "WAN_OUT"
   logging    = true
 
-  src_network_id = unifi_network.not.id
+  src_network_id = unifi_network.network["not"].id
 }
