@@ -9,7 +9,7 @@ resource "unifi_firewall_rule" "lan_established" {
   action     = "accept"
   protocol   = "all"
   rule_index = 2000
-  ruleset    = "LAN_OUT"
+  ruleset    = "LAN_IN"
 
   src_firewall_group_ids = [unifi_firewall_group.iot_not.id]
   state_established      = true
@@ -21,7 +21,7 @@ resource "unifi_firewall_rule" "lan_outbound" {
   action     = "drop"
   protocol   = "all"
   rule_index = 2100
-  ruleset    = "LAN_OUT"
+  ruleset    = "LAN_IN"
   logging    = true
 
   src_firewall_group_ids = [unifi_firewall_group.iot_not.id]
