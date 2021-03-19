@@ -5,15 +5,17 @@ resource "unifi_firewall_group" "iot_not" {
 }
 
 resource "unifi_firewall_rule" "lan_established" {
-  name       = "Allow established/related"
+  ruleset    = "LAN_IN"
+  rule_index = 2000
+  name       = "Allow established/related connections to LAN network"
   action     = "accept"
   protocol   = "all"
-  rule_index = 2000
-  ruleset    = "LAN_IN"
+
+  state_established = true
+  state_related     = true
 
   src_firewall_group_ids = [unifi_firewall_group.iot_not.id]
-  state_established      = true
-  state_related          = true
+  dst_network_id         = unifi_network.network["main"].id
 }
 
 resource "unifi_firewall_rule" "lan_outbound" {
