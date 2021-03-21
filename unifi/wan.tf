@@ -5,6 +5,7 @@ resource "unifi_network" "wan" {
 
   wan_networkgroup = "WAN"
   wan_type         = "dhcp"
+  wan_dns          = ["1.1.1.1", "8.8.8.8"]
 
   # TODO: Remove this after https://github.com/paultyng/terraform-provider-unifi/issues/107.
   lifecycle {
