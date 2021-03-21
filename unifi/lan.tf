@@ -7,6 +7,7 @@ resource "unifi_network" "network" {
   vlan_id       = var.networks[each.key].vlan
   subnet        = var.networks[each.key].subnet
   domain_name   = "local"
+  igmp_snooping = true
   dhcp_enabled  = true
   dhcp_start    = cidrhost(var.networks[each.key].subnet, 6)
   dhcp_stop     = cidrhost(var.networks[each.key].subnet, -2)
