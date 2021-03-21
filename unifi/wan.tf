@@ -1,3 +1,4 @@
+# TODO: Set `wan_dns1` and `wan_dns2`.
 resource "unifi_network" "wan" {
   name    = "WAN"
   purpose = "wan"
