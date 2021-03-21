@@ -5,7 +5,7 @@ resource "unifi_firewall_group" "iot_not" {
 }
 
 resource "unifi_firewall_rule" "lan_established" {
-  ruleset    = "LAN_IN"
+  ruleset    = "LAN_OUT"
   rule_index = 2000
   name       = "Allow established/related connections to LAN network"
   action     = "accept"
@@ -19,7 +19,7 @@ resource "unifi_firewall_rule" "lan_established" {
 }
 
 resource "unifi_firewall_rule" "lan_outbound" {
-  ruleset    = "LAN_IN"
+  ruleset    = "LAN_OUT"
   rule_index = 2100
   name       = "Drop outbound IoT/NoT LAN traffic"
   action     = "drop"
