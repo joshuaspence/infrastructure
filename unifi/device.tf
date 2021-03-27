@@ -1,11 +1,11 @@
 resource "unifi_device" "access_point" {
-  name = "UAP-nanoHD"
+  name = "Access Point"
 }
 
 resource "unifi_device" "gateway" {
-  name = "USG-Pro-4"
+  name = "Gateway"
 }
 
 resource "unifi_device" "switch" {
-  name = "US-24-250W"
+  name = "Switch"
 }
