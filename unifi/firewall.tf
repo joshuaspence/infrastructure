@@ -8,11 +8,11 @@ resource "unifi_firewall_group" "xot" {
   ]
 }
 
-resource "unifi_firewall_rule" "lan_established" {
+resource "unifi_firewall_rule" "established" {
   ruleset    = "LAN_OUT"
   rule_index = 2000
 
-  name     = "Allow established/related connections to LAN network"
+  name     = "Allow established/related connections from XoT to main network"
   action   = "accept"
   protocol = "all"
 
