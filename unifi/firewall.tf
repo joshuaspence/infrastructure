@@ -1,7 +1,11 @@
-resource "unifi_firewall_group" "iot_not" {
-  name    = "IoT and NoT networks"
-  type    = "address-group"
-  members = [unifi_network.network["iot"].subnet, unifi_network.network["not"].subnet]
+resource "unifi_firewall_group" "xot" {
+  name = "XoT Networks"
+  type = "address-group"
+
+  members = [
+    unifi_network.network["iot"].subnet,
+    unifi_network.network["not"].subnet,
+  ]
 }
 
 resource "unifi_firewall_rule" "lan_established" {
@@ -15,7 +19,7 @@ resource "unifi_firewall_rule" "lan_established" {
   state_established = true
   state_related     = true
 
-  src_firewall_group_ids = [unifi_firewall_group.iot_not.id]
+  src_firewall_group_ids = [unifi_firewall_group.xot.id]
   dst_network_id         = unifi_network.network["main"].id
 }
 
@@ -28,7 +32,7 @@ resource "unifi_firewall_rule" "lan_outbound" {
   protocol = "all"
   logging  = true
 
-  src_firewall_group_ids = [unifi_firewall_group.iot_not.id]
+  src_firewall_group_ids = [unifi_firewall_group.xot.id]
 }
 
 resource "unifi_firewall_rule" "not_ntp" {
