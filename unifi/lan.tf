@@ -4,21 +4,21 @@ resource "unifi_network" "network" {
   purpose = "corporate"
 
   network_group = "LAN"
-  vlan_id       = var.networks[each.key].vlan
-  subnet        = var.networks[each.key].subnet
+  vlan_id       = each.value.vlan
+  subnet        = each.value.subnet
   domain_name   = "local"
   igmp_snooping = true
   dhcp_enabled  = true
-  dhcp_start    = cidrhost(var.networks[each.key].subnet, 6)
-  dhcp_stop     = cidrhost(var.networks[each.key].subnet, -2)
+  dhcp_start    = cidrhost(each.value.subnet, 6)
+  dhcp_stop     = cidrhost(each.value.subnet, -2)
 
   for_each = var.networks
 }
 
 resource "unifi_wlan" "wlan" {
-  name       = var.networks[each.key].wifi.ssid
+  name       = each.value.wifi.ssid
   security   = "wpapsk"
-  passphrase = var.networks[each.key].wifi.passphrase
+  passphrase = each.value.wifi.passphrase
   network_id = unifi_network.network[each.key].id
 
   wlan_band         = "both"
