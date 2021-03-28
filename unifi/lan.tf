@@ -16,10 +16,11 @@ resource "unifi_network" "network" {
 }
 
 resource "unifi_wlan" "wlan" {
-  name              = var.networks[each.key].wifi.ssid
-  security          = "wpapsk"
-  passphrase        = var.networks[each.key].wifi.passphrase
-  network_id        = unifi_network.network[each.key].id
+  name       = var.networks[each.key].wifi.ssid
+  security   = "wpapsk"
+  passphrase = var.networks[each.key].wifi.passphrase
+  network_id = unifi_network.network[each.key].id
+
   wlan_band         = "both"
   ap_group_ids      = [data.unifi_ap_group.default.id]
   user_group_id     = unifi_user_group.default.id
