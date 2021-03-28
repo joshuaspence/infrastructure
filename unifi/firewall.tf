@@ -12,13 +12,12 @@ resource "unifi_firewall_rule" "established" {
   ruleset    = "LAN_OUT"
   rule_index = 2000
 
-  name     = "Allow established/related connections from XoT to main network"
+  name     = "Accept established/related connections from XoT networks to main network"
   action   = "accept"
   protocol = "all"
 
-  state_established = true
-  state_related     = true
-
+  state_established      = true
+  state_related          = true
   src_firewall_group_ids = [unifi_firewall_group.xot.id]
   dst_network_id         = unifi_network.network["main"].id
 }
@@ -27,11 +26,11 @@ resource "unifi_firewall_rule" "lan_outbound" {
   ruleset    = "LAN_OUT"
   rule_index = 2100
 
-  name     = "Drop outbound IoT/NoT LAN traffic"
+  name     = "Drop inter-VLAN traffic from XoT networks"
   action   = "drop"
   protocol = "all"
-  logging  = true
 
+  logging                = true
   src_firewall_group_ids = [unifi_firewall_group.xot.id]
 }
 
@@ -73,7 +72,6 @@ resource "unifi_firewall_rule" "not_wan_logged" {
   action   = "drop"
   protocol = "all"
 
-  logging = true
-
+  logging        = true
   src_network_id = unifi_network.network["not"].id
 }
