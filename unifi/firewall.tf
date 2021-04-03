@@ -22,7 +22,7 @@ resource "unifi_firewall_rule" "established" {
   dst_network_id         = unifi_network.network["main"].id
 }
 
-resource "unifi_firewall_rule" "lan_outbound" {
+resource "unifi_firewall_rule" "inter_vlan" {
   ruleset    = "LAN_OUT"
   rule_index = 2100
 
