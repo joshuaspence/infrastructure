@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 0.14"
+  required_version = ">= 0.15"
 
   required_providers {
     aws = {
@@ -37,7 +37,6 @@ terraform {
 
   experiments = [
     module_variable_optional_attrs,
-    provider_sensitive_attrs,
   ]
 }
 
