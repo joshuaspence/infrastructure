@@ -3,6 +3,8 @@ name: 'Lint'
 on:
   pull_request: {}
   push: {}
+  schedule:
+    - cron: '0 0 * * 1'
 jobs:
   terraform-fmt:
     runs-on: 'ubuntu-latest'
