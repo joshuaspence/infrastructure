@@ -44,7 +44,7 @@ resource "github_repository_deploy_key" "deploy_key" {
       [
         for key_name, key in repo.deploy_keys :
         {
-          key   = "${repo_name}-${key_name}",
+          key = "${repo_name}-${key_name}",
           value = merge(key, {
             repository = github_repository.repository[repo_name].name,
             title      = title(replace(key_name, "_", " ")),
