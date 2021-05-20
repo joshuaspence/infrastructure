@@ -1,5 +1,2 @@
-# Configuration
-/secrets.auto.tfvars
-
 # Terraform
 .terraform/
