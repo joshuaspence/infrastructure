@@ -84,7 +84,8 @@ provider "aws" {
 #===============================================================================
 
 variable "github_token" {
-  type = string
+  type      = string
+  sensitive = true
 }
 
 provider "github" {
@@ -146,27 +147,26 @@ provider "tfe" {}
 # Unifi
 #===============================================================================
 
-variable "unifi_config_file" {
+variable "unifi_username" {
   type = string
-
-  validation {
-    condition     = fileexists(var.unifi_config_file)
-    error_message = "Unifi configuration file does not exist."
-  }
-
-  validation {
-    condition     = can(yamldecode(file(var.unifi_config_file)))
-    error_message = "Unifi configuration file does not contain valid YAML."
-  }
 }
 
-locals {
-  unifi_config = yamldecode(file(var.unifi_config_file))
+variable "unifi_password" {
+  type      = string
+  sensitive = true
+}
+
+variable "unifi_api_url" {
+  type = string
+}
+
+variable "unifi_allow_insecure" {
+  type = bool
 }
 
 provider "unifi" {
-  username       = local.unifi_config.username
-  password       = local.unifi_config.password
-  api_url        = local.unifi_config.api_url
-  allow_insecure = local.unifi_config.allow_insecure
+  username       = var.unifi_username
+  password       = var.unifi_password
+  api_url        = var.unifi_api_url
+  allow_insecure = var.unifi_allow_insecure
 }
