@@ -1,3 +1,7 @@
+variable "unifi_access_points" {
+  type = map(string)
+}
+
 variable "unifi_clients" {
   type = map(object({
     mac  = string
@@ -25,6 +29,7 @@ variable "unifi_networks" {
 module "unifi" {
   source = "./unifi"
 
-  clients  = var.unifi_clients
-  networks = var.unifi_networks
+  access_points = var.unifi_access_points
+  clients       = var.unifi_clients
+  networks      = var.unifi_networks
 }

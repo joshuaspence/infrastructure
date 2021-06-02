@@ -1,3 +1,7 @@
+variable "access_points" {
+  type = map(string)
+}
+
 variable "clients" {
   type = map(object({
     mac  = string

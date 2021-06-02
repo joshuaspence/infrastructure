@@ -1,9 +1,8 @@
-resource "unifi_device" "hallway_access_point" {
-  name = "Hallway Access Point"
-}
+resource "unifi_device" "access_point" {
+  name = format("%s Access Point", title(each.key))
+  mac  = each.value
 
-resource "unifi_device" "kitchen_access_point" {
-  name = "Kitchen Access Point"
+  for_each = var.access_points
 }
 
 resource "unifi_device" "gateway" {
