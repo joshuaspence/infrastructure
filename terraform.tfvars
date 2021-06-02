@@ -73,3 +73,17 @@ gsuite_group_members = {
 }
 
 primary_domain = "joshuaspence.com"
+
+unifi_switch_port_overrides = {
+  1 = {
+    profile = "poe_disabled"
+  }
+
+  2 = {
+    profile = "poe_disabled"
+  }
+
+  3 = {
+    profile = "poe_disabled"
+  }
+}

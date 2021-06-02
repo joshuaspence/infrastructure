@@ -12,20 +12,21 @@ resource "unifi_device" "gateway" {
 resource "unifi_device" "switch" {
   name = "Switch"
 
-  # TODO: Move this to a variable.
-  port_override {
-    number          = 1
-    port_profile_id = unifi_port_profile.poe_disabled.id
-  }
+  dynamic "port_override" {
+    for_each = var.switch_port_overrides
+    iterator = port
 
-  port_override {
-    number          = 2
-    port_profile_id = unifi_port_profile.poe_disabled.id
+    content {
+      number          = port.key
+      name            = port.value.name
+      port_profile_id = port.value.profile != null ? local.port_profiles[port.value.profile].id : null
+    }
   }
+}
 
-  port_override {
-    number          = 3
-    port_profile_id = unifi_port_profile.poe_disabled.id
+locals {
+  port_profiles = {
+    poe_disabled = unifi_port_profile.poe_disabled
   }
 }
 

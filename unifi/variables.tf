@@ -25,3 +25,10 @@ variable "networks" {
     })
   }))
 }
+
+variable "switch_port_overrides" {
+  type = map(object({
+    name    = optional(string)
+    profile = optional(string)
+  }))
+}
