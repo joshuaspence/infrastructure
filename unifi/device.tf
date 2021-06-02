@@ -16,16 +16,21 @@ resource "unifi_device" "switch" {
   # TODO: Move this to a variable.
   port_override {
     number          = 1
-    port_profile_id = "60375bd8ddb88d01485711a7"
+    port_profile_id = unifi_port_profile.poe_disabled.id
   }
 
   port_override {
     number          = 2
-    port_profile_id = "60375bd8ddb88d01485711a7"
+    port_profile_id = unifi_port_profile.poe_disabled.id
   }
 
   port_override {
     number          = 3
-    port_profile_id = "60375bd8ddb88d01485711a7"
+    port_profile_id = unifi_port_profile.poe_disabled.id
   }
+}
+
+resource "unifi_port_profile" "poe_disabled" {
+  name     = "POE Disabled"
+  poe_mode = "off"
 }
