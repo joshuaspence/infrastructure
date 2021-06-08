@@ -4,6 +4,14 @@ config {
 
 plugin "aws" {
   enabled = true
+  source  = "github.com/terraform-linters/tflint-ruleset-aws"
+  version = "0.4.1"
+}
+
+plugin "google" {
+  enabled = true
+  source  = "github.com/terraform-linters/tflint-ruleset-google"
+  version = "0.9.0"
 }
 
 rule "terraform_comment_syntax" {

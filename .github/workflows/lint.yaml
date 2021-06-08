@@ -38,6 +38,7 @@ jobs:
 
       - uses: 'terraform-linters/setup-tflint@v1'
       - run: 'rm secrets.auto.tfvars'
+      - run: 'tflint --init'
       - run: 'tflint'
 
   yamllint:
