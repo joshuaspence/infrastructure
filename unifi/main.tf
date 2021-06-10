@@ -4,12 +4,9 @@ resource "unifi_site" "default" {
   description = "Home"
 }
 
-/*
 resource "unifi_setting_mgmt" "default" {
-  site         = unifi_site.default.name
   auto_upgrade = true
 }
-*/
 
 resource "unifi_user" "client" {
   mac  = each.value.mac
