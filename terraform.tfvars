@@ -86,4 +86,72 @@ unifi_switch_port_overrides = {
   3 = {
     profile = "poe_disabled"
   }
+
+  5 = {
+    profile = "disabled"
+  }
+
+  6 = {
+    profile = "disabled"
+  }
+
+  7 = {
+    profile = "disabled"
+  }
+
+  8 = {
+    profile = "disabled"
+  }
+
+  10 = {
+    profile = "disabled"
+  }
+
+  11 = {
+    profile = "disabled"
+  }
+
+  12 = {
+    profile = "disabled"
+  }
+
+  13 = {
+    profile = "disabled"
+  }
+
+  14 = {
+    profile = "disabled"
+  }
+
+  15 = {
+    profile = "disabled"
+  }
+
+  16 = {
+    profile = "disabled"
+  }
+
+  17 = {
+    profile = "disabled"
+  }
+
+  18 = {
+    profile = "disabled"
+  }
+
+  21 = {
+    profile = "disabled"
+  }
+
+  22 = {
+    profile = "disabled"
+  }
+
+  23 = {
+    profile = "disabled"
+  }
+
+  24 = {
+    profile = "disabled"
+  }
 }
