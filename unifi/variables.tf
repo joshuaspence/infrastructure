@@ -22,6 +22,7 @@ variable "networks" {
     wifi = object({
       ssid       = string
       passphrase = string
+      band       = optional(string)
     })
   }))
 }

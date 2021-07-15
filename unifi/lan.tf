@@ -21,7 +21,7 @@ resource "unifi_wlan" "wlan" {
   passphrase = each.value.wifi.passphrase
   network_id = unifi_network.network[each.key].id
 
-  wlan_band         = "both"
+  wlan_band         = coalesce(each.value.wifi.band, "both")
   ap_group_ids      = [data.unifi_ap_group.default.id]
   user_group_id     = unifi_user_group.default.id
   multicast_enhance = true
