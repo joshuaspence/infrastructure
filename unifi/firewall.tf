@@ -49,7 +49,7 @@ resource "unifi_firewall_rule" "not_ntp" {
 resource "unifi_firewall_group" "not_wan_silent" {
   name    = "NoT WAN Silent Ports"
   type    = "port-group"
-  members = [80, 443, 50443, 60443]
+  members = [80, 443, 8886, 50443, 60443]
 }
 
 resource "unifi_firewall_rule" "not_wan_silent" {
