@@ -34,16 +34,27 @@ resource "unifi_firewall_rule" "inter_vlan" {
   src_firewall_group_ids = [unifi_firewall_group.xot.id]
 }
 
-resource "unifi_firewall_rule" "not_ntp" {
-  ruleset    = "WAN_OUT"
-  rule_index = 2000
+resource "unifi_firewall_rule" "ntp_lan" {
+  ruleset    = "LAN_OUT"
+  rule_index = 2001
 
-  name     = "Allow outbound NoT NTP traffic"
+  name     = "Allow NTP traffic"
   action   = "accept"
   protocol = "udp"
 
-  src_network_id = unifi_network.network["not"].id
-  dst_port       = 123
+  dst_address = unifi_user.client["home_assistant"].ip
+  dst_port    = 123
+}
+
+resource "unifi_firewall_rule" "ntp_wan" {
+  ruleset    = "WAN_OUT"
+  rule_index = 2000
+
+  name     = "Allow outbound NTP traffic"
+  action   = "accept"
+  protocol = "udp"
+
+  dst_port = 123
 }
 
 resource "unifi_firewall_group" "not_wan_silent" {
