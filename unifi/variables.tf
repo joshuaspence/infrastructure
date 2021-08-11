@@ -27,6 +27,16 @@ variable "networks" {
   }))
 }
 
+variable "ssh_keys" {
+  type    = set(object({
+    name    = string
+    type    = string
+    comment = optional(string)
+    key     = string
+  }))
+  default = []
+}
+
 variable "switch_port_overrides" {
   type = map(object({
     name    = optional(string)

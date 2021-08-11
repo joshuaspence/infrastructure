@@ -27,6 +27,16 @@ variable "unifi_networks" {
   }))
 }
 
+variable "unifi_ssh_keys" {
+  type = set(object({
+    name    = string
+    type    = string
+    comment = optional(string)
+    key     = string
+  }))
+  default = []
+}
+
 variable "unifi_switch_port_overrides" {
   type = map(object({
     name    = optional(string)
@@ -40,5 +50,6 @@ module "unifi" {
   access_points         = var.unifi_access_points
   clients               = var.unifi_clients
   networks              = var.unifi_networks
+  ssh_keys              = var.unifi_ssh_keys
   switch_port_overrides = var.unifi_switch_port_overrides
 }
