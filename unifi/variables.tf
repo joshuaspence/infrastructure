@@ -28,7 +28,7 @@ variable "networks" {
 }
 
 variable "ssh_keys" {
-  type    = set(object({
+  type = set(object({
     name    = string
     type    = string
     comment = optional(string)
