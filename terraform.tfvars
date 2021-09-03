@@ -86,4 +86,8 @@ unifi_switch_port_overrides = {
   3 = {
     profile = "poe_disabled"
   }
+
+  23 = {
+    profile = "not_network"
+  }
 }
