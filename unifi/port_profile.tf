@@ -2,7 +2,7 @@ locals {
   port_profiles = {
     all          = data.unifi_port_profile.all
     disabled     = data.unifi_port_profile.disabled
-    not_network  = unifi_port_profile.not_network
+    not_network  = data.unifi_port_profile.not_network
     poe_disabled = unifi_port_profile.poe_disabled
   }
 }
@@ -15,9 +15,8 @@ data "unifi_port_profile" "disabled" {
   name = "Disabled"
 }
 
-resource "unifi_port_profile" "not_network" {
-  name                  = "NoT Network"
-  native_networkconf_id = unifi_network.network["not"].id
+data "unifi_port_profile" "not_network" {
+  name = unifi_network.network["not"].name
 }
 
 resource "unifi_port_profile" "poe_disabled" {
