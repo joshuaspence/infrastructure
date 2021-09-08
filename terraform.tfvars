@@ -79,11 +79,11 @@ unifi_switch_port_overrides = {
     profile = "poe_disabled"
   }
 
-  2 = {
+  3 = {
     profile = "poe_disabled"
   }
 
-  3 = {
+  5 = {
     profile = "poe_disabled"
   }
 
