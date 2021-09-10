@@ -17,17 +17,6 @@ domains = {
     }
   }
 
-  "joshuaspence.com.au" = {
-    dkim = {
-      public_key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjlEsrW+9/6VDQMpawsOhqLBilFAbRRnKZ4BQL62wM56aef3USRFHV7P+VuzUN7aFxtxWYGsWXia8q8e1tppGgv+c7unAcYymzgKYa1271pCUV57OoH7iehiQxVQ3tvXaeGYF+I+H8CeZTKoD4ukD6bsX1lzx16Tve3+0aR3xhImLb9ezzHYLZkyilY47+LbLbuOwUU9RxJsQGg1O41hg15RvFDJrNEnSj3eLeg6V/k9ZbQ8jVeiryEXdPAhBKSmeACCUmpIYL0HXzTAD5ABXIgdC4jUgdqvgUSut8LW2yTXxbHHFfQ13YwbNLEUuJr3XG9sx8c74CNSg0qgkN+4FAwIDAQAB"
-    }
-
-    google_site_verification = {
-      key   = "wbgozhdmu5fo"
-      value = "ck24ekzqntivoz"
-    }
-  }
-
   "spence.family" = {
     dkim = {
       public_key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq61MZIowkam1HHRMzd67r/kWIFLa4v4Z6Wd5QTbSMu91IafFmCVRuaMe2Vrf3VuBcQhL1dqgIJHVN+tyYpB3UB5o5X7sP/keX8t6S/fi9H6gnQz5RvAk2qSMFC34KIBJGs5I2U/dzMip4wXHkuEOEtngZnC++WJLtC34bbtPaAXd6ychEaevMfEXbW5Fv5V/cac8me4QLIIAC8Tjj6yQ+G9fn3lhdRpQoIZiLJVFmZMgftoyxhkeqRwaeCxxrZHhRsN0Y8SWOvCzGKePN5CUF+4tYeB728fFeZTqHULj4Cc5NnogdFMuynC1Wd2M7S+Y0hyMvj8XL1JLC2011YURAQIDAQAB"
