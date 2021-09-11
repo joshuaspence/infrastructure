@@ -2,6 +2,7 @@ locals {
   port_profiles = {
     all          = data.unifi_port_profile.all
     disabled     = data.unifi_port_profile.disabled
+    iot_network  = data.unifi_port_profile.iot_network
     not_network  = data.unifi_port_profile.not_network
     poe_disabled = unifi_port_profile.poe_disabled
   }
@@ -13,6 +14,10 @@ data "unifi_port_profile" "all" {
 
 data "unifi_port_profile" "disabled" {
   name = "Disabled"
+}
+
+data "unifi_port_profile" "iot_network" {
+  name = unifi_network.network["iot"].name
 }
 
 data "unifi_port_profile" "not_network" {

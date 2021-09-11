@@ -72,6 +72,10 @@ unifi_switch_port_overrides = {
     profile = "poe_disabled"
   }
 
+  4 = {
+    profile = "iot_network"
+  }
+
   5 = {
     profile = "poe_disabled"
   }
