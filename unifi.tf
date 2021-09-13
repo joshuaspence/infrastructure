@@ -10,6 +10,8 @@ variable "unifi_clients" {
 
     network  = optional(string)
     fixed_ip = optional(string)
+
+    device_fingerprint_id = optional(number)
   }))
 }
 
