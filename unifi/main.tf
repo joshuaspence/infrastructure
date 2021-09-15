@@ -20,6 +20,10 @@ resource "unifi_setting_mgmt" "default" {
   }
 }
 
+resource "unifi_setting_usg" "default" {
+  multicast_dns_enabled = true
+}
+
 resource "unifi_user_group" "default" {
   name = "Default"
 }
