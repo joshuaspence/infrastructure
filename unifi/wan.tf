@@ -25,3 +25,18 @@ resource "unifi_network" "failover_wan" {
     ignore_changes = [dhcp_lease, ipv6_interface_type, network_group]
   }
 }
+
+# TODO: Improve this.
+resource "unifi_static_route" "failover_wan" {
+  name      = "Failover WAN Admin UI"
+  network   = "192.168.200.0/24"
+  type      = "interface-route"
+  interface = unifi_network.failover_wan.wan_networkgroup
+
+  # TODO: This shouldn't be needed.
+  distance = 1
+
+  lifecycle {
+    ignore_changes = [distance]
+  }
+}
