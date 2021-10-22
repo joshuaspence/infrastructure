@@ -17,9 +17,7 @@ resource "unifi_network" "failover_wan" {
   purpose = "wan"
 
   wan_networkgroup = "WAN2"
-  wan_type         = "static"
-  wan_ip           = "192.168.200.1"
-  wan_netmask      = "255.255.255.0"
+  wan_type         = "dhcp"
   wan_dns          = ["1.1.1.1", "8.8.8.8"]
 
   # TODO: Remove this after https://github.com/paultyng/terraform-provider-unifi/issues/107.
