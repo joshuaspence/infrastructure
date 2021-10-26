@@ -41,20 +41,21 @@ resource "unifi_static_route" "failover_wan" {
   }
 }
 
-# TODO: Use `config.gateway.json` instead, see https://help.ui.com/hc/en-us/articles/215458888-UniFi-USG-Advanced-Configuration-Using-config-gateway-json.
-resource "null_resource" "gateway_config" {
-  connection {
-    host = "Gateway.local"
-    user = "josh"
-  }
-
-  provisioner "remote-exec" {
-    inline = [for command in [
-      "begin",
-      "set firewall modify LOAD_BALANCE rule 2005 action accept",
-      format("set firewall modify LOAD_BALANCE rule 2005 destination address %s", unifi_static_route.failover_wan.network),
-      "commit",
-      "end",
-    ] : format("/opt/vyatta/sbin/vyatta-cfg-cmd-wrapper %s", command)]
+output "gateway_config" {
+  value = {
+    firewall = {
+      modify = {
+        LOAD_BALANCE = {
+          rule = {
+            "2005" = {
+              action      = "accept"
+              destination = {
+                address = unifi_static_route.failover_wan.network
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

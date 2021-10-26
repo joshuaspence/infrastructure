@@ -55,3 +55,7 @@ module "unifi" {
   ssh_keys              = var.unifi_ssh_keys
   switch_port_overrides = var.unifi_switch_port_overrides
 }
+
+output "unifi_gateway_config" {
+  value = module.unifi.gateway_config
+}
