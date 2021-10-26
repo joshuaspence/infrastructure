@@ -48,7 +48,7 @@ output "gateway_config" {
         LOAD_BALANCE = {
           rule = {
             "2005" = {
-              action      = "accept"
+              action = "accept"
               destination = {
                 address = unifi_static_route.failover_wan.network
               }
