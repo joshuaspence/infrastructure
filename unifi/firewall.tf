@@ -30,7 +30,7 @@ resource "unifi_firewall_rule" "inter_vlan" {
   action   = "drop"
   protocol = "all"
 
-  logging                = true
+  logging                = false
   src_firewall_group_ids = [unifi_firewall_group.xot.id]
 }
 
