@@ -9,7 +9,7 @@ resource "unifi_network" "network" {
   domain_name   = "local"
   igmp_snooping = true
   dhcp_enabled  = true
-  dhcp_start    = cidrhost(each.value.subnet, 128)
+  dhcp_start    = cidrhost(each.value.subnet, 6)
   dhcp_stop     = cidrhost(each.value.subnet, -2)
 
   for_each = var.networks
