@@ -6,7 +6,7 @@ resource "unifi_network" "network" {
   network_group = "LAN"
   vlan_id       = each.value.vlan
   subnet        = each.value.subnet
-  domain_name   = "local"
+  domain_name   = "spence.network"
   igmp_snooping = true
   dhcp_enabled  = true
   dhcp_start    = cidrhost(each.value.subnet, 6)
