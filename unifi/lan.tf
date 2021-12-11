@@ -26,6 +26,7 @@ resource "unifi_wlan" "wlan" {
   user_group_id     = unifi_user_group.default.id
   multicast_enhance = true
   no2ghz_oui        = false
+  hide_ssid         = coalesce(each.value.wifi.hide_ssid, false)
 
   for_each = var.networks
 }

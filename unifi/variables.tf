@@ -25,6 +25,7 @@ variable "networks" {
       ssid       = string
       passphrase = string
       band       = optional(string)
+      hide_ssid  = optional(bool)
     })
   }))
 }
