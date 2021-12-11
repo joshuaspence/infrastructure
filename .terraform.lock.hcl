@@ -1,26 +1,6 @@
 # This file is maintained automatically by "terraform init".
 # Manual edits may be lost in future updates.
 
-provider "registry.terraform.io/deviavir/gsuite" {
-  version = "0.1.62"
-  hashes = [
-    "h1:uX8pw33uAU3hpBBdFlbBOr+RhzqT/Fqug3f/Wl5ReNg=",
-    "zh:1d5c8a3fdddcde5633ee8c35bfc07b4b5abf42f38fa8f89beef624ad6f3d30d1",
-    "zh:296378c00e47242d8d10e6fdffae00a251cb8bd7ef65aa9c51b79805d7a143d0",
-    "zh:2d040c0a4fa505b943f450b41005a9abe5f0dcc3b77cc1469dfb729a30d01d12",
-    "zh:4e03e6e18ed9305197c9fd413fee4442575d1e486d5a8d7eb4778610ece935a8",
-    "zh:597bcd91875888350364161cf6fb5970515d62c89acaa542519499ba9ba79113",
-    "zh:7af5c7a035f5d2a7f37d3d96954239b420220c27244a6326e359ef3fb17eb937",
-    "zh:8676bdd8ed034f45ef6fc2ccdd26cb5418fc8fd79842539d96447bbd2e45b5f3",
-    "zh:b0810df7402d789c42dd585eee090abe12aa6f1a3a825efbff4ddd35df339149",
-    "zh:b7fca0a84a8ea4ab82b7a1d48bcd54abdd59e84d1edcba78e5cd285aec6b2610",
-    "zh:be87bb975d380f9091067e58b01b2a7dca40d8a3950d2b9d1888791a1938b152",
-    "zh:d80af62b3376ad0e8b08f482b12048771fe9c8df6c8a15f4e4c3a902c2f394c8",
-    "zh:eb6db65281d979199827f15ebfd6067dbfed607ceaa771d8ef57417db26c9590",
-    "zh:f58460be3870cc3783cc65f9466b9e890b84cd00274990593cc3f679cbd984b2",
-  ]
-}
-
 provider "registry.terraform.io/hashicorp/aws" {
   version = "3.69.0"
   hashes = [
@@ -36,26 +16,6 @@ provider "registry.terraform.io/hashicorp/aws" {
     "zh:a52866826b51c0b4cb6b970cb3328542846e108c8f4d24c090d7ca0ffa341e44",
     "zh:a9923cbdf30e9b66f889fef22e1f4b657d9ac1a48812f476ef841405a3c11525",
     "zh:c079f98be9b8456e6eae6c07c5dcb84ecbcbb70b2f361f1c6f9c3ba90366d905",
-  ]
-}
-
-provider "registry.terraform.io/hashicorp/github" {
-  version = "4.18.2"
-  hashes = [
-    "h1:7qumrrxL9L9zpwmvNrJhq9GICMgOLIWJeWFu84iK7kU=",
-    "zh:0905624d48ee1493f0e23942aad742151f3778c5511f6ddd5acb89fe48a35179",
-    "zh:19f5ecedbba6dfecd8af625d41da45390936e9684d99d4330d1e415c1aa61064",
-    "zh:2a04c4cff4feaaaf47f99929742f17eba29284b7acd06068111fc7ff2161bcd5",
-    "zh:3652c758f343f31822816ebd2a593988342c543b0d1374401d453fcffa9abc1c",
-    "zh:3b37c217dc8ade666430b375d623fd24237377aa91ab4ba7a4f2c698b03293ab",
-    "zh:486ac6f1027e7c38bb1f0ae41eb62d149d94b263886cd9240ecb5ea7d1da5c77",
-    "zh:6f0da812a7879332dfa1eec0369b6302ad182abe1151eb46915e6ace497639b7",
-    "zh:7c7786b6241829c94c3bd2ecdf0c5c591157344832a0dafc31909430d651aca1",
-    "zh:cf44af2b50c0a00d02e545894285e5a2be18ac73a4959ed53ce5e5d2cdbe707e",
-    "zh:ecd4eeae228764fcbe7c318174f65d4be82a0fed3820a07de17d9db6ce431763",
-    "zh:f24e15ec2b564bccc2f1ff2b57a2631de9545167dc85693fdd5ec5bb55061835",
-    "zh:f5e0d357e7ff7b60b59acf60bfb2f24a14a1efe303e510dfc8bae2f5c6b1d0d4",
-    "zh:fe8fa19f5184e795ead5be1be7488a88826342f35a2ac81ecde319bb019698d6",
   ]
 }
 
@@ -92,6 +52,24 @@ provider "registry.terraform.io/hashicorp/google-beta" {
     "zh:770dfd7071dae0377dd9d11a4def08eb902f22818ffb356c14e64625c7ada98e",
     "zh:8fdba8addff02c5a75585c75ff028b4b64c6043eaf6c67f163d6de7859b49f64",
     "zh:bed40d3e6fe0989937212a2ae8477112bd8a83d355fb4794fc46f938b8a2cc88",
+  ]
+}
+
+provider "registry.terraform.io/hashicorp/googleworkspace" {
+  version = "0.5.2"
+  hashes = [
+    "h1:+9mjkHHxqwFYverchZlE8NG9M8OBM5qBDKckQDKlS1g=",
+    "zh:08d6483891ec35e7efce2910da98902cc8c383dce2050954f9f2eb9b58ce1905",
+    "zh:5674c388fdca384f73a139a89eefb1a66b711f3ee5a8e45032fc7e943f9c9473",
+    "zh:5cefccee1b13969b33e694f21d02ffff896e71417dfcec5205a8bf35172eca81",
+    "zh:6e1f947517381f786ba599882762aac54c9154ae7ba9bde33d3656807df6bf7c",
+    "zh:6fa265b64cd13822269bc0fe1d0d9a9601f62812e95306b383639726e8b4ea19",
+    "zh:878416da786d7e337bba1574a340dbfc6f68473dbc488d39dc65124446dcb74a",
+    "zh:8cb3625c724c21520eaafd7bbd348c89d58b2290d9250bc170d9eced5531b2b1",
+    "zh:b6030e97dc88ed03bccb0855f44968493c853fddfedba1bedeebc098302e77fc",
+    "zh:b8b9bf0e2032c0eebf53dc0b9a8d337bc8eac9f3d96494c3e76113c2d6191dc2",
+    "zh:ba2f0cbe0533216301ef2e2832bd742a85aba8b739fe10f8fdd3aed532013859",
+    "zh:f249a462290dd464475b6d2562068d3975c8b8391b8876110588ba69be398241",
   ]
 }
 

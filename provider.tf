@@ -18,10 +18,6 @@ terraform {
       source = "hashicorp/google-beta"
     }
 
-    gsuite = {
-      source = "DeviaVir/gsuite"
-    }
-
     tfe = {
       source = "hashicorp/tfe"
     }
@@ -104,7 +100,7 @@ provider "google" {}
 
 provider "google-beta" {
   # TODO: Why is this needed?
-  credentials           = pathexpand(var.gsuite_credentials_file)
+  credentials           = pathexpand(var.google_credentials_file)
   user_project_override = true
 }
 
@@ -113,25 +109,30 @@ data "google_organization" "main" {
 }
 
 #===============================================================================
-# GSuite
+# Google Workspace
 #===============================================================================
 
-variable "gsuite_credentials_file" {
+variable "google_credentials_file" {
   type = string
 
   validation {
-    condition     = fileexists(var.gsuite_credentials_file)
-    error_message = "Gsuite credentials file does not exist."
+    condition     = fileexists(var.google_credentials_file)
+    error_message = "Google credentials file does not exist."
   }
 }
 
-variable "gsuite_impersonated_user_email" {
+variable "google_customer_id" {
   type = string
 }
 
-provider "gsuite" {
-  credentials             = pathexpand(var.gsuite_credentials_file)
-  impersonated_user_email = var.gsuite_impersonated_user_email
+variable "google_impersonated_user_email" {
+  type = string
+}
+
+provider "googleworkspace" {
+  credentials             = pathexpand(var.google_credentials_file)
+  customer_id             = var.google_customer_id
+  impersonated_user_email = var.google_impersonated_user_email
 
   oauth_scopes = [
     "https://www.googleapis.com/auth/admin.directory.domain",

@@ -1,6 +1,6 @@
 resource "tfe_organization" "main" {
   name                     = "spence"
-  email                    = gsuite_user.main["josh"].primary_email
+  email                    = googleworkspace_user.main["josh"].primary_email
   collaborator_auth_policy = "two_factor_mandatory"
 }
 
