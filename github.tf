@@ -7,6 +7,8 @@ variable "github_repositories" {
       key       = string
       read_only = optional(bool)
     })))
+
+    actions_secrets = optional(map(string))
   }))
 }
 
@@ -53,6 +55,31 @@ resource "github_repository_deploy_key" "deploy_key" {
       ]
     ]) :
     deploy_key.key => deploy_key.value
+  }
+}
+
+resource "github_actions_secret" "secret" {
+  repository      = each.value.repository
+  secret_name     = each.value.name
+  plaintext_value = each.value.value
+
+  # This is ugly, see hashicorp/terraform#22263.
+  for_each = {
+    for secret in flatten([
+      for repo_name, repo in local.github_repositories :
+      [
+        for secret_name, secret_value in repo.actions_secrets :
+        {
+          key = "${repo_name}-${secret_name}"
+          value = {
+            repository = github_repository.repository[repo_name].name
+            name       = upper(secret_name)
+            value      = secret_value
+          }
+        }
+      ]
+    ]) :
+    secret.key => secret.value
   }
 }
 
