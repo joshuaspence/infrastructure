@@ -1,6 +1,2 @@
 ---
 extends: '.github/yamllint.yaml'
-
-rules:
-  key-ordering: 'disable'
-  line-length: 'disable'
