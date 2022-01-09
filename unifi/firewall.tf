@@ -75,7 +75,7 @@ resource "unifi_firewall_group" "videostream" {
 }
 
 resource "unifi_firewall_rule" "videostream" {
-  ruleset = "LAN_OUT"
+  ruleset    = "LAN_OUT"
   rule_index = 2002
 
   name     = "Videostream"
