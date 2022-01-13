@@ -17,9 +17,10 @@ variable "unifi_clients" {
 
 variable "unifi_networks" {
   type = map(object({
-    name   = string
-    subnet = string
-    vlan   = optional(number)
+    name         = string
+    subnet       = string
+    vlan         = optional(number)
+    ipv6_enabled = optional(bool)
 
     wifi = object({
       ssid       = string

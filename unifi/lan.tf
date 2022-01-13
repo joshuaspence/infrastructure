@@ -12,6 +12,11 @@ resource "unifi_network" "network" {
   dhcp_start    = cidrhost(each.value.subnet, 6)
   dhcp_stop     = cidrhost(each.value.subnet, -2)
 
+  ipv6_interface_type = each.value.ipv6_enabled == true ? "pd" : "none"
+  ipv6_pd_interface   = each.value.ipv6_enabled == true ? "wan" : null
+  ipv6_pd_prefixid    = each.value.ipv6_enabled == true ? 56 : null
+  ipv6_ra_enable      = each.value.ipv6_enabled == true ? true : null
+
   for_each = var.networks
 }
 

@@ -1,3 +1,4 @@
+# TODO: Add IPv6 settings.
 resource "unifi_network" "wan" {
   name    = "WAN"
   purpose = "wan"

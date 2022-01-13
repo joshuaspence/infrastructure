@@ -17,9 +17,10 @@ variable "clients" {
 
 variable "networks" {
   type = map(object({
-    name   = string
-    subnet = string
-    vlan   = optional(number)
+    name         = string
+    subnet       = string
+    vlan         = optional(number)
+    ipv6_enabled = optional(bool)
 
     wifi = object({
       ssid       = string
