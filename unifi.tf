@@ -50,6 +50,15 @@ variable "unifi_switch_port_overrides" {
   }))
 }
 
+variable "unifi_vpn" {
+  type = object({
+    gateway = string
+    subnet  = string
+    secret  = string
+    users   = map(string)
+  })
+}
+
 module "unifi" {
   source = "./unifi"
 
@@ -58,8 +67,13 @@ module "unifi" {
   networks              = var.unifi_networks
   ssh_keys              = var.unifi_ssh_keys
   switch_port_overrides = var.unifi_switch_port_overrides
+  vpn                   = merge(var.unifi_vpn, { gateway = aws_route53_record.vpn.fqdn })
 }
 
 output "unifi_gateway_config" {
   value = module.unifi.gateway_config
+}
+
+output "unifi_vpn_network_manager_connections" {
+  value = module.unifi.network_manager_connections
 }

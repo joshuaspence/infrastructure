@@ -76,3 +76,12 @@ resource "aws_route53_record" "spf" {
   records  = ["v=spf1 include:_spf.google.com -all"]
   for_each = var.domains
 }
+
+# TODO: Use IPv6 address for VPN.
+resource "aws_route53_record" "vpn" {
+  zone_id  = aws_route53_zone.main["spence.network"].zone_id
+  name     = "vpn"
+  type     = "A"
+  ttl      = 60 * 60
+  records  = [var.unifi_vpn.gateway]
+}

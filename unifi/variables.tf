@@ -49,3 +49,12 @@ variable "switch_port_overrides" {
     profile = optional(string)
   }))
 }
+
+variable "vpn" {
+  type = object({
+    gateway = string
+    subnet  = string
+    secret  = string
+    users   = map(string)
+  })
+}
