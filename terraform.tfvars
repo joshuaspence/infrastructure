@@ -83,4 +83,8 @@ unifi_switch_port_overrides = {
   23 = {
     profile = "not_network"
   }
+
+  24 = {
+    profile = "not_network"
+  }
 }
