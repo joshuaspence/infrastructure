@@ -42,8 +42,8 @@ resource "unifi_static_route" "failover_wan" {
   }
 }
 
-output "gateway_config" {
-  value = {
+locals {
+  gateway_config = {
     firewall = {
       modify = {
         LOAD_BALANCE = {
@@ -59,4 +59,15 @@ output "gateway_config" {
       }
     }
   }
+}
+
+resource "remote_file" "gateway_config" {
+  conn {
+    host     = var.clients["unifi_controller"].fixed_ip
+    user     = var.ssh_config.username
+    password = var.ssh_config.password
+  }
+
+  path    = "/srv/unifi/data/sites/default/config.gateway.json"
+  content = jsonencode(local.gateway_config)
 }

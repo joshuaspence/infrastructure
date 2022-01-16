@@ -33,14 +33,24 @@ variable "unifi_networks" {
   }))
 }
 
-variable "unifi_ssh_keys" {
-  type = set(object({
-    name    = string
-    type    = string
-    comment = optional(string)
-    key     = string
-  }))
-  default = []
+variable "unifi_ssh_config" {
+  type = object({
+    username = string
+    password = string
+
+    keys = set(object({
+      name    = string
+      type    = string
+      comment = optional(string)
+      key     = string
+    }))
+  })
+
+  default = {
+    username = ""
+    password = ""
+    keys     = []
+  }
 }
 
 variable "unifi_switch_port_overrides" {
@@ -65,13 +75,9 @@ module "unifi" {
   access_points         = var.unifi_access_points
   clients               = var.unifi_clients
   networks              = var.unifi_networks
-  ssh_keys              = var.unifi_ssh_keys
+  ssh_config            = var.unifi_ssh_config
   switch_port_overrides = var.unifi_switch_port_overrides
   vpn                   = merge(var.unifi_vpn, { gateway = aws_route53_record.vpn.fqdn })
-}
-
-output "unifi_gateway_config" {
-  value = module.unifi.gateway_config
 }
 
 output "unifi_vpn_network_manager_connections" {

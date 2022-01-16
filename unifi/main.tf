@@ -4,12 +4,13 @@ resource "unifi_site" "default" {
   description = "Home"
 }
 
+// TODO: Manage SSH username and password.
 resource "unifi_setting_mgmt" "default" {
   auto_upgrade = false
-  ssh_enabled  = true
+  ssh_enabled  = var.ssh_config.username != ""
 
   dynamic "ssh_key" {
-    for_each = var.ssh_keys
+    for_each = var.ssh_config.keys
 
     content {
       name    = ssh_key.value.name

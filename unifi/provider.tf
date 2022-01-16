@@ -1,5 +1,9 @@
 terraform {
   required_providers {
+    remote = {
+      source = "tenstad/remote"
+    }
+
     unifi = {
       source  = "paultyng/unifi"
       version = ">= 0.33.0"

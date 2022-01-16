@@ -33,14 +33,24 @@ variable "networks" {
   }))
 }
 
-variable "ssh_keys" {
-  type = set(object({
-    name    = string
-    type    = string
-    comment = optional(string)
-    key     = string
-  }))
-  default = []
+variable "ssh_config" {
+  type = object({
+    username = string
+    password = string
+
+    keys = set(object({
+      name    = string
+      type    = string
+      comment = optional(string)
+      key     = string
+    }))
+  })
+
+  default = {
+    username = ""
+    password = ""
+    keys     = []
+  }
 }
 
 variable "switch_port_overrides" {
