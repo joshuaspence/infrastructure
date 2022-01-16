@@ -81,5 +81,6 @@ module "unifi" {
 }
 
 output "unifi_vpn_network_manager_connections" {
-  value = module.unifi.network_manager_connections
+  value     = module.unifi.network_manager_connections
+  sensitive = true
 }

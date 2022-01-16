@@ -43,4 +43,6 @@ output "network_manager_connections" {
     never-default=true
     EOT
   }
+
+  sensitive = true
 }
