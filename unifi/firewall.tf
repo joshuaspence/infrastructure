@@ -83,6 +83,6 @@ resource "unifi_firewall_rule" "videostream" {
   protocol = "tcp"
 
   src_network_id         = unifi_network.network["iot"].id
-  dst_address            = unifi_user.client["desktop"].ip
+  dst_address            = unifi_user.client["desktop"].fixed_ip
   dst_firewall_group_ids = [unifi_firewall_group.videostream.id]
 }
