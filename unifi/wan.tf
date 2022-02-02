@@ -58,6 +58,17 @@ locals {
         }
       }
     }
+
+    protocols = {
+      static = {
+        # Enable Wake-on-LAN across different networks.
+        arp = {
+          for network in unifi_network.network : cidrhost(network.subnet, -2) => {
+            hwaddr = "ff:ff:ff:ff:ff:ff"
+          }
+        }
+      }
+    }
   }
 }
 

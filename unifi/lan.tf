@@ -22,7 +22,7 @@ resource "unifi_network" "network" {
   igmp_snooping = true
   dhcp_enabled  = true
   dhcp_start    = cidrhost(each.value.subnet, 6)
-  dhcp_stop     = cidrhost(each.value.subnet, -2)
+  dhcp_stop     = cidrhost(each.value.subnet, -3)
 
   ipv6_interface_type = each.value.ipv6_enabled ? "pd" : "none"
   ipv6_pd_interface   = each.value.ipv6_enabled ? "wan" : null
