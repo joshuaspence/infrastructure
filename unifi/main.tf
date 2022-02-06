@@ -33,11 +33,6 @@ resource "remote_file" "controller_ssh" {
   content = join("\n", [for key in var.ssh_config.keys : format("%s %s %s", key.type, key.key, key.comment)])
 }
 
-
-resource "unifi_setting_usg" "default" {
-  multicast_dns_enabled = true
-}
-
 resource "unifi_user_group" "default" {
   name = "Default"
 }
