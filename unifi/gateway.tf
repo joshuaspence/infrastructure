@@ -36,9 +36,9 @@ resource "remote_file" "gateway_config" {
   # TODO: This won't be needed after tenstad/terraform-provider-remote#42.
   provisioner "remote-exec" {
     connection {
-      user     = self.result_conn[0].user
-      password = self.result_conn[0].password
-      host     = self.result_conn[0].host
+      user     = var.ssh_config.username
+      password = var.ssh_config.password
+      host     = var.clients["unifi_controller"].fixed_ip
     }
 
     inline = ["chown unifi:unifi ${self.path}"]
