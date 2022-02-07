@@ -1,4 +1,6 @@
 locals {
+  domain = unifi_network.network["main"].domain_name
+
   gateway_config = {
     firewall = {
       modify = {
@@ -21,6 +23,28 @@ locals {
           # Enable Wake-on-LAN across different networks.
           for network in unifi_network.network : cidrhost(network.subnet, -2) => {
             hwaddr = "ff:ff:ff:ff:ff:ff"
+          }
+        }
+      }
+    }
+
+    system = {
+      # TODO: Maybe move these to Route53.
+      static-host-mapping = {
+        host-name = {
+          "setup.ubnt.com" = {
+            alias = ["setup"]
+            inet  = [cidrhost(unifi_network.network["main"].subnet, 1)]
+          }
+
+          "homeassistant.${local.domain}" = {
+            alias = ["homeassistant"]
+            inet  = [unifi_user.client["home_assistant"].fixed_ip]
+          }
+
+          "unifi.${local.domain}" = {
+            alias = ["unifi"]
+            inet  = [unifi_user.client["unifi_controller"].fixed_ip]
           }
         }
       }
