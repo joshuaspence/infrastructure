@@ -42,7 +42,7 @@ resource "unifi_firewall_rule" "ntp_lan" {
   action   = "accept"
   protocol = "udp"
 
-  dst_address = unifi_user.client["home_assistant"].ip
+  dst_address = unifi_user.client["home_assistant"].fixed_ip
   dst_port    = 123
 }
 
