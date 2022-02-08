@@ -1,3 +1,10 @@
+/**
+ * TODO: Configure the following:
+ *
+ * - Device interfaces (Settings > Ports)
+ * - Advanced config (Settings > Config > Advanced)
+ */
+
 locals {
   domain = unifi_network.network["main"].domain_name
 

@@ -1,3 +1,14 @@
+/**
+ * TODO: Manage the following resources:
+ *
+ * - Users (/users/users)
+ * - UniFi OS network (/settings/general)
+ * - UniFi OS notifications (/settings/notifications)
+ * - UniFi OS updates (/settings/updates)
+ * - UniFi OS location (/settings/location)
+ * - UniFi OS advanced (/settings/advanced)
+ */
+
 data "unifi_ap_group" "default" {}
 
 resource "unifi_site" "default" {
