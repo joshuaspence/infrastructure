@@ -33,6 +33,10 @@ resource "unifi_network" "network" {
   for_each = local.networks
 }
 
+# TODO: Enable WPA3 support.
+# TODO: Maybe enable fast roaming.
+# TODO: Tweak other settings.
+# TODO: Enable BSS transition.
 resource "unifi_wlan" "wlan" {
   name       = each.value.wifi.ssid
   security   = "wpapsk"

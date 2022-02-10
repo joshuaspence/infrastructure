@@ -7,6 +7,8 @@
  * - UniFi OS updates (/settings/updates)
  * - UniFi OS location (/settings/location)
  * - UniFi OS advanced (/settings/advanced)
+ * - Settings > Site > LED and Screen Settings
+ * - Settings > Site > Services
  */
 
 data "unifi_ap_group" "default" {}
