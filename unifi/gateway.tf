@@ -35,6 +35,10 @@ locals {
       }
     }
 
+    service = {
+      bcast-relay = local.bcast_relay_config
+    }
+
     system = {
       # TODO: Maybe move these to Route53.
       static-host-mapping = {
@@ -67,11 +71,24 @@ resource "remote_file" "gateway_config" {
   # TODO: This won't be needed after tenstad/terraform-provider-remote#42.
   provisioner "remote-exec" {
     connection {
+      host     = var.clients["unifi_controller"].fixed_ip
       user     = var.ssh_config.username
       password = var.ssh_config.password
-      host     = var.clients["unifi_controller"].fixed_ip
     }
 
     inline = ["chown unifi:unifi ${self.path}"]
+  }
+}
+
+# TODO: Will `ubnt-bcast-relay` persist across upgrades?
+resource "null_resource" "ubnt_bcast_relay" {
+  provisioner "remote-exec" {
+    connection {
+      host     = cidrhost(unifi_network.network["main"].subnet, 1)
+      user     = var.ssh_config.username
+      password = var.ssh_config.password
+    }
+
+    script = "${path.module}/scripts/ubnt_bcast_relay.sh"
   }
 }
