@@ -10,7 +10,6 @@ locals {
   })
 }
 
-# TODO: Manage `dhcp_ntp_server`.
 resource "unifi_network" "network" {
   name    = each.value.name
   purpose = each.value.purpose
