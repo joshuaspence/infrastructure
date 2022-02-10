@@ -11,7 +11,6 @@ locals {
 }
 
 # TODO: Manage `dhcp_ntp_server`.
-# TODO: Disable mDNS (temporarily due to home-assistant/plugin-multicast#1).
 resource "unifi_network" "network" {
   name    = each.value.name
   purpose = each.value.purpose
