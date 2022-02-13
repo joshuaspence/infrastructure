@@ -13,6 +13,12 @@ variable "clients" {
 
     device_fingerprint_id = optional(number)
   }))
+
+  # `network` and `fixed_ip` are paired.
+  validation {
+    condition     = length([for client in var.clients : client.mac if(client.network != null) != (client.fixed_ip != null)]) == 0
+    error_message = "Parameters network and fixed_ip must either both be set or both be unset."
+  }
 }
 
 variable "networks" {
