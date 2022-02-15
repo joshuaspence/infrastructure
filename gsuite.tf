@@ -1,6 +1,11 @@
-# TODO: Manage alias domains.
 resource "googleworkspace_domain" "main" {
   domain_name = var.primary_domain
+}
+
+resource "googleworkspace_domain_alias" "main" {
+  parent_domain_name = googleworkspace_domain.main.domain_name
+  domain_alias_name  = each.key
+  for_each           = { for key, value in var.domains : key => value if key != var.primary_domain }
 }
 
 variable "gsuite_users" {
