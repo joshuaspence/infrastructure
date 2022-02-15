@@ -4,6 +4,10 @@ variable "domains" {
       public_key = string
     })
 
+    github_pages_verification = optional(object({
+      value = string
+    }))
+
     google_site_verification = object({
       key   = string
       value = string
@@ -37,6 +41,15 @@ resource "aws_route53_record" "dmarc" {
   type     = "TXT"
   ttl      = 60 * 60
   records  = [format("v=DMARC1; p=none; rua=%s", googleworkspace_group.dmarc_reports.email)]
+  for_each = var.domains
+}
+
+resource "aws_route53_record" "github_pages_verification" {
+  zone_id  = aws_route53_zone.main[each.key].zone_id
+  name     = format("_github-pages-challenge-%s", data.github_user.current.login)
+  type     = "TXT"
+  ttl      = 24 * 60 * 60
+  records  = [each.value.github_pages_verification.value]
   for_each = var.domains
 }
 

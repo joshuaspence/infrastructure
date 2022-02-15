@@ -2,10 +2,6 @@ locals {
   github_pages_host = format("%s.github.io", data.github_user.current.login)
 }
 
-data "github_user" "current" {
-  username = ""
-}
-
 data "dns_a_record_set" "github_pages" {
   host = local.github_pages_host
 }
