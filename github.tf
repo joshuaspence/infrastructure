@@ -15,7 +15,7 @@ variable "github_repositories" {
         branch = string
         path   = optional(string)
       })
-      cname  = optional(string)
+      cname = optional(string)
     }))
   }))
 }
@@ -37,7 +37,7 @@ resource "github_repository" "repository" {
   archive_on_destroy     = true
   topics                 = each.value.topics
   vulnerability_alerts   = true
- 
+
   dynamic "pages" {
     for_each = each.value.pages != null ? [each.value.pages] : []
 
