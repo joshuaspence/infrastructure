@@ -1,17 +1,17 @@
 variable "domains" {
   type = map(object({
-    dkim = object({
+    dkim = optional(object({
       public_key = string
-    })
+    }))
 
     github_pages_verification = optional(object({
       value = string
     }))
 
-    google_site_verification = object({
+    google_site_verification = optional(object({
       key   = string
       value = string
-    })
+    }))
   }))
 }
 
@@ -30,8 +30,8 @@ resource "aws_route53_record" "dkim" {
   name     = "google._domainkey"
   type     = "TXT"
   ttl      = 60 * 60
-  records  = [join("\"\"", [for chunk in chunklist(split("", format("v=DKIM1; k=rsa; p=%s", each.value.dkim.public_key)), 255) : join("", chunk)])]
-  for_each = var.domains
+  records  = [join("\"\"", [for chunk in chunklist(split("", format("v=DKIM1; k=rsa; p=%s", each.value.public_key)), 255) : join("", chunk)])]
+  for_each = { for domain_name, domain in var.domains : domain_name => domain.dkim if domain.dkim != null }
 }
 
 # TODO: Tweak DMARC policy (see https://dmarcian.com/dmarc-inspector/ and https://blog.returnpath.com/demystifying-the-dmarc-record/).
@@ -49,19 +49,19 @@ resource "aws_route53_record" "github_pages_verification" {
   name     = format("_github-pages-challenge-%s", data.github_user.current.login)
   type     = "TXT"
   ttl      = 24 * 60 * 60
-  records  = [each.value.github_pages_verification.value]
-  for_each = var.domains
+  records  = [each.value.value]
+  for_each = { for domain_name, domain in var.domains : domain_name => domain.github_pages_verification if domain.github_pages_verification != null }
 }
 
 # TODO: Ideally the validation record would be pulled out of the GSuite API,
 # see https://github.com/DeviaVir/terraform-provider-gsuite/issues/67.
 resource "aws_route53_record" "google_site_verification" {
   zone_id  = aws_route53_zone.main[each.key].zone_id
-  name     = each.value.google_site_verification.key
+  name     = each.value.key
   type     = "CNAME"
   ttl      = 24 * 60 * 60
-  records  = [format("gv-%s.dv.googlehosted.com", each.value.google_site_verification.value)]
-  for_each = var.domains
+  records  = [format("gv-%s.dv.googlehosted.com", each.value.value)]
+  for_each = { for domain_name, domain in var.domains : domain_name => domain.google_site_verification if domain.google_site_verification != null }
 }
 
 resource "aws_route53_record" "mx" {

@@ -21,6 +21,8 @@ domains = {
     }
   }
 
+  "spence.com.au" = {}
+
   "spence.family" = {
     dkim = {
       public_key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq61MZIowkam1HHRMzd67r/kWIFLa4v4Z6Wd5QTbSMu91IafFmCVRuaMe2Vrf3VuBcQhL1dqgIJHVN+tyYpB3UB5o5X7sP/keX8t6S/fi9H6gnQz5RvAk2qSMFC34KIBJGs5I2U/dzMip4wXHkuEOEtngZnC++WJLtC34bbtPaAXd6ychEaevMfEXbW5Fv5V/cac8me4QLIIAC8Tjj6yQ+G9fn3lhdRpQoIZiLJVFmZMgftoyxhkeqRwaeCxxrZHhRsN0Y8SWOvCzGKePN5CUF+4tYeB728fFeZTqHULj4Cc5NnogdFMuynC1Wd2M7S+Y0hyMvj8XL1JLC2011YURAQIDAQAB"
