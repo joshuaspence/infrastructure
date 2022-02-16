@@ -9,14 +9,6 @@ variable "github_repositories" {
     })))
 
     actions_secrets = optional(map(string))
-
-    pages = optional(object({
-      source = object({
-        branch = string
-        path   = optional(string)
-      })
-      cname = optional(string)
-    }))
   }))
 }
 
@@ -37,19 +29,6 @@ resource "github_repository" "repository" {
   archive_on_destroy     = true
   topics                 = each.value.topics
   vulnerability_alerts   = true
-
-  dynamic "pages" {
-    for_each = each.value.pages != null ? [each.value.pages] : []
-
-    content {
-      source {
-        branch = pages.value.source.branch
-        path   = pages.value.source.path
-      }
-
-      cname = pages.value.cname
-    }
-  }
 
   for_each = local.github_repositories
 
