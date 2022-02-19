@@ -21,7 +21,20 @@ domains = {
     }
   }
 
-  "spence.com.au" = {}
+  "spence.com.au" = {
+    dkim = {
+      public_key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAg6P22qJ8JkPpXM4Hw7pl7DvpPXF5XvJTbXhTkwzlnEkenM5VPaM69uXha6TaLJ75A4Zr76LGdtBPujyQG15+/JBzX68zwvVz8oCfb9iO4GABm+2BF4lI8rwLIjk3OkVlBkROVXWTVgnplcm4CTThlscCgppIkqv5L7hNMdTbbyrsal/w0Mf6moHwMDo4Um1UAa4YMHt0qOQao2XAtOgCI7uPIMiwwknl8TQI9g/Bmu+CJTIGIN7LqNEmbE7UkYUXRReR8QcEqWFOe4wVDUjnQFAJeYBZ1GX0DKdQN8aIGQGegFzIv0ZVupPMAMxITGq0VjLEQTSFAz8GaHPRoylD+wIDAQAB"
+    }
+
+    github_pages_verification = {
+      value = "4aa9b01113d2fba7c2bf04ff577d2d"
+    }
+
+    google_site_verification = {
+      key   = "feniy22i7jfn"
+      value = "lex75kgsl5yo3k"
+    }
+  }
 
   "spence.family" = {
     dkim = {
