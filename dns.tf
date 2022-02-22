@@ -25,6 +25,20 @@ resource "aws_route53_zone" "main" {
   for_each = var.domains
 }
 
+resource "aws_route53_record" "caa" {
+  zone_id = aws_route53_zone.main[each.key].zone_id
+  name    = ""
+  type    = "CAA"
+  ttl     = 60 * 60
+
+  records = flatten([
+    formatlist("0 issue \"%s\"", ["amazon.com", "letsencrypt.org"]),
+    format("0 iodef \"mailto:%s\"", googleworkspace_group.sysadmin.email),
+  ])
+
+  for_each = var.domains
+}
+
 resource "aws_route53_record" "dkim" {
   zone_id  = aws_route53_zone.main[each.key].zone_id
   name     = "google._domainkey"
