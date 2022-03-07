@@ -12,6 +12,10 @@ variable "domains" {
       key   = string
       value = string
     }))
+
+    domain_registration = object({
+      registrar = string
+    })
   }))
 }
 

@@ -3,7 +3,8 @@ terraform {
 
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
+      version = ">= 4.4.0"
     }
 
     github = {
@@ -75,6 +76,14 @@ variable "aws_account_id" {
 
 provider "aws" {
   region              = var.aws_region
+  profile             = var.aws_profile
+  allowed_account_ids = [var.aws_account_id]
+
+}
+
+provider "aws" {
+  alias               = "us_east_1"
+  region              = "us-east-1"
   profile             = var.aws_profile
   allowed_account_ids = [var.aws_account_id]
 }
