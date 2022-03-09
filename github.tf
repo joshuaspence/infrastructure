@@ -1,6 +1,7 @@
 variable "github_repositories" {
   type = map(object({
     description = string
+    visibility  = optional(string)
     topics      = optional(list(string))
 
     deploy_keys = optional(map(object({
@@ -23,6 +24,7 @@ locals {
 resource "github_repository" "repository" {
   name        = each.key
   description = each.value.description
+  visibility  = each.value.visibility
 
   has_issues             = true
   delete_branch_on_merge = true
