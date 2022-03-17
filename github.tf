@@ -91,9 +91,3 @@ resource "github_actions_secret" "secret" {
     secret.key => secret.value
   }
 }
-
-resource "github_actions_secret" "terraform_cloud" {
-  repository      = github_repository.repository["infrastructure"].name
-  secret_name     = "TF_API_TOKEN"
-  plaintext_value = tfe_organization_token.github_actions.token
-}
