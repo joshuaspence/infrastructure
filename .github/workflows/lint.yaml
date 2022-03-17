@@ -22,9 +22,7 @@ jobs:
       - run: 'rm secrets.auto.tfvars'
 
       - uses: 'hashicorp/setup-terraform@v1'
-        with:
-          cli_config_credentials_token: '${{ secrets.TF_API_TOKEN }}'
-      - run: 'terraform init'
+      - run: 'terraform init -cloud=false'
       - run: 'terraform validate'
 
   tflint:
@@ -34,9 +32,7 @@ jobs:
       - run: 'rm secrets.auto.tfvars'
 
       - uses: 'hashicorp/setup-terraform@v1'
-        with:
-          cli_config_credentials_token: '${{ secrets.TF_API_TOKEN }}'
-      - run: 'terraform init'
+      - run: 'terraform init -cloud=false'
 
       - uses: 'terraform-linters/setup-tflint@v1'
       - run: 'tflint --init'
