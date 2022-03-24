@@ -11,6 +11,10 @@ terraform {
       source = "integrations/github"
     }
 
+    godaddy = {
+      source = "CruGlobal/godaddy"
+    }
+
     google = {
       source = "hashicorp/google"
     }
@@ -103,6 +107,25 @@ provider "github" {
 
 data "github_user" "current" {
   username = ""
+}
+
+#===============================================================================
+# Godaddy
+#===============================================================================
+
+variable "godaddy_api_key" {
+  type      = string
+  sensitive = true
+}
+
+variable "godaddy_api_secret" {
+  type      = string
+  sensitive = true
+}
+
+provider "godaddy" {
+  key    = var.godaddy_api_key
+  secret = var.godaddy_api_secret
 }
 
 #===============================================================================
