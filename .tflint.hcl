@@ -5,13 +5,13 @@ config {
 plugin "aws" {
   enabled = true
   source  = "github.com/terraform-linters/tflint-ruleset-aws"
-  version = "0.5.0"
+  version = "0.13.0"
 }
 
 plugin "google" {
   enabled = true
   source  = "github.com/terraform-linters/tflint-ruleset-google"
-  version = "0.10.0"
+  version = "0.16.0"
 }
 
 rule "terraform_comment_syntax" {
