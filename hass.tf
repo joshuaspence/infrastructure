@@ -14,3 +14,8 @@ resource "google_firebase_project" "home_assistant" {
   provider = google-beta
   project  = google_project.home_assistant.project_id
 }
+
+resource "google_project_service" "home_assistant_sdm" {
+  project  = google_project.home_assistant.project_id
+  service  = "smartdevicemanagement.googleapis.com"
+}
