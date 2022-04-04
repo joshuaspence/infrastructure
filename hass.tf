@@ -21,13 +21,3 @@ resource "google_service_account" "home_assistant_firebase" {
   description  = "Firebase Admin SDK Service Agent"
   project      = google_project.home_assistant.project_id
 }
-
-resource "google_project_service" "home_assistant_pubsub" {
-  project = google_project.home_assistant.project_id
-  service = "pubsub.googleapis.com"
-}
-
-resource "google_project_service" "home_assistant_sdm" {
-  project = google_project.home_assistant.project_id
-  service = "smartdevicemanagement.googleapis.com"
-}
