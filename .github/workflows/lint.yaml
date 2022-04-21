@@ -34,6 +34,11 @@ jobs:
       - uses: 'hashicorp/setup-terraform@v1'
       - run: 'terraform init -cloud=false'
 
+      - uses: 'actions/cache@v2'
+        with:
+          path: '~/.tflint.d/plugins'
+          key: 'tflint-${{ hashFiles(''.tflint.hcl'') }}'
+
       - uses: 'terraform-linters/setup-tflint@v1'
       - run: 'tflint --init'
       - run: 'tflint'
