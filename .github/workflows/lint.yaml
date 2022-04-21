@@ -12,7 +12,7 @@ jobs:
       - uses: 'actions/checkout@v3'
       - run: 'rm secrets.auto.tfvars'
 
-      - uses: 'hashicorp/setup-terraform@v1'
+      - uses: 'hashicorp/setup-terraform@v2'
       - run: 'terraform fmt -check -recursive'
 
   terraform-validate:
@@ -21,7 +21,7 @@ jobs:
       - uses: 'actions/checkout@v3'
       - run: 'rm secrets.auto.tfvars'
 
-      - uses: 'hashicorp/setup-terraform@v1'
+      - uses: 'hashicorp/setup-terraform@v2'
       - run: 'terraform init -cloud=false'
       - run: 'terraform validate'
 
@@ -31,7 +31,7 @@ jobs:
       - uses: 'actions/checkout@v3'
       - run: 'rm secrets.auto.tfvars'
 
-      - uses: 'hashicorp/setup-terraform@v1'
+      - uses: 'hashicorp/setup-terraform@v2'
       - run: 'terraform init -cloud=false'
 
       - uses: 'actions/cache@v2'
