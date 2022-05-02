@@ -35,6 +35,7 @@ output "network_manager_connections" {
 
     [ip4]
     method=auto
+    dns-search=${join(";", distinct([for network in unifi_network.network : network.domain_name if network.domain_name != ""]))}
     routes=${join(";", formatlist("%s via %s", [for network in unifi_network.network : network.subnet], cidrhost(var.vpn.subnet, 1)))}
     never-default=true
 
