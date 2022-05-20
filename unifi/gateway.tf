@@ -53,6 +53,11 @@ locals {
             inet  = [unifi_user.client["home_assistant"].fixed_ip]
           }
 
+          "protect.${local.domain}" = {
+            alias = ["protect"]
+            inet  = [unifi_user.client["unifi_protect_nvr"].fixed_ip]
+          }
+
           "unifi.${local.domain}" = {
             alias = ["unifi"]
             inet  = [unifi_user.client["unifi_controller"].fixed_ip]
