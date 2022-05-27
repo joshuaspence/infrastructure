@@ -9,6 +9,10 @@ resource "unifi_device" "access_point" {
 
 resource "unifi_device" "gateway" {
   name = "Gateway"
+
+  lifecycle {
+    ignore_changes = [port_override]
+  }
 }
 
 // TODO: Disable unused ports.
