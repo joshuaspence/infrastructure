@@ -24,17 +24,6 @@ locals {
       }
     }
 
-    protocols = {
-      static = {
-        arp = {
-          # Enable Wake-on-LAN across different networks.
-          for network in unifi_network.network : cidrhost(network.subnet, -2) => {
-            hwaddr = "ff:ff:ff:ff:ff:ff"
-          }
-        }
-      }
-    }
-
     service = {
       bcast-relay = local.bcast_relay_config
     }
