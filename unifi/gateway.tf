@@ -38,33 +38,6 @@ locals {
     service = {
       bcast-relay = local.bcast_relay_config
     }
-
-    system = {
-      # TODO: Maybe move these to Route53.
-      static-host-mapping = {
-        host-name = {
-          "setup.ubnt.com" = {
-            alias = ["setup"]
-            inet  = [cidrhost(unifi_network.network["main"].subnet, 1)]
-          }
-
-          "homeassistant.${local.domain}" = {
-            alias = ["homeassistant"]
-            inet  = [unifi_user.client["home_assistant"].fixed_ip]
-          }
-
-          "protect.${local.domain}" = {
-            alias = ["protect"]
-            inet  = [unifi_user.client["unifi_protect_nvr"].fixed_ip]
-          }
-
-          "unifi.${local.domain}" = {
-            alias = ["unifi"]
-            inet  = [unifi_user.client["unifi_controller"].fixed_ip]
-          }
-        }
-      }
-    }
   }
 }
 

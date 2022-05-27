@@ -84,3 +84,36 @@ output "unifi_vpn_network_manager_connections" {
   value     = module.unifi.network_manager_connections
   sensitive = true
 }
+
+resource "aws_route53_record" "home_assistant" {
+  zone_id = aws_route53_zone.main["spence.network"].zone_id
+  name    = "homeassistant"
+  type    = "A"
+  ttl     = 60 * 5
+  records = [module.unifi.dns_records["home_assistant"]]
+}
+
+resource "aws_route53_record" "unifi_network" {
+  zone_id = aws_route53_zone.main["spence.network"].zone_id
+  name    = "unifi"
+  type    = "A"
+  ttl     = 60 * 5
+  records = [module.unifi.dns_records["unifi_network"]]
+}
+
+resource "aws_route53_record" "unifi_protect" {
+  zone_id = aws_route53_zone.main["spence.network"].zone_id
+  name    = "protect"
+  type    = "A"
+  ttl     = 60 * 5
+  records = [module.unifi.dns_records["unifi_protect"]]
+}
+
+# TODO: Use IPv6 address for VPN.
+resource "aws_route53_record" "vpn" {
+  zone_id = aws_route53_zone.main["spence.network"].zone_id
+  name    = "vpn"
+  type    = "A"
+  ttl     = 60 * 60
+  records = [var.unifi_vpn.gateway]
+}
