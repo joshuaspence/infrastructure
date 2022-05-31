@@ -16,19 +16,17 @@ resource "unifi_device" "gateway" {
 }
 
 // TODO: Disable unused ports.
-// TODO: Configure port profile overrides.
 // TODO: Manage VLAN config (Config > Services > VLAN)
 // TODO: Configure network (Config > Network)
 resource "unifi_device" "switch" {
   name = "Switch"
 
   dynamic "port_override" {
-    for_each = var.switch_port_overrides
+    for_each = { for client in var.clients : client.switch_port.number => client.switch_port if client.switch_port != null }
     iterator = port
 
     content {
       number          = port.key
-      name            = port.value.name
       port_profile_id = port.value.profile != null ? local.port_profiles[port.value.profile].id : null
     }
   }

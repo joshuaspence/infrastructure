@@ -12,6 +12,11 @@ variable "clients" {
     fixed_ip = optional(string)
 
     device_fingerprint_id = optional(number)
+
+    switch_port = optional(object({
+      number  = number
+      profile = optional(string)
+    }))
   }))
 
   # `network` and `fixed_ip` are paired.
@@ -57,13 +62,6 @@ variable "ssh_config" {
     password = ""
     keys     = []
   }
-}
-
-variable "switch_port_overrides" {
-  type = map(object({
-    name    = optional(string)
-    profile = optional(string)
-  }))
 }
 
 variable "vpn" {

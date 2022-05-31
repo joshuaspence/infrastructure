@@ -12,6 +12,11 @@ variable "unifi_clients" {
     fixed_ip = optional(string)
 
     device_fingerprint_id = optional(number)
+
+    switch_port = optional(object({
+      number  = number
+      profile = optional(string)
+    }))
   }))
 }
 
@@ -53,13 +58,6 @@ variable "unifi_ssh_config" {
   }
 }
 
-variable "unifi_switch_port_overrides" {
-  type = map(object({
-    name    = optional(string)
-    profile = optional(string)
-  }))
-}
-
 variable "unifi_vpn" {
   type = object({
     gateway = string
@@ -72,12 +70,11 @@ variable "unifi_vpn" {
 module "unifi" {
   source = "./unifi"
 
-  access_points         = var.unifi_access_points
-  clients               = var.unifi_clients
-  networks              = var.unifi_networks
-  ssh_config            = var.unifi_ssh_config
-  switch_port_overrides = var.unifi_switch_port_overrides
-  vpn                   = merge(var.unifi_vpn, { gateway = aws_route53_record.vpn.fqdn })
+  access_points = var.unifi_access_points
+  clients       = var.unifi_clients
+  networks      = var.unifi_networks
+  ssh_config    = var.unifi_ssh_config
+  vpn           = merge(var.unifi_vpn, { gateway = aws_route53_record.vpn.fqdn })
 }
 
 output "unifi_vpn_network_manager_connections" {
