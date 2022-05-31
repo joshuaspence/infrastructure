@@ -107,19 +107,33 @@ gsuite_group_members = {
 primary_domain = "joshuaspence.com"
 
 unifi_switch_port_overrides = {
-  4 = {
+  2 = {
+    profile = "not_network"
+  }
+
+  3 = {
     profile = "iot_network"
   }
 
+  4 = {
+    profile = "not_network"
+  }
+
   22 = {
-    profile = "security_network"
+    profile = "all"
   }
 
   23 = {
-    profile = "not_network"
+    profile = "all"
   }
 
   24 = {
-    profile = "not_network"
+    profile = "all"
   }
+
+  /*
+  nvr = {
+    profile = "security_network"
+  }
+  */
 }
