@@ -1,6 +1,4 @@
 locals {
-  gateway_lan_interfaces = sort([for network in unifi_network.network : network.vlan_id > 0 ? "eth0.${network.vlan_id}" : "eth0" if network.purpose != "guest"])
-
   device_discovery = [
     {
       name           = "TP-Link Kasa"
@@ -19,15 +17,6 @@ locals {
     }
   ]
 
-  bcast_relay_config = {
-    id = {
-      for index, device_discovery in local.device_discovery : index + 1 => {
-        description = "${device_discovery.name} Discovery"
-        interface   = local.gateway_lan_interfaces
-        port        = device_discovery.broadcast_port
-      }
-    }
-  }
 }
 
 resource "unifi_firewall_group" "device_discovery_source" {
