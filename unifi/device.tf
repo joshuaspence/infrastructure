@@ -7,14 +7,6 @@ resource "unifi_device" "access_point" {
   for_each = var.access_points
 }
 
-resource "unifi_device" "gateway" {
-  name = "Gateway"
-
-  lifecycle {
-    ignore_changes = [port_override]
-  }
-}
-
 // TODO: Disable unused ports.
 // TODO: Manage VLAN config (Config > Services > VLAN)
 // TODO: Configure network (Config > Network)
