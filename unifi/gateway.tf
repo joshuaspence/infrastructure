@@ -23,6 +23,7 @@ locals {
       ,
       join(" ", [for network in unifi_network.network : format("br%d", network.vlan_id) if network.purpose != "guest"]),
       format(
+        # TODO: Remove `--verbose`.
         "--relay %s --noMDNS --noSSDP --noSonosDiscovery --verbose",
         join(" ", [for device_discovery in local.device_discovery : format("255.255.255.255:%d", device_discovery.broadcast_port)]),
       ),
