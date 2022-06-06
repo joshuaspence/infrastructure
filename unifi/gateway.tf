@@ -16,7 +16,11 @@ locals {
     )
 
     multicast-relay = format(
-      "podman run --detach --env INTERFACES=%q --env OPTS=%q --name multicast-relay --network host --restart always scyto/multicast-relay:latest",
+      <<-EOT
+        podman container exists multicast-relay && podman rm multicast-relay || true
+        podman run --detach --env INTERFACES=%q --env OPTS=%q --name multicast-relay --network host --restart always scyto/multicast-relay:latest
+      EOT
+      ,
       join(" ", [for network in unifi_network.network : format("br%d", network.vlan_id) if network.purpose != "guest"]),
       format(
         "--relay %s --noMDNS --noSSDP --noSonosDiscovery --verbose",
