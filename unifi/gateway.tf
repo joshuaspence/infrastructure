@@ -10,7 +10,7 @@ resource "unifi_device" "gateway" {
 locals {
   gateway_boot_scripts = {
     ip-route = format(
-      "ip route add %s dev %s",
+      "ip route add %s dev %s proto static",
       unifi_static_route.failover_wan.network,
       "eth1",
     )
