@@ -10,15 +10,15 @@ resource "unifi_device" "gateway" {
 locals {
   gateway_boot_scripts = {
     ip-route = format(
-      "ip route add %s dev %s proto static",
+      "ip route replace %s dev %s proto static",
       unifi_static_route.failover_wan.network,
       "eth1",
     )
 
     multicast-relay = format(
       <<-EOT
-        podman container exists multicast-relay && podman rm multicast-relay || true
-        podman run --detach --env INTERFACES=%q --env OPTS=%q --name multicast-relay --network host --restart always scyto/multicast-relay:latest
+        podman container exists multicast-relay || podman create --detach --env INTERFACES=%q --env OPTS=%q --name multicast-relay --network host --restart always scyto/multicast-relay:latest
+        podman start multicast-relay
       EOT
       ,
       join(" ", [for network in unifi_network.network : format("br%d", network.vlan_id) if network.purpose != "guest"]),
