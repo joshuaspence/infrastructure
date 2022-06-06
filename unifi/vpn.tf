@@ -1,5 +1,6 @@
 # TODO: Manage RADIUS server.
 # TODO: Manage RADIUS users.
+# TODO: This doesn't seem to be working on the UXG.
 
 data "unifi_radius_profile" "default" {}
 
