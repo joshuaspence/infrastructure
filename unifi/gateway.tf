@@ -15,7 +15,7 @@ locals {
         podman start multicast-relay
       EOT
       ,
-      join(" ", [for network in unifi_network.network : format("br%d", network.vlan_id) if network.purpose != "guest"]),
+      join(" ", [for network in unifi_network.network : network.subnet if network.purpose != "guest"]),
       format(
         # TODO: Remove `--verbose`.
         "--relay %s --noMDNS --noSSDP --noSonosDiscovery --verbose",
