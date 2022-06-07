@@ -11,14 +11,13 @@ locals {
   gateway_boot_scripts = {
     multicast-relay = format(
       <<-EOT
-        podman container exists multicast-relay || podman create --detach --env INTERFACES=%q --env OPTS=%q --name multicast-relay --network host --restart always scyto/multicast-relay:latest
+        podman container exists multicast-relay || podman create --detach --name multicast-relay --network host --restart always scyto/multicast-relay:latest %s
         podman start multicast-relay
       EOT
       ,
-      join(" ", [for network in unifi_network.network : network.subnet if network.purpose != "guest"]),
       format(
-        # TODO: Remove `--verbose`.
-        "--relay %s --noMDNS --noSSDP --noSonosDiscovery --verbose",
+        "python3 /multicast-relay/multicast-relay.py --interfaces %s --relay %s --noMDNS --noSSDP --noSonosDiscovery --foreground --verbose",
+        join(" ", [for network in unifi_network.network : network.subnet if network.purpose != "guest"]),
         join(" ", [for device_discovery in local.device_discovery : format("255.255.255.255:%d", device_discovery.broadcast_port)]),
       ),
     )
