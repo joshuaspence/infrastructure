@@ -16,7 +16,7 @@ locals {
       EOT
       ,
       format(
-        "python3 /multicast-relay/multicast-relay.py --interfaces %s --relay %s --noMDNS --noSSDP --noSonosDiscovery --foreground --verbose",
+        "python3 /multicast-relay/multicast-relay.py --interfaces %s --relay %s --noMDNS --noSSDP --noSonosDiscovery --foreground",
         join(" ", [for network in unifi_network.network : network.subnet if network.purpose != "guest"]),
         join(" ", [for device_discovery in local.device_discovery : format("255.255.255.255:%d", device_discovery.broadcast_port)]),
       ),
