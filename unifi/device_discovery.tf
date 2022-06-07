@@ -11,7 +11,6 @@ locals {
       destination_port = 6667
     },
 
-    # TODO: This isn't working.
     {
       name             = "Daikin Airbase"
       broadcast_port   = 30050
