@@ -29,6 +29,10 @@ output "network_manager_connections" {
     ipsec-enabled=true
     service-type=org.freedesktop.NetworkManager.l2tp
     user=${user}
+    refuse-eap=true
+    refuse-pap=true
+    refuse-chap=true
+    refuse-mschap=true
 
     [vpn-secrets]
     ipsec-psk=${var.vpn.secret}
@@ -37,7 +41,7 @@ output "network_manager_connections" {
     [ip4]
     method=auto
     dns-search=${join(";", distinct([for network in unifi_network.network : network.domain_name if network.domain_name != ""]))}
-    routes=${join(";", formatlist("%s via %s", [for network in unifi_network.network : network.subnet], cidrhost(var.vpn.subnet, 1)))}
+    routes=${join(";", [for network in unifi_network.network : network.subnet])}
     never-default=true
 
     [ipv6]
