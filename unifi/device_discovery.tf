@@ -10,13 +10,14 @@ locals {
       broadcast_port   = 6667
       destination_port = 6667
     },
+
+    # TODO: This isn't working.
     {
       name             = "Daikin Airbase"
       broadcast_port   = 30050
       destination_port = 30000
     }
   ]
-
 }
 
 resource "unifi_firewall_group" "device_discovery_source" {
