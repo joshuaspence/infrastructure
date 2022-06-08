@@ -6,11 +6,9 @@ locals {
       source_port    = 9999
     },
     {
-      name             = "Tuya"
-      broadcast_port   = 6667
-      destination_port = 6667
+      name           = "Tuya"
+      broadcast_port = 6667
     },
-
     {
       name             = "Daikin Airbase"
       broadcast_port   = 30050
