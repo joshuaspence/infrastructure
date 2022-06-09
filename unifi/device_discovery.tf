@@ -1,6 +1,10 @@
 locals {
   device_discovery = [
     {
+      name           = "DHCP"
+      broadcast_port = 67
+    },
+    {
       name           = "TP-Link Kasa"
       broadcast_port = 9999
       source_port    = 9999
