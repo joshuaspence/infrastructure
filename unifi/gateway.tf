@@ -38,7 +38,8 @@ resource "ssh_resource" "gateway" {
   }
 
   commands = [
-    "podman cp --pause=false /tmp/docker-entrypoint.sh uxg-setup:/usr/local/bin/docker-entrypoint.sh",
+    "chmod +x /tmp/docker-entrypoint.sh",
+    "podman cp --pause=false /tmp/docker-entrypoint.sh uxg-setup:/usr/local/bin",
   ]
 
   dynamic "file" {
