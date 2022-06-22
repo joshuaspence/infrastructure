@@ -7,6 +7,10 @@ terraform {
       version = ">= 4.4.0"
     }
 
+    dockerhub = {
+      source = "BarnabyShearer/dockerhub"
+    }
+
     github = {
       source = "integrations/github"
     }
@@ -86,6 +90,24 @@ provider "aws" {
   region              = "us-east-1"
   profile             = var.aws_profile
   allowed_account_ids = [var.aws_account_id]
+}
+
+#===============================================================================
+# Docker Hub
+#===============================================================================
+
+variable "dockerhub_username" {
+  type = string
+}
+
+variable "dockerhub_password" {
+  type      = string
+  sensitive = true
+}
+
+provider "dockerhub" {
+  username = var.dockerhub_username
+  password = var.dockerhub_password
 }
 
 #===============================================================================

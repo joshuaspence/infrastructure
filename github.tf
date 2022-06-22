@@ -91,3 +91,20 @@ resource "github_actions_secret" "secret" {
     secret.key => secret.value
   }
 }
+
+resource "github_actions_secret" "dockerhub_username" {
+  repository      = github_repository.repository["uxg-boot"].name
+  secret_name     = "DOCKER_USERNAME"
+  plaintext_value = var.dockerhub_username
+}
+
+resource "github_actions_secret" "dockerhub_password" {
+  repository      = github_repository.repository["uxg-boot"].name
+  secret_name     = "DOCKER_PASSWORD"
+  plaintext_value = dockerhub_token.github_actions.token
+}
+
+resource "dockerhub_token" "github_actions" {
+  label  = "GitHub Actions"
+  scopes = ["repo:write"]
+}

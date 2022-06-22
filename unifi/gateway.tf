@@ -31,17 +31,6 @@ resource "ssh_resource" "gateway" {
   user  = var.ssh_config.username
   agent = true
 
-  file {
-    content     = file("${path.module}/docker-entrypoint.sh")
-    destination = "/tmp/docker-entrypoint.sh"
-    permissions = "0755"
-  }
-
-  commands = [
-    "chmod +x /tmp/docker-entrypoint.sh",
-    "podman cp --pause=false /tmp/docker-entrypoint.sh uxg-setup:/usr/local/bin",
-  ]
-
   dynamic "file" {
     for_each = local.gateway_boot_scripts
 
