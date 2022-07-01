@@ -16,15 +16,16 @@ resource "null_resource" "cloud_key_certbot" {
 
   provisioner "remote-exec" {
     inline = [
+      "test -f .acme.sh/acme.sh && exit 0",
       format(
-        "test -f .acme.sh/acme.sh || curl https://get.acme.sh | sh -s email=%s",
+        "curl https://get.acme.sh | sh -s email=%s",
         var.certbot.email,
       ),
       ".acme.sh/acme.sh --server letsencrypt --set-default-ca",
       format(
         "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s .acme.sh/acme.sh --dns dns_aws --domain %s --issue",
         var.certbot.credentials.aws_access_key_id,
-        var.certbot.credentials.aws_secret_access_key,
+        nonsensitive(var.certbot.credentials.aws_secret_access_key),
         var.certbot.domain,
       ),
       format(
