@@ -71,10 +71,18 @@ module "unifi" {
   source = "./unifi"
 
   access_points = var.unifi_access_points
-  clients       = var.unifi_clients
-  networks      = var.unifi_networks
-  ssh_config    = var.unifi_ssh_config
-  vpn           = merge(var.unifi_vpn, { gateway = aws_route53_record.vpn.fqdn })
+  certbot = {
+    credentials = {
+      aws_access_key_id     = aws_iam_access_key.certbot.id
+      aws_secret_access_key = aws_iam_access_key.certbot.secret
+    }
+    domain = aws_route53_record.unifi_network.fqdn
+    email  = format("josh@%s", googleworkspace_domain_alias.main["spence.network"].domain_alias_name)
+  }
+  clients    = var.unifi_clients
+  networks   = var.unifi_networks
+  ssh_config = var.unifi_ssh_config
+  vpn        = merge(var.unifi_vpn, { gateway = aws_route53_record.vpn.fqdn })
 }
 
 output "unifi_vpn_network_manager_connections" {

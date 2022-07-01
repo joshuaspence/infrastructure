@@ -20,7 +20,7 @@ terraform {
 }
 
 provider "remote" {
-  alias = "controller"
+  alias = "cloud_key"
 
   conn {
     host     = var.clients["unifi_network_controller"].fixed_ip

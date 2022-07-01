@@ -34,13 +34,6 @@ resource "unifi_setting_mgmt" "default" {
   }
 }
 
-# The Cloud Key is a "client" rather than a "device", so the SSH settings in `unifi_setting_mgmt.default` aren't applied to it.
-resource "remote_file" "controller_ssh" {
-  provider = remote.controller
-  path     = "/root/.ssh/authorized_keys"
-  content  = join("\n", [for key in var.ssh_config.keys : format("%s %s %s", key.type, key.key, key.comment)])
-}
-
 resource "unifi_user_group" "default" {
   name = "Default"
 }

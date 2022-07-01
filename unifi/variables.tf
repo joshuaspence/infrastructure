@@ -2,6 +2,17 @@ variable "access_points" {
   type = map(string)
 }
 
+variable "certbot" {
+  type = object({
+    credentials = object({
+      aws_access_key_id     = string
+      aws_secret_access_key = string
+    })
+    domain = string
+    email  = string
+  })
+}
+
 variable "clients" {
   type = map(object({
     mac  = string
