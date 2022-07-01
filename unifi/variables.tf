@@ -8,8 +8,11 @@ variable "certbot" {
       aws_access_key_id     = string
       aws_secret_access_key = string
     })
-    domain = string
-    email  = string
+    domains = object({
+      protect = string
+      unifi   = string
+    })
+    email = string
   })
 }
 
