@@ -28,3 +28,13 @@ provider "remote" {
     password = var.ssh_config.password
   }
 }
+
+provider "remote" {
+  alias = "nvr"
+
+  conn {
+    host     = var.clients["unifi_protect_nvr"].fixed_ip
+    user     = var.ssh_config.username
+    password = var.ssh_config.password
+  }
+}
