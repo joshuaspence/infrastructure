@@ -22,4 +22,14 @@ resource "unifi_device" "switch" {
       port_profile_id = port.value.profile != null ? local.port_profiles[port.value.profile].id : null
     }
   }
+
+  port_override {
+    number          = 25
+    port_profile_id = data.unifi_port_profile.all.id
+  }
+
+  port_override {
+    number          = 26
+    port_profile_id = data.unifi_port_profile.all.id
+  }
 }
