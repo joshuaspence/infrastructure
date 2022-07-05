@@ -30,6 +30,6 @@ resource "unifi_device" "switch" {
 
   port_override {
     number          = 26
-    port_profile_id = data.unifi_port_profile.all.id
+    port_profile_id = data.unifi_port_profile.disabled.id
   }
 }
