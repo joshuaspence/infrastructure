@@ -25,8 +25,11 @@ resource "unifi_network" "network" {
 
   ipv6_interface_type = each.value.ipv6_enabled ? "pd" : "none"
   ipv6_pd_interface   = each.value.ipv6_enabled ? "wan" : null
-  ipv6_pd_prefixid    = each.value.ipv6_enabled ? 56 : null
   ipv6_ra_enable      = each.value.ipv6_enabled ? true : null
+
+  lifecycle {
+    ignore_changes = [ipv6_pd_prefixid]
+  }
 
   for_each = local.networks
 }
