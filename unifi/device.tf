@@ -14,10 +14,11 @@ resource "unifi_device" "switch" {
   name = "Switch"
 
   dynamic "port_override" {
-    for_each = { for client in var.clients : client.switch_port.number => client.switch_port if client.switch_port != null }
+    for_each = { for key, client in var.clients : client.switch_port.number => merge(client.switch_port, { name = unifi_user.client[key].name }) if client.switch_port != null }
     iterator = port
 
     content {
+      name            = port.value.name
       number          = port.key
       port_profile_id = port.value.profile != null ? local.port_profiles[port.value.profile].id : null
     }
