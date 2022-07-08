@@ -29,12 +29,12 @@ variable "unifi_networks" {
     domain_name  = optional(string)
     ipv6_enabled = optional(bool)
 
-    wifi = object({
+    wifi = optional(object({
       ssid       = string
       passphrase = string
       band       = optional(string)
       hide_ssid  = optional(bool)
-    })
+    }))
   }))
 }
 

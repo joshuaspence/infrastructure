@@ -29,6 +29,10 @@ resource "unifi_network" "network" {
   ipv6_ra_enable      = each.value.ipv6_enabled ? true : null
 
   for_each = local.networks
+
+  lifecycle {
+    ignore_changes = [ipv6_pd_prefixid]
+  }
 }
 
 # TODO: Enable WPA3 support.
@@ -49,5 +53,5 @@ resource "unifi_wlan" "wlan" {
   hide_ssid         = each.value.wifi.hide_ssid
   is_guest          = each.value.purpose == "guest"
 
-  for_each = local.networks
+  for_each = { for network_name, network in local.networks : network_name => network if network.wifi != null }
 }
