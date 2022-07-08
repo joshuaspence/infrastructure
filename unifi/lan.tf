@@ -29,10 +29,6 @@ resource "unifi_network" "network" {
   ipv6_ra_enable      = each.value.ipv6_enabled ? true : null
 
   for_each = local.networks
-
-  lifecycle {
-    ignore_changes = [ipv6_pd_prefixid]
-  }
 }
 
 # TODO: Enable WPA3 support.
