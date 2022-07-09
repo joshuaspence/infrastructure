@@ -1,3 +1,4 @@
+# TODO: Also manage devices.
 resource "unifi_user" "client" {
   mac  = each.value.mac
   name = coalesce(each.value.name, title(replace(each.key, "_", " ")))
