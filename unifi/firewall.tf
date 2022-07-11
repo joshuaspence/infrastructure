@@ -55,22 +55,3 @@ resource "unifi_firewall_rule" "not_wan" {
 
   src_network_id = unifi_network.network["not"].id
 }
-
-resource "unifi_firewall_group" "videostream" {
-  name    = "Videostream"
-  type    = "port-group"
-  members = [5556, 5557]
-}
-
-resource "unifi_firewall_rule" "videostream" {
-  ruleset    = "LAN_OUT"
-  rule_index = 2002
-
-  name     = "Videostream"
-  action   = "accept"
-  protocol = "tcp"
-
-  src_network_id         = unifi_network.network["iot"].id
-  dst_address            = unifi_user.client["desktop"].fixed_ip
-  dst_firewall_group_ids = [unifi_firewall_group.videostream.id]
-}
