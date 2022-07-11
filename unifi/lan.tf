@@ -51,6 +51,7 @@ resource "unifi_wlan" "wlan" {
   no2ghz_oui        = false
   hide_ssid         = each.value.wifi.hide_ssid
   is_guest          = each.value.purpose == "guest"
+  l2_isolation      = each.value.purpose == "guest"
 
   lifecycle {
     ignore_changes = [radius_profile_id]
