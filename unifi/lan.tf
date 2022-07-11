@@ -52,5 +52,9 @@ resource "unifi_wlan" "wlan" {
   hide_ssid         = each.value.wifi.hide_ssid
   is_guest          = each.value.purpose == "guest"
 
+  lifecycle {
+    ignore_changes = [radius_profile_id]
+  }
+
   for_each = { for network_name, network in local.networks : network_name => network if network.wifi != null }
 }

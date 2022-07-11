@@ -1,12 +1,11 @@
 locals {
-  port_profiles = {
-    all              = data.unifi_port_profile.all
-    disabled         = data.unifi_port_profile.disabled
-    iot_network      = data.unifi_port_profile.iot_network
-    not_network      = data.unifi_port_profile.not_network
-    security_network = data.unifi_port_profile.security_network
-    poe_disabled     = unifi_port_profile.poe_disabled
-  }
+  port_profiles = merge(
+    { for key, value in data.unifi_port_profile.network : "${key}_network" => value },
+    {
+      all      = data.unifi_port_profile.all
+      disabled = data.unifi_port_profile.disabled
+    },
+  )
 }
 
 data "unifi_port_profile" "all" {
@@ -17,19 +16,7 @@ data "unifi_port_profile" "disabled" {
   name = "Disabled"
 }
 
-data "unifi_port_profile" "iot_network" {
-  name = unifi_network.network["iot"].name
-}
-
-data "unifi_port_profile" "not_network" {
-  name = unifi_network.network["not"].name
-}
-
-data "unifi_port_profile" "security_network" {
-  name = unifi_network.network["security"].name
-}
-
-resource "unifi_port_profile" "poe_disabled" {
-  name     = "POE Disabled"
-  poe_mode = "off"
+data "unifi_port_profile" "network" {
+  name     = unifi_network.network[each.key].name
+  for_each = local.networks
 }

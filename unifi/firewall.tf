@@ -19,7 +19,7 @@ resource "unifi_firewall_rule" "established" {
   state_established      = true
   state_related          = true
   src_firewall_group_ids = [unifi_firewall_group.xot.id]
-  dst_network_id         = unifi_network.network["main"].id
+  dst_network_id         = unifi_network.network["trusted"].id
 }
 
 resource "unifi_firewall_rule" "inter_vlan" {

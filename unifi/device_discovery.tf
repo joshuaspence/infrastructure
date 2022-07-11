@@ -42,7 +42,7 @@ resource "unifi_firewall_rule" "device_discovery_source" {
   protocol = "udp"
 
   src_firewall_group_ids = [unifi_firewall_group.device_discovery_source.id]
-  dst_network_id         = unifi_network.network["main"].id
+  dst_network_id         = unifi_network.network["trusted"].id
 }
 
 resource "unifi_firewall_rule" "device_discovery_destination" {
@@ -54,5 +54,5 @@ resource "unifi_firewall_rule" "device_discovery_destination" {
   protocol = "udp"
 
   dst_firewall_group_ids = [unifi_firewall_group.device_discovery_destination.id]
-  dst_network_id         = unifi_network.network["main"].id
+  dst_network_id         = unifi_network.network["trusted"].id
 }
