@@ -78,6 +78,16 @@ variable "ssh_config" {
   }
 }
 
+variable "switch_ports" {
+  type = set(object({
+    name    = string
+    number  = number
+    profile = optional(string)
+  }))
+
+  default = []
+}
+
 variable "vpn" {
   type = object({
     gateway = string

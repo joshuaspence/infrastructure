@@ -58,6 +58,16 @@ variable "unifi_ssh_config" {
   }
 }
 
+variable "unifi_switch_ports" {
+  type = set(object({
+    name    = string
+    number  = number
+    profile = optional(string)
+  }))
+
+  default = []
+}
+
 variable "unifi_vpn" {
   type = object({
     gateway = string
@@ -82,10 +92,11 @@ module "unifi" {
     }
     email = format("josh@%s", googleworkspace_domain_alias.main["spence.network"].domain_alias_name)
   }
-  clients    = var.unifi_clients
-  networks   = var.unifi_networks
-  ssh_config = var.unifi_ssh_config
-  vpn        = merge(var.unifi_vpn, { gateway = aws_route53_record.vpn.fqdn })
+  clients      = var.unifi_clients
+  networks     = var.unifi_networks
+  ssh_config   = var.unifi_ssh_config
+  switch_ports = var.unifi_switch_ports
+  vpn          = merge(var.unifi_vpn, { gateway = aws_route53_record.vpn.fqdn })
 }
 
 output "unifi_vpn_network_manager_connections" {
