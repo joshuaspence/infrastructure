@@ -1,7 +1,6 @@
 locals {
   networks = defaults(var.networks, {
-    purpose      = "corporate"
-    ipv6_enabled = false
+    purpose = "corporate"
 
     wifi = {
       band      = "both"
@@ -24,9 +23,9 @@ resource "unifi_network" "network" {
   dhcp_stop     = cidrhost(each.value.subnet, -2)
 
   # TODO: Set `ipv6_interface_type` to `pd`.
-  ipv6_interface_type = each.value.ipv6_enabled ? "static" : "none"
-  ipv6_ra_enable      = each.value.ipv6_enabled ? true : null
-  ipv6_static_subnet  = each.value.ipv6_enabled ? cidrsubnet(var.network_ipv6_subnet, 16, coalesce(each.value.vlan, 1)) : null
+  ipv6_interface_type = "static"
+  ipv6_ra_enable      = true
+  ipv6_static_subnet  = cidrsubnet(var.network_ipv6_subnet, 16, coalesce(each.value.vlan, 1))
 
   lifecycle {
     ignore_changes = [ipv6_pd_interface, ipv6_pd_prefixid]

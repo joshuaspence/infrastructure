@@ -51,7 +51,6 @@ variable "networks" {
     subnet       = string
     vlan         = optional(number)
     domain_name  = optional(string)
-    ipv6_enabled = optional(bool)
 
     wifi = optional(object({
       ssid       = string
