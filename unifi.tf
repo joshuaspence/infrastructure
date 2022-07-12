@@ -26,11 +26,11 @@ variable "unifi_network_ipv6_subnet" {
 
 variable "unifi_networks" {
   type = map(object({
-    name         = string
-    purpose      = optional(string)
-    subnet       = string
-    vlan         = optional(number)
-    domain_name  = optional(string)
+    name        = string
+    purpose     = optional(string)
+    subnet      = string
+    vlan        = optional(number)
+    domain_name = optional(string)
 
     wifi = optional(object({
       ssid       = string
