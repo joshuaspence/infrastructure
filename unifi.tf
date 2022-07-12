@@ -20,6 +20,10 @@ variable "unifi_clients" {
   }))
 }
 
+variable "unifi_network_ipv6_subnet" {
+  type = string
+}
+
 variable "unifi_networks" {
   type = map(object({
     name         = string
@@ -92,11 +96,12 @@ module "unifi" {
     }
     email = format("josh@%s", googleworkspace_domain_alias.main["spence.network"].domain_alias_name)
   }
-  clients      = var.unifi_clients
-  networks     = var.unifi_networks
-  ssh_config   = var.unifi_ssh_config
-  switch_ports = var.unifi_switch_ports
-  vpn          = merge(var.unifi_vpn, { gateway = aws_route53_record.vpn.fqdn })
+  clients             = var.unifi_clients
+  network_ipv6_subnet = var.unifi_network_ipv6_subnet
+  networks            = var.unifi_networks
+  ssh_config          = var.unifi_ssh_config
+  switch_ports        = var.unifi_switch_ports
+  vpn                 = merge(var.unifi_vpn, { gateway = aws_route53_record.vpn.fqdn })
 }
 
 output "unifi_vpn_network_manager_connections" {

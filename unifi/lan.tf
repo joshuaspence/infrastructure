@@ -23,12 +23,13 @@ resource "unifi_network" "network" {
   dhcp_start    = cidrhost(each.value.subnet, 6)
   dhcp_stop     = cidrhost(each.value.subnet, -2)
 
-  ipv6_interface_type = each.value.ipv6_enabled ? "pd" : "none"
-  ipv6_pd_interface   = each.value.ipv6_enabled ? "wan" : null
+  # TODO: Set `ipv6_interface_type` to `pd`.
+  ipv6_interface_type = each.value.ipv6_enabled ? "static" : "none"
   ipv6_ra_enable      = each.value.ipv6_enabled ? true : null
+  ipv6_static_subnet  = each.value.ipv6_enabled ? cidrsubnet(var.network_ipv6_subnet, 16, coalesce(each.value.vlan, 1)) : null
 
   lifecycle {
-    ignore_changes = [ipv6_pd_prefixid]
+    ignore_changes = [ipv6_pd_interface, ipv6_pd_prefixid]
   }
 
   for_each = local.networks

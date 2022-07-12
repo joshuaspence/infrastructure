@@ -40,6 +40,10 @@ variable "clients" {
   }
 }
 
+variable "network_ipv6_subnet" {
+  type = string
+}
+
 variable "networks" {
   type = map(object({
     name         = string
