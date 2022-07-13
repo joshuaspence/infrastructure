@@ -27,10 +27,6 @@ resource "unifi_network" "network" {
   ipv6_ra_enable      = true
   ipv6_static_subnet  = cidrsubnet(var.network_ipv6_subnet, 16, coalesce(each.value.vlan, 1))
 
-  lifecycle {
-    ignore_changes = [ipv6_pd_interface, ipv6_pd_prefixid]
-  }
-
   for_each = local.networks
 }
 
