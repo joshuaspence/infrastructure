@@ -22,6 +22,18 @@ resource "unifi_firewall_rule" "established" {
   dst_network_id         = unifi_network.network["trusted"].id
 }
 
+resource "unifi_firewall_rule" "iot_hass" {
+  ruleset    = "LAN_OUT"
+  rule_index = 2010
+
+  name     = "Allow IoT network to Home Assistant"
+  action   = "accept"
+  protocol = "tcp"
+
+  src_network_id = unifi_network.network["iot"].id
+  dst_address    = unifi_user.client["home_assistant"].fixed_ip
+}
+
 resource "unifi_firewall_rule" "inter_vlan" {
   ruleset    = "LAN_OUT"
   rule_index = 2100
