@@ -1,11 +1,16 @@
-resource "googleworkspace_domain" "main" {
-  domain_name = var.primary_domain
+resource "googleworkspace_domain" "primary" {
+  domain_name = local.primary_domain
+}
+
+resource "googleworkspace_domain" "secondary" {
+  domain_name = each.value
+  for_each    = toset(local.secondary_domains)
 }
 
 resource "googleworkspace_domain_alias" "main" {
-  parent_domain_name = googleworkspace_domain.main.domain_name
+  parent_domain_name = googleworkspace_domain.primary.domain_name
   domain_alias_name  = each.key
-  for_each           = { for key, value in var.domains : key => value if key != var.primary_domain }
+  for_each           = { for key, value in var.domains : key => value if contains(local.alias_domains, key) }
 }
 
 variable "gsuite_users" {
@@ -21,7 +26,7 @@ resource "googleworkspace_user" "main" {
     given_name  = each.value.given_name
   }
 
-  primary_email = format("%s@%s", each.key, googleworkspace_domain.main.domain_name)
+  primary_email = format("%s@%s", each.key, googleworkspace_domain.primary.domain_name)
   for_each      = var.gsuite_users
 
   # TODO: Remove this.
@@ -39,7 +44,7 @@ variable "gsuite_group_members" {
 }
 
 resource "googleworkspace_group" "dmarc_reports" {
-  email = format("dmarc@%s", googleworkspace_domain.main.domain_name)
+  email = format("dmarc@%s", googleworkspace_domain.primary.domain_name)
   name  = "DMARC Reports"
 }
 
@@ -64,7 +69,7 @@ resource "googleworkspace_group_members" "dmarc_reports" {
 }
 
 resource "googleworkspace_group" "shopping_list" {
-  email = format("shopping-list@%s", googleworkspace_domain.main.domain_name)
+  email = format("shopping-list@%s", googleworkspace_domain.primary.domain_name)
   name  = "OurGroceries"
 }
 
@@ -82,7 +87,7 @@ resource "googleworkspace_group_members" "shopping_list" {
 }
 
 resource "googleworkspace_group" "sysadmin" {
-  email = format("sysadmin@%s", googleworkspace_domain.main.domain_name)
+  email = format("sysadmin@%s", googleworkspace_domain.primary.domain_name)
   name  = "System Administrators"
 }
 

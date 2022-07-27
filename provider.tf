@@ -140,7 +140,7 @@ provider "google-beta" {
 }
 
 data "google_organization" "main" {
-  domain = var.primary_domain
+  domain = local.primary_domain
 }
 
 #===============================================================================

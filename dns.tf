@@ -1,5 +1,7 @@
 variable "domains" {
   type = map(object({
+    type = string
+
     dkim = optional(object({
       public_key = string
     }))
@@ -19,9 +21,10 @@ variable "domains" {
   }))
 }
 
-# TODO: Add validation.
-variable "primary_domain" {
-  type = string
+locals {
+  primary_domain    = one([for domain_name, domain in var.domains : domain_name if domain.type == "primary"])
+  secondary_domains = [for domain_name, domain in var.domains : domain_name if domain.type == "secondary"]
+  alias_domains     = [for domain_name, domain in var.domains : domain_name if domain.type == "alias"]
 }
 
 resource "aws_route53_zone" "main" {
