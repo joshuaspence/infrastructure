@@ -50,7 +50,7 @@ resource "unifi_wlan" "wlan" {
   l2_isolation      = each.value.purpose == "guest"
 
   lifecycle {
-    ignore_changes = [radius_profile_id]
+    ignore_changes = [minimum_data_rate_2g_kbps, radius_profile_id]
   }
 
   for_each = { for network_name, network in local.networks : network_name => network if network.wifi != null }
