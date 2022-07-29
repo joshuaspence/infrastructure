@@ -70,7 +70,7 @@ domains = {
   }
 
   "spence.network" = {
-    type = "alias"
+    type = "secondary"
 
     dkim = {
       public_key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArJayHFIe8sCPC5ZejP3kCrx9QpJvBkb+rLR3TR9RlL8jtzsYHT9jWWSfhycc9d5JxPr95VudoUJ1hS/WUX19rmFp3GBJVf/YAA9nbusGTBEgdBdiXMfyPf7fx0KjUqy/eihnAuVFiW3+gwbNS1c/yC8miArVBGAS+kyfrHFo3Wfv5Vinz3vYxh21jpdQvLrqSCxwW5s/dQjbG82v+HxbWXohwbVsmvamX3n8TLIGxTDH4No1igCagK9pCvs5azKJocxbCQh5QZQbkGP8Ew7WaRTuXucWycIcy2oRMkGlslscPbaysFc/+7QUqdifZK8qsqEbe/o+iWVRKtQqVLCktwIDAQAB"

@@ -93,7 +93,7 @@ module "unifi" {
       protect = aws_route53_record.unifi_protect.fqdn
       unifi   = aws_route53_record.unifi_network.fqdn
     }
-    email = format("josh@%s", googleworkspace_domain_alias.main["spence.network"].domain_alias_name)
+    email = format("josh@%s", googleworkspace_domain.secondary["spence.network"].domain_name)
   }
   clients             = var.unifi_clients
   network_ipv6_subnet = var.unifi_network_ipv6_subnet
