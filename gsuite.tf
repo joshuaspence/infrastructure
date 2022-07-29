@@ -10,7 +10,7 @@ resource "googleworkspace_domain" "secondary" {
 resource "googleworkspace_domain_alias" "main" {
   parent_domain_name = googleworkspace_domain.primary.domain_name
   domain_alias_name  = each.key
-  for_each           = { for key, value in var.domains : key => value if contains(local.alias_domains, key) }
+  for_each           = { for domain in local.alias_domains : domain => var.domains[domain] }
 }
 
 variable "gsuite_users" {
