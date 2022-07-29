@@ -17,6 +17,8 @@ variable "gsuite_users" {
   type = map(object({
     family_name = string
     given_name  = string
+    is_admin    = bool
+    aliases     = set(string)
   }))
 }
 
@@ -27,11 +29,13 @@ resource "googleworkspace_user" "main" {
   }
 
   primary_email = format("%s@%s", each.key, googleworkspace_domain.primary.domain_name)
+  aliases       = [for alias in each.value.aliases : format(alias, each.key)]
+  is_admin      = each.value.is_admin
   for_each      = var.gsuite_users
 
   # TODO: Remove this.
   lifecycle {
-    ignore_changes = [aliases, recovery_email, recovery_phone]
+    ignore_changes = [recovery_email, recovery_phone]
   }
 }
 

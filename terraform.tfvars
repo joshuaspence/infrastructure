@@ -95,6 +95,12 @@ gsuite_users = {
   josh = {
     given_name  = "Joshua"
     family_name = "Spence"
+    is_admin    = true
+
+    aliases = [
+      "%s@joshuaspence.com",
+      "%s@spence.network",
+    ]
   }
 }
 
