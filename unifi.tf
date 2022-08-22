@@ -108,6 +108,7 @@ output "unifi_vpn_network_manager_connections" {
   sensitive = true
 }
 
+# TODO: Are these records still needed?
 resource "aws_route53_record" "home_assistant" {
   zone_id = aws_route53_zone.main["spence.network"].zone_id
   name    = "homeassistant"
