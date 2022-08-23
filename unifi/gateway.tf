@@ -22,12 +22,31 @@ locals {
         join(" ", [for device_discovery in local.device_discovery : format("255.255.255.255:%d", device_discovery.broadcast_port)]),
       ),
     )
+
+    split-vpn = <<-EOT
+      test -d ${local.splitvpn_base}/vpn || {
+        curl --fail --location --show-error --silent https://github.com/peacey/split-vpn/archive/main.tar.gz | tar --extract --file - --gzip --directory ${local.splitvpn_base} --strip-components 1 split-vpn-main/vpn
+      }
+
+      if test -f ${local.nordvpn_pid}; then
+        xargs kill <${local.nordvpn_pid}
+        rm ${local.nordvpn_pid}
+      fi
+
+      openvpn \
+        --config ${local.nordvpn_ovpn} --auth-user-pass ${local.nordvpn_auth} \
+        --route-noexec --redirect-gateway def1 \
+        --up ${local.splitvpn_base}/vpn/updown.sh --down ${local.splitvpn_base}/vpn/updown.sh \
+        --dev-type tun --dev ${local.nordvpn_device} \
+        --script-security 2 --ping-restart 15 --mute-replay-warnings \
+        --cd ${local.nordvpn_base} --daemon --writepid ${local.nordvpn_pid}
+    EOT
   }
 }
 
 # NOTE: I can't use the `remote_file` resource due to golang/go#8657.
 resource "ssh_resource" "gateway" {
-  host  = "gateway"
+  host  = format("gateway.%s", var.networks["management"].domain_name)
   user  = var.ssh_config.username
   agent = true
 

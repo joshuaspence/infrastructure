@@ -40,6 +40,11 @@ variable "clients" {
   }
 }
 
+variable "mxtoolbox_api_key" {
+  type      = string
+  sensitive = true
+}
+
 variable "network_ipv6_subnet" {
   type = string
 }
@@ -59,6 +64,14 @@ variable "networks" {
       hide_ssid  = optional(bool)
     }))
   }))
+}
+
+variable "nordvpn_auth" {
+  type = object({
+    username = string
+    password = string
+  })
+  sensitive = true
 }
 
 variable "ssh_config" {
