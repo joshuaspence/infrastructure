@@ -9,6 +9,16 @@ resource "unifi_device" "gateway" {
 
 locals {
   gateway_boot_scripts = {
+    dnsmasq = <<-EOT
+      ipset -exist create ${local.netflix_ipset_ipv4} hash:ip family inet
+      ipset -exist create ${local.netflix_ipset_ipv6} hash:ip family inet6
+
+      if ! test -e ${local.dnsmasq_conf_d}/nordvpn.conf; then
+        ln -s ${local.nordvpn_dnsmasq} ${local.dnsmasq_conf_d}/nordvpn.conf
+        killall -q dnsmasq
+      fi
+    EOT
+
     multicast-relay = format(
       <<-EOT
         podman image exists scyto/multicast-relay:latest || podman build --file https://gist.github.com/joshuaspence/b3735676129eac88de8f2e97b1a9d081/raw/Dockerfile --tag docker.io/scyto/multicast-relay:latest .
@@ -24,13 +34,13 @@ locals {
     )
 
     split-vpn = <<-EOT
-      test -d ${local.splitvpn_base}/vpn || {
+      if ! test -d ${local.splitvpn_base}/vpn; then
         curl --fail --location --show-error --silent https://github.com/peacey/split-vpn/archive/main.tar.gz | tar --extract --file - --gzip --directory ${local.splitvpn_base} --strip-components 1 split-vpn-main/vpn
-      }
+      fi
 
       if test -f ${local.nordvpn_pid}; then
-        xargs kill <${local.nordvpn_pid} || true
-        rm ${local.nordvpn_pid}
+        xargs kill -USR1 <${local.nordvpn_pid}
+        exit
       fi
 
       openvpn \

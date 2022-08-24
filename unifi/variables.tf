@@ -40,11 +40,6 @@ variable "clients" {
   }
 }
 
-variable "mxtoolbox_api_key" {
-  type      = string
-  sensitive = true
-}
-
 variable "network_ipv6_subnet" {
   type = string
 }

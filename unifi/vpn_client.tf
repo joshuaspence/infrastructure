@@ -25,23 +25,22 @@ data "http" "nordvpn_config" {
   url = format("https://downloads.nordcdn.com/configs/files/ovpn_%s/servers/%s.%s.ovpn", "udp", random_shuffle.nordvpn_server.result[0], "udp")
 }
 
-data "http" "netflix_asn" {
-  url = "https://mxtoolbox.com/api/v1/lookup/asn/2906"
-
-  request_headers = {
-    Authorization = var.mxtoolbox_api_key
-  }
-}
-
 locals {
-  splitvpn_base = "/mnt/data/split-vpn"
-  nordvpn_base  = "${local.splitvpn_base}/nordvpn"
+  dnsmasq_conf_d = "/run/dnsmasq.conf.d"
+  splitvpn_base  = "/mnt/data/split-vpn"
+  nordvpn_base   = "${local.splitvpn_base}/nordvpn"
 
-  nordvpn_auth   = "${local.nordvpn_base}/auth.txt"
-  nordvpn_conf   = "${local.nordvpn_base}/vpn.conf"
-  nordvpn_device = "tun0"
-  nordvpn_ovpn   = "${local.nordvpn_base}/nordvpn.ovpn"
-  nordvpn_pid    = "${local.nordvpn_base}/openvpn.pid"
+  nordvpn_auth    = "${local.nordvpn_base}/auth.txt"
+  nordvpn_conf    = "${local.nordvpn_base}/vpn.conf"
+  nordvpn_device  = "tun0"
+  nordvpn_dnsmasq = "${local.nordvpn_base}/dnsmasq.conf"
+  nordvpn_ovpn    = "${local.nordvpn_base}/nordvpn.ovpn"
+  nordvpn_pid     = "/run/openvpn-nordvpn.pid"
+
+  netflix_domains    = ["netflix.com", "netflix.net", "nflxext.com", "nflximg.com", "nflxso.net", "nflxvideo.net"]
+  netflix_ipset_ipv4 = "netflix_ipv4"
+  netflix_ipset_ipv6 = "netflix_ipv6"
+  netflix_ipsets     = [local.netflix_ipset_ipv4, local.netflix_ipset_ipv6]
 }
 
 # NOTE: I can't use the `remote_file` resource due to golang/go#8657.
@@ -62,18 +61,13 @@ resource "ssh_resource" "gateway_nordvpn" {
   }
 
   file {
-    content     = data.http.nordvpn_config.response_body
-    destination = local.nordvpn_ovpn
-  }
-
-  file {
     content = format(
       <<-EOT
         FORCED_SOURCE_INTERFACE=""
         FORCED_SOURCE_IPV4=""
         FORCED_SOURCE_IPV6=""
         FORCED_SOURCE_MAC=""
-        FORCED_DESTINATIONS_IPV4="%s"
+        FORCED_DESTINATIONS_IPV4=""
         FORCED_DESTINATIONS_IPV6=""
         FORCED_LOCAL_INTERFACE=""
         EXEMPT_SOURCE_IPV4=""
@@ -81,7 +75,7 @@ resource "ssh_resource" "gateway_nordvpn" {
         EXEMPT_SOURCE_MAC=""
         EXEMPT_DESTINATIONS_IPV4=""
         EXEMPT_DESTINATIONS_IPV6=""
-        FORCED_IPSETS=""
+        FORCED_IPSETS="%s"
         EXEMPT_IPSETS=""
         DNS_IPV4_IP="DHCP"
         DNS_IPV4_PORT=53
@@ -104,9 +98,19 @@ resource "ssh_resource" "gateway_nordvpn" {
         DEV=%s
       EOT
       ,
-      join(" ", [for info in jsondecode(data.http.netflix_asn.response_body).Information : info["CIDR Range"]]),
+      join(" ", formatlist("%s:dst", local.netflix_ipsets)),
       local.nordvpn_device,
     )
     destination = local.nordvpn_conf
+  }
+
+  file {
+    content     = format("ipset=/%s/%s\n", join("/", local.netflix_domains), join(",", local.netflix_ipsets))
+    destination = local.nordvpn_dnsmasq
+  }
+
+  file {
+    content     = data.http.nordvpn_config.response_body
+    destination = local.nordvpn_ovpn
   }
 }

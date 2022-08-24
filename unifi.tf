@@ -1,8 +1,3 @@
-variable "mxtoolbox_api_key" {
-  type      = string
-  sensitive = true
-}
-
 variable "nordvpn_auth" {
   type = object({
     username = string
@@ -109,7 +104,6 @@ module "unifi" {
     email = format("josh@%s", googleworkspace_domain.secondary["spence.network"].domain_name)
   }
   clients             = var.unifi_clients
-  mxtoolbox_api_key   = var.mxtoolbox_api_key
   network_ipv6_subnet = var.unifi_network_ipv6_subnet
   networks            = var.unifi_networks
   nordvpn_auth        = var.nordvpn_auth
