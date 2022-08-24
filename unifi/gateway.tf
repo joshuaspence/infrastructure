@@ -29,7 +29,7 @@ locals {
       }
 
       if test -f ${local.nordvpn_pid}; then
-        xargs kill <${local.nordvpn_pid}
+        xargs kill <${local.nordvpn_pid} || true
         rm ${local.nordvpn_pid}
       fi
 
@@ -57,8 +57,8 @@ resource "ssh_resource" "gateway" {
       content     = <<-EOT
         #!/bin/sh
 
-        set -e
-        set -u
+        set -o errexit
+        set -o nounset
         set -o pipefail
 
         ${file.value}
