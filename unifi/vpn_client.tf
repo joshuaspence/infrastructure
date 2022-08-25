@@ -1,9 +1,9 @@
 locals {
   # See https://nordvpn.com/servers/tools/.
   nordvpn_server_filters = {
-    country_id          = 228
-    server_groups       = [11]
-    server_technologies = [3]
+    country_id          = 228  # United States
+    server_groups       = [11] # Standard VPN
+    server_technologies = [3]  # UDP
   }
 }
 
