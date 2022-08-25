@@ -14,8 +14,8 @@ resource "unifi_user" "client" {
 
 output "dns_records" {
   value = {
-    home_assistant = unifi_user.client["home_assistant"].fixed_ip
-    unifi_network  = unifi_user.client["unifi_network_controller"].fixed_ip
-    unifi_protect  = unifi_user.client["unifi_protect_nvr"].fixed_ip
+    homeassistant = unifi_user.client["home_assistant"].fixed_ip
+    unifi         = unifi_user.client["unifi_network_controller"].fixed_ip
+    protect       = unifi_user.client["unifi_protect_nvr"].fixed_ip
   }
 }

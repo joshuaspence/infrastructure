@@ -98,8 +98,8 @@ module "unifi" {
       aws_secret_access_key = aws_iam_access_key.certbot.secret
     }
     domains = {
-      protect = aws_route53_record.unifi_client["unifi_protect"].fqdn
-      unifi   = aws_route53_record.unifi_client["unifi_network"].fqdn
+      protect = aws_route53_record.unifi_client["protect"].fqdn
+      unifi   = aws_route53_record.unifi_client["unifi"].fqdn
     }
     email = format("josh@%s", googleworkspace_domain.secondary["spence.network"].domain_name)
   }
