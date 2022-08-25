@@ -98,8 +98,8 @@ module "unifi" {
       aws_secret_access_key = aws_iam_access_key.certbot.secret
     }
     domains = {
-      protect = aws_route53_record.unifi_protect.fqdn
-      unifi   = aws_route53_record.unifi_network.fqdn
+      protect = aws_route53_record.unifi_client["unifi_protect"].fqdn
+      unifi   = aws_route53_record.unifi_client["unifi_network"].fqdn
     }
     email = format("josh@%s", googleworkspace_domain.secondary["spence.network"].domain_name)
   }
@@ -117,29 +117,13 @@ output "unifi_vpn_network_manager_connections" {
   sensitive = true
 }
 
-# TODO: Are these records still needed?
-resource "aws_route53_record" "home_assistant" {
-  zone_id = aws_route53_zone.main["spence.network"].zone_id
-  name    = "homeassistant"
-  type    = "A"
-  ttl     = 60 * 5
-  records = [module.unifi.dns_records["home_assistant"]]
-}
-
-resource "aws_route53_record" "unifi_network" {
-  zone_id = aws_route53_zone.main["spence.network"].zone_id
-  name    = "unifi"
-  type    = "A"
-  ttl     = 60 * 5
-  records = [module.unifi.dns_records["unifi_network"]]
-}
-
-resource "aws_route53_record" "unifi_protect" {
-  zone_id = aws_route53_zone.main["spence.network"].zone_id
-  name    = "protect"
-  type    = "A"
-  ttl     = 60 * 5
-  records = [module.unifi.dns_records["unifi_protect"]]
+resource "aws_route53_record" "unifi_client" {
+  zone_id  = aws_route53_zone.main["spence.network"].zone_id
+  name     = each.key
+  type     = "A"
+  ttl      = 60 * 5
+  records  = [each.value]
+  for_each = module.unifi.dns_records
 }
 
 # TODO: Use IPv6 address for VPN.
