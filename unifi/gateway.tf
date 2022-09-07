@@ -44,12 +44,19 @@ locals {
       fi
 
       openvpn \
-        --config ${local.nordvpn_ovpn} --auth-user-pass ${local.nordvpn_auth} \
-        --route-noexec --redirect-gateway def1 \
-        --up ${local.splitvpn_base}/vpn/updown.sh --down ${local.splitvpn_base}/vpn/updown.sh \
-        --dev-type tun --dev ${local.nordvpn_device} \
-        --script-security 2 --ping-restart 15 --mute-replay-warnings \
-        --cd ${local.nordvpn_base} --daemon --writepid ${local.nordvpn_pid}
+        --config ${local.nordvpn_ovpn} \
+        --auth-user-pass ${local.nordvpn_auth} \
+        --cd ${local.nordvpn_base} \
+        --daemon \
+        --dev ${local.nordvpn_device} \
+        --down ${local.splitvpn_base}/vpn/updown.sh \
+        --ping-restart 15 \
+        --redirect-gateway def1 \
+        --route-noexec \
+        --script-security 2 \
+        --up ${local.splitvpn_base}/vpn/updown.sh \
+        --user nobody \
+        --writepid ${local.nordvpn_pid}
     EOT
   }
 }
