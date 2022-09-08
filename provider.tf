@@ -8,27 +8,33 @@ terraform {
     }
 
     dockerhub = {
-      source = "BarnabyShearer/dockerhub"
+      source  = "BarnabyShearer/dockerhub"
+      version = ">= 0.0.8"
     }
 
     github = {
-      source = "integrations/github"
+      source  = "integrations/github"
+      version = ">= 4.31.0"
     }
 
     google = {
-      source = "hashicorp/google"
+      source  = "hashicorp/google"
+      version = ">= 4.34.0"
     }
 
     google-beta = {
-      source = "hashicorp/google-beta"
+      source  = "hashicorp/google-beta"
+      version = ">= 4.34.0"
     }
 
     tfe = {
-      source = "hashicorp/tfe"
+      source  = "hashicorp/tfe"
+      version = ">= 0.36.1"
     }
 
     unifi = {
-      source = "paultyng/unifi"
+      source  = "paultyng/unifi"
+      version = ">= 0.34.1"
     }
   }
 
