@@ -1,19 +1,46 @@
 locals {
-  # See https://nordvpn.com/servers/tools/.
+  nordvpn_api               = "https://api.nordvpn.com/v1"
+  nordvpn_server_country    = "United States"
+  nordvpn_server_group      = "legacy_standard"
+  nordvpn_server_technology = "openvpn_udp"
+
   nordvpn_server_filters = {
-    country_id          = 228  # United States
-    server_groups       = [11] # Standard VPN
-    server_technologies = [3]  # UDP
+    country    = one([for country in jsondecode(data.http.nordvpn_server_countries.response_body) : country.id if country.name == local.nordvpn_server_country])
+    group      = one([for group in jsondecode(data.http.nordvpn_server_groups.response_body) : group.identifier if group.identifier == local.nordvpn_server_group])
+    technology = one([for technology in jsondecode(data.http.nordvpn_server_technologies.response_body) : technology.identifier if technology.identifier == local.nordvpn_server_technology])
   }
 }
 
+data "http" "nordvpn_server_countries" {
+  url = "${local.nordvpn_api}/servers/countries"
+}
+
+data "http" "nordvpn_server_groups" {
+  url = "${local.nordvpn_api}/servers/groups"
+}
+
+data "http" "nordvpn_server_technologies" {
+  url = "${local.nordvpn_api}/technologies"
+}
+
 data "http" "nordvpn_servers" {
-  url = format("https://nordvpn.com/wp-admin/admin-ajax.php?action=servers_recommendations&filters=%s", jsonencode(local.nordvpn_server_filters))
+  url = format(
+    "%s/servers/recommendations?%s&limit=5",
+    local.nordvpn_api,
+    join(
+      "&",
+      [
+        "filters[country_id]=${local.nordvpn_server_filters.country}",
+        "filters[servers_groups][identifier]=${local.nordvpn_server_filters.group}",
+        "filters[servers_technologies][identifier]=${local.nordvpn_server_filters.technology}",
+      ],
+    ),
+  )
 }
 
 resource "random_shuffle" "nordvpn_server" {
   input        = [for server in jsondecode(data.http.nordvpn_servers.response_body) : server.hostname]
-  keepers      = { for key, value in local.nordvpn_server_filters : key => jsonencode(value) }
+  keepers      = local.nordvpn_server_filters
   result_count = 1
 
   lifecycle {
