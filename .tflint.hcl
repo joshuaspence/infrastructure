@@ -30,6 +30,10 @@ rule "terraform_naming_convention" {
   enabled = true
 }
 
+rule "terraform_required_providers" {
+  enabled = false
+}
+
 # TODO: Enable this maybe?
 rule "terraform_standard_module_structure" {
   enabled = false
