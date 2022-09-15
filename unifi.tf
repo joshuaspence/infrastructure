@@ -7,7 +7,13 @@ variable "nordvpn_auth" {
 }
 
 variable "unifi_access_points" {
-  type = map(string)
+  type = map(object({
+    mac = string
+    switch_port = object({
+      number  = number
+      profile = optional(string)
+    })
+  }))
 }
 
 variable "unifi_clients" {

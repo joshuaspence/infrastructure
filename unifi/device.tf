@@ -2,19 +2,37 @@
 // TODO: Configure band steering (Config > Band steering)
 resource "unifi_device" "access_point" {
   name = format("%s Access Point", title(each.key))
-  mac  = each.value
+  mac  = each.value.mac
+
+  lifecycle {
+    ignore_changes = [
+      # TODO: Remove this.
+      port_override,
+    ]
+  }
 
   for_each = var.access_points
 }
 
 locals {
-  client_switch_ports = { for key, client in var.clients : client.switch_port.number => merge(client.switch_port, { name = unifi_user.client[key].name }) if client.switch_port != null }
-  device_switch_ports = { for switch_port in var.switch_ports : switch_port.number => switch_port }
+  client_switch_ports = {
+    for key, client in var.clients : client.switch_port.number => merge(
+      client.switch_port,
+      { name = unifi_user.client[key].name },
+    ) if client.switch_port != null
+  }
+  device_switch_ports = {
+    for key, device in var.access_points : device.switch_port.number => merge(
+      device.switch_port,
+      { name = unifi_device.access_point[key].name },
+    )
+  }
 
   switch_ports = merge(
     { for port in range(1, 24) : port => { name = null, profile = "disabled" } },
     { for switch_port in var.switch_ports : switch_port.number => switch_port },
-    { for key, client in var.clients : client.switch_port.number => merge(client.switch_port, { name = unifi_user.client[key].name }) if client.switch_port != null },
+    local.client_switch_ports,
+    local.device_switch_ports,
   )
 }
 
