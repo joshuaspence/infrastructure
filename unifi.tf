@@ -8,13 +8,8 @@ variable "nordvpn_auth" {
 
 variable "unifi_access_points" {
   type = map(object({
-    mac = string
-
-    ports = set(object({
-      name    = optional(string)
-      number  = number
-      profile = optional(string)
-    }))
+    mac   = string
+    ports = optional(number)
 
     uplink = object({
       port = number

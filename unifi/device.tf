@@ -8,6 +8,15 @@ locals {
       } if client.uplink != null && try(client.uplink.access_point, null) == key
     }
   }
+  device_access_point_ports = {
+    for key, device in var.access_points : key => {
+      for idx in range(1, coalesce(device.ports, 0) + 1) : idx => {
+        name    = null
+        number  = idx
+        profile = "disabled"
+      }
+    }
+  }
 }
 
 // TODO: Manage radio configuration (Config > Radios)
@@ -17,7 +26,7 @@ resource "unifi_device" "access_point" {
   mac  = each.value.mac
 
   dynamic "port_override" {
-    for_each = merge({ for port in each.value.ports : port.number => port }, local.client_access_point_ports[each.key])
+    for_each = merge(local.device_access_point_ports[each.key], local.client_access_point_ports[each.key])
     iterator = port
 
     content {
@@ -47,7 +56,7 @@ locals {
   }
 
   switch_ports = merge(
-    { for port in range(1, 24) : port => { name = null, profile = "disabled" } },
+    { for port in range(1, 25) : port => { name = null, profile = "disabled" } },
     { for switch_port in var.switch_ports : switch_port.number => switch_port },
     local.client_switch_ports,
     local.device_switch_ports,
