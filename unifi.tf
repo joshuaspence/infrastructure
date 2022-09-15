@@ -15,10 +15,9 @@ variable "unifi_access_points" {
       number  = number
       profile = optional(string)
     }))
-    
-    switch_port = object({
-      number  = number
-      profile = optional(string)
+
+    uplink = object({
+      port = number
     })
   }))
 }
@@ -34,9 +33,9 @@ variable "unifi_clients" {
 
     device_fingerprint_id = optional(number)
 
-    switch_port = optional(object({
+    uplink = optional(object({
       access_point = optional(string)
-      number       = number
+      port         = number
       profile      = optional(string)
     }))
   }))

@@ -7,9 +7,9 @@ variable "access_points" {
       number  = number
       profile = optional(string)
     }))
-    
-    switch_port = object({
-      number  = number
+
+    uplink = object({
+      port    = number
       profile = optional(string)
     })
   }))
@@ -40,9 +40,9 @@ variable "clients" {
 
     device_fingerprint_id = optional(number)
 
-    switch_port = optional(object({
+    uplink = optional(object({
       access_point = optional(string)
-      number       = number
+      port         = number
       profile      = optional(string)
     }))
   }))
