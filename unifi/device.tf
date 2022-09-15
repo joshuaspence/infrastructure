@@ -1,14 +1,29 @@
+locals {
+  access_point_client_switch_ports = {
+    for key, device in var.access_points : key => {
+      for client_key, client in var.clients : client.switch_port.number => merge(
+        client.switch_port,
+        { name = unifi_user.client[client_key].name },
+      ) if client.switch_port != null && try(client.switch_port.access_point, null) == key
+    }
+  }
+}
+
 // TODO: Manage radio configuration (Config > Radios)
 // TODO: Configure band steering (Config > Band steering)
 resource "unifi_device" "access_point" {
   name = format("%s Access Point", title(each.key))
   mac  = each.value.mac
 
-  lifecycle {
-    ignore_changes = [
-      # TODO: Remove this.
-      port_override,
-    ]
+  dynamic "port_override" {
+    for_each = merge({for port in each.value.ports : port.number => port }, local.access_point_client_switch_ports[each.key])
+    iterator = port
+
+    content {
+      name            = port.value.name
+      number          = port.key
+      port_profile_id = port.value.profile != null ? local.port_profiles[port.value.profile].id : null
+    }
   }
 
   for_each = var.access_points
@@ -19,7 +34,7 @@ locals {
     for key, client in var.clients : client.switch_port.number => merge(
       client.switch_port,
       { name = unifi_user.client[key].name },
-    ) if client.switch_port != null
+    ) if client.switch_port != null && try(client.switch_port.access_point, null) == null
   }
   device_switch_ports = {
     for key, device in var.access_points : device.switch_port.number => merge(

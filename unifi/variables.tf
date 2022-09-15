@@ -1,6 +1,13 @@
 variable "access_points" {
   type = map(object({
     mac = string
+
+    ports = set(object({
+      name    = optional(string)
+      number  = number
+      profile = optional(string)
+    }))
+    
     switch_port = object({
       number  = number
       profile = optional(string)
@@ -34,8 +41,9 @@ variable "clients" {
     device_fingerprint_id = optional(number)
 
     switch_port = optional(object({
-      number  = number
-      profile = optional(string)
+      access_point = optional(string)
+      number       = number
+      profile      = optional(string)
     }))
   }))
 
