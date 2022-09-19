@@ -55,7 +55,6 @@ locals {
         --route-noexec \
         --script-security 2 \
         --up ${local.splitvpn_base}/vpn/updown.sh \
-        --user nobody \
         --writepid ${local.nordvpn_pid}
     EOT
   }
