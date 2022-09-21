@@ -40,19 +40,62 @@ resource "unifi_device" "access_point" {
 }
 
 locals {
+  client_aggregation_switch_ports = {
+    for key, client in var.clients : client.uplink.port => {
+      name    = unifi_user.client[key].name
+      number  = client.uplink.port
+      profile = client.uplink.profile
+    } if client.uplink != null && try(client.uplink.switch, null) == "aggregation"
+  }
+  device_aggregation_switch_ports = {
+    for key, device in var.access_points : device.uplink.port => {
+      name    = unifi_device.access_point[key].name
+      number  = device.uplink.port
+      profile = device.uplink.profile
+    } if device.uplink.switch == "aggregation"
+  }
+
+  aggregation_switch_ports = merge(
+    { for port in range(1, 9) : port => { name = null, profile = "disabled" } },
+    local.client_aggregation_switch_ports,
+    local.device_aggregation_switch_ports,
+  )
+}
+
+resource "unifi_device" "aggregation_switch" {
+  name = "Aggregation Switch"
+
+  dynamic "port_override" {
+    for_each = local.aggregation_switch_ports
+    iterator = port
+
+    content {
+      name            = port.value.name
+      number          = port.key
+      port_profile_id = port.value.profile != null ? local.port_profiles[port.value.profile].id : null
+    }
+  }
+
+  lifecycle {
+    # TODO: Remove this.
+    ignore_changes = [port_override]
+  }
+}
+
+locals {
   client_switch_ports = {
     for key, client in var.clients : client.uplink.port => {
       name    = unifi_user.client[key].name
       number  = client.uplink.port
       profile = client.uplink.profile
-    } if client.uplink != null && try(client.uplink.access_point, null) == null
+    } if client.uplink != null && try(client.uplink.switch, null) == "main"
   }
   device_switch_ports = {
     for key, device in var.access_points : device.uplink.port => {
       name    = unifi_device.access_point[key].name
       number  = device.uplink.port
-      profile = device.uplink.profile
-    }
+      profile = null
+    } if device.uplink.switch == "main"
   }
 
   switch_ports = merge(
@@ -79,6 +122,7 @@ resource "unifi_device" "switch" {
     }
   }
 
+  # TODO: Port 25-26 should be aggregated.
   port_override {
     number          = 25
     port_profile_id = data.unifi_port_profile.all.id

@@ -4,8 +4,8 @@ variable "access_points" {
     ports = optional(number)
 
     uplink = object({
-      port    = number
-      profile = optional(string)
+      switch = string
+      port   = number
     })
   }))
 }
@@ -37,6 +37,7 @@ variable "clients" {
 
     uplink = optional(object({
       access_point = optional(string)
+      switch       = optional(string)
       port         = number
       profile      = optional(string)
     }))

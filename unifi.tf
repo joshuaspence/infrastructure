@@ -12,7 +12,8 @@ variable "unifi_access_points" {
     ports = optional(number)
 
     uplink = object({
-      port = number
+      switch = string
+      port   = number
     })
   }))
 }
@@ -30,6 +31,7 @@ variable "unifi_clients" {
 
     uplink = optional(object({
       access_point = optional(string)
+      switch       = optional(string)
       port         = number
       profile      = optional(string)
     }))
