@@ -32,7 +32,7 @@ resource "aws_route53domains_registered_domain" "main" {
   domain_name        = each.key
   registrant_privacy = true
   tech_privacy       = true
-  transfer_lock      = length(regexall("\\.com\\.au$", each.key)) == 0 ? true : false
+  transfer_lock      = length(regexall("\\.au$", each.key)) == 0 ? true : false
 
   admin_contact {
     address_line_1 = local.domain_registrant.address_line_1

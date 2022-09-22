@@ -6,6 +6,27 @@ google_credentials_file        = "~/.gsuite/personal.json"
 google_impersonated_user_email = "josh@joshuaspence.com"
 
 domains = {
+  "spence.au" = {
+    type = "alias"
+
+    dkim = {
+      public_key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwJ/j7RH5ua6GIfDWG32VBafFExu7RgzMkmEGsSp3+hdd0ws7NVp/+bH9nsb8RwSYAE59+sFlg8bFVhISF7mbP+E2lBLZKGb3DM7O+TdvP3Ruv5ii9K0OBZSzcHaofQLYj+UajsUaq9CJPd+fajMCouD+FDL4gOMCeAgspNxFxV5V31zTiandxDulmYrglcLn4C8NpNYbeAzaJYzKwYttY6dRxzMPYqiNBk4K01Rrcppba04mnj8y9dtYrB/LhnI1f3WGAbfbraouG3tG3hdPVL3y18cKbRTbubJZ5I/GHoD3wMA0B7bf1rmnVuen0MSA6DRqNLxDSUYCHjHGUgyk6QIDAQAB"
+    }
+
+    domain_registration = {
+      registrar = "aws"
+    }
+
+    github_pages_verification = {
+      value = "37b0e8d4f71f558b9e0ac7999813b5"
+    }
+
+    google_site_verification = {
+      key   = "erpybtp6qzc6"
+      value = "w2oh3xsm64hv3p"
+    }
+  }
+
   "spence.com.au" = {
     type = "primary"
 
