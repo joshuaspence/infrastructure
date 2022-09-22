@@ -18,5 +18,5 @@ data "unifi_port_profile" "disabled" {
 
 data "unifi_port_profile" "network" {
   name     = unifi_network.network[each.key].name
-  for_each = local.networks
+  for_each = var.networks
 }

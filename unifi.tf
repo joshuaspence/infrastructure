@@ -45,7 +45,7 @@ variable "unifi_network_ipv6_subnet" {
 variable "unifi_networks" {
   type = map(object({
     name        = string
-    purpose     = optional(string)
+    purpose     = optional(string, "corporate")
     subnet      = string
     vlan        = optional(number)
     domain_name = optional(string)
@@ -53,7 +53,7 @@ variable "unifi_networks" {
     wifi = optional(object({
       ssid       = string
       passphrase = string
-      band       = optional(string)
+      band       = optional(string, "both")
       hide_ssid  = optional(bool)
     }))
   }))

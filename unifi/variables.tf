@@ -57,7 +57,7 @@ variable "network_ipv6_subnet" {
 variable "networks" {
   type = map(object({
     name        = string
-    purpose     = optional(string)
+    purpose     = optional(string, "corporate")
     subnet      = string
     vlan        = optional(number)
     domain_name = optional(string)

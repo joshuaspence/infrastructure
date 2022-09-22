@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 0.15"
+  required_version = ">= 1.3"
 
   required_providers {
     aws = {
@@ -39,10 +39,6 @@ terraform {
       name = "home"
     }
   }
-
-  experiments = [
-    module_variable_optional_attrs,
-  ]
 }
 
 #===============================================================================

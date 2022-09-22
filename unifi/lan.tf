@@ -1,14 +1,3 @@
-locals {
-  networks = defaults(var.networks, {
-    purpose = "corporate"
-
-    wifi = {
-      band      = "both"
-      hide_ssid = false
-    }
-  })
-}
-
 resource "unifi_network" "network" {
   name    = each.value.name
   purpose = each.value.purpose
@@ -27,7 +16,7 @@ resource "unifi_network" "network" {
   ipv6_ra_enable      = true
   ipv6_static_subnet  = cidrsubnet(var.network_ipv6_subnet, 16, coalesce(each.value.vlan, 1))
 
-  for_each = local.networks
+  for_each = var.networks
 }
 
 # TODO: Enable WPA3 support.
@@ -53,5 +42,5 @@ resource "unifi_wlan" "wlan" {
     ignore_changes = [minimum_data_rate_2g_kbps, radius_profile_id]
   }
 
-  for_each = { for network_name, network in local.networks : network_name => network if network.wifi != null }
+  for_each = { for network_name, network in var.networks : network_name => network if network.wifi != null }
 }
