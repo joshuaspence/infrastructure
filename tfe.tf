@@ -9,7 +9,7 @@ resource "tfe_organization_token" "github_actions" {
 }
 
 resource "tfe_workspace" "home" {
-  name         = "home"
-  organization = tfe_organization.main.name
-  operations   = false
+  name           = "home"
+  organization   = tfe_organization.main.name
+  execution_mode = "local"
 }
