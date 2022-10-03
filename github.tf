@@ -25,13 +25,6 @@ resource "github_repository" "repository" {
   vulnerability_alerts   = true
 
   for_each = var.github_repositories
-
-  lifecycle {
-    ignore_changes = [
-      # Workaround for integrations/terraform-provider-github#1037.
-      branches,
-    ]
-  }
 }
 
 resource "github_repository_deploy_key" "deploy_key" {
