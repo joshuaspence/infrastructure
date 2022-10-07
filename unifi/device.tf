@@ -22,7 +22,7 @@ locals {
 // TODO: Manage radio configuration (Config > Radios)
 // TODO: Configure band steering (Config > Band steering)
 resource "unifi_device" "access_point" {
-  name = format("%s Access Point", title(each.key))
+  name = format("%s Access Point", title(replace(each.key, "_", " ")))
   mac  = each.value.mac
 
   dynamic "port_override" {
@@ -94,7 +94,7 @@ locals {
     for key, device in var.access_points : device.uplink.port => {
       name    = unifi_device.access_point[key].name
       number  = device.uplink.port
-      profile = null
+      profile = "all"
     } if device.uplink.switch == "main"
   }
 
