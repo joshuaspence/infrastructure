@@ -1,7 +1,7 @@
 # TODO: Also manage devices.
 resource "unifi_user" "client" {
   mac  = each.value.mac
-  name = coalesce(each.value.name, title(replace(each.key, "_", " ")))
+  name = each.value.name == null ? title(replace(each.key, "_", " ")) : each.value.name
   note = each.value.note
 
   network_id = each.value.network != null ? unifi_network.network[each.value.network].id : null
