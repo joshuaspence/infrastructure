@@ -1,8 +1,25 @@
-# TODO: Manage RADIUS server.
-# TODO: Manage RADIUS users.
-# TODO: This doesn't seem to be working on the UXG.
+resource "unifi_setting_radius" "vpn" {
+  secret = var.vpn.secret
+}
 
-data "unifi_radius_profile" "default" {}
+resource "unifi_radius_profile" "default" {
+  name                = "Default"
+  use_usg_auth_server = true
+
+  lifecycle {
+    ignore_changes = [auth_server, interim_update_interval]
+  }
+}
+
+# TODO: Set `vlan_id`.
+resource "unifi_account" "vpn" {
+  name               = each.key
+  password           = each.value.password
+  tunnel_type        = 3
+  tunnel_medium_type = 1
+
+  for_each = var.vpn.users
+}
 
 # TODO: `purpose` should be `remote-user-vpn`.
 resource "unifi_network" "vpn" {
@@ -20,7 +37,7 @@ resource "unifi_network" "vpn" {
 
 output "network_manager_connections" {
   value = {
-    for user, password in var.vpn.users : user => <<-EOT
+    for username, user in var.vpn.users : username => <<-EOT
     [connection]
     id=Home
 
@@ -28,7 +45,7 @@ output "network_manager_connections" {
     gateway=${var.vpn.gateway}
     ipsec-enabled=true
     service-type=org.freedesktop.NetworkManager.l2tp
-    user=${user}
+    user=${username}
     refuse-eap=true
     refuse-pap=true
     refuse-chap=true
@@ -36,7 +53,7 @@ output "network_manager_connections" {
 
     [vpn-secrets]
     ipsec-psk=${var.vpn.secret}
-    password=${password}
+    password=${user.password}
 
     [ip4]
     method=auto

@@ -94,7 +94,10 @@ variable "unifi_vpn" {
     gateway = string
     subnet  = string
     secret  = string
-    users   = map(string)
+    users = map(object({
+      password = string
+      network  = string
+    }))
   })
 }
 
