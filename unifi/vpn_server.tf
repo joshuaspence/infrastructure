@@ -14,7 +14,7 @@ resource "unifi_network" "vpn" {
   dhcp_stop  = cidrhost(var.vpn.subnet, -2)
 
   lifecycle {
-    ignore_changes = [dhcp_lease, ipv6_interface_type, network_group, purpose]
+    ignore_changes = [dhcp_lease, dhcp_v6_dns_auto, dhcp_v6_lease, ipv6_interface_type, ipv6_ra_preferred_lifetime, ipv6_ra_valid_lifetime, network_group, purpose]
   }
 }
 

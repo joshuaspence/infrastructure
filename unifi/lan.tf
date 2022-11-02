@@ -7,14 +7,24 @@ resource "unifi_network" "network" {
   subnet        = each.value.subnet
   domain_name   = each.value.domain_name
   igmp_snooping = true
-  dhcp_enabled  = true
-  dhcp_start    = cidrhost(each.value.subnet, 6)
-  dhcp_stop     = cidrhost(each.value.subnet, -2)
+
+  dhcp_enabled = true
+  dhcp_start   = cidrhost(each.value.subnet, 6)
+  dhcp_stop    = cidrhost(each.value.subnet, -2)
+
+  dhcp_v6_enabled = true
+  dhcp_v6_start   = cidrhost(cidrsubnet(var.network_ipv6_subnet, 16, coalesce(each.value.vlan, 1)), 2)
+  dhcp_v6_stop    = cidrhost(cidrsubnet(var.network_ipv6_subnet, 16, coalesce(each.value.vlan, 1)), 2001)
 
   # TODO: Set `ipv6_interface_type` to `pd`.
   ipv6_interface_type = "static"
-  ipv6_ra_enable      = true
   ipv6_static_subnet  = cidrsubnet(var.network_ipv6_subnet, 16, coalesce(each.value.vlan, 1))
+  ipv6_ra_enable      = true
+  ipv6_ra_priority    = "high"
+
+  lifecycle {
+    ignore_changes = [ipv6_pd_start, ipv6_pd_stop]
+  }
 
   for_each = var.networks
 }
