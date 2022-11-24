@@ -5,6 +5,11 @@ locals {
       broadcast_port = 67
     },
     {
+      name             = "Daikin Airbase"
+      broadcast_port   = 30050
+      destination_port = 30000
+    },
+    {
       name           = "TP-Link Kasa"
       broadcast_port = 9999
       source_port    = 9999
@@ -13,11 +18,6 @@ locals {
       name           = "Tuya"
       broadcast_port = 6667
     },
-    {
-      name             = "Daikin Airbase"
-      broadcast_port   = 30050
-      destination_port = 30000
-    }
   ]
 }
 
