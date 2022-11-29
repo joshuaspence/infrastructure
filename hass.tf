@@ -8,6 +8,11 @@ resource "google_project" "home_assistant" {
   name       = "Home Assistant"
   project_id = "home-assistant-${random_string.home_assistant_project_suffix.result}"
   org_id     = data.google_organization.main.org_id
+
+  # TODO: Is this needed?
+  labels = {
+    firebase = "enabled"
+  }
 }
 
 resource "google_firebase_project" "home_assistant" {
