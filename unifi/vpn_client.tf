@@ -161,8 +161,7 @@ resource "ssh_resource" "gateway_nordvpn" {
       <<-EOT
         client
         dev tun
-        proto udp
-        remote %s 1194
+        remote %s 1194 udp
         resolv-retry infinite
         remote-random
         nobind
