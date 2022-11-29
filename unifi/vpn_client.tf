@@ -25,7 +25,7 @@ data "http" "nordvpn_server_technologies" {
 
 data "http" "nordvpn_servers" {
   url = format(
-    "%s/servers/recommendations?%s&limit=5",
+    "%s/servers/recommendations?%s&limit=128",
     local.nordvpn_api,
     join(
       "&",
@@ -68,7 +68,7 @@ locals {
 resource "random_shuffle" "nordvpn_server" {
   input        = [for server in jsondecode(data.http.nordvpn_servers.response_body) : server.hostname]
   keepers      = local.nordvpn_server_filters
-  result_count = 1
+  result_count = 64
 
   lifecycle {
     ignore_changes = [input]
@@ -161,7 +161,6 @@ resource "ssh_resource" "gateway_nordvpn" {
       <<-EOT
         client
         dev tun
-        remote %s 1194 udp
         resolv-retry infinite
         remote-random
         nobind
@@ -191,11 +190,13 @@ resource "ssh_resource" "gateway_nordvpn" {
         <tls-auth>
         %s
         </tls-auth>
+        %s
       EOT
       ,
-      random_shuffle.nordvpn_server.result[0],
       trimspace(data.http.nordvpn_certificate.response_body),
       trimspace(local.nordvpn_tls_key),
+      join("\n", formatlist("remote %s 1194 udp", sort(random_shuffle.nordvpn_server.result))),
+
     )
     destination = local.nordvpn_ovpn
   }
