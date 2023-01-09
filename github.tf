@@ -21,8 +21,16 @@ resource "github_repository" "repository" {
   has_issues             = true
   delete_branch_on_merge = true
   archive_on_destroy     = true
-  topics                 = each.value.topics
-  vulnerability_alerts   = true
+  
+  topics               = each.value.topics
+  vulnerability_alerts = true
+
+  lifecycle {
+    ignore_changes = [
+      # See integrations/terraform-provider-github#1419.
+      security_and_analysis,
+    ]
+  }
 
   for_each = var.github_repositories
 }
