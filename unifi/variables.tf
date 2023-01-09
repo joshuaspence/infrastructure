@@ -30,8 +30,9 @@ variable "clients" {
     name = optional(string)
     note = optional(string)
 
-    network  = optional(string)
-    fixed_ip = optional(string)
+    network    = optional(string)
+    fixed_ip   = optional(string)
+    dns_record = optional(string)
 
     device_fingerprint_id = optional(number)
 

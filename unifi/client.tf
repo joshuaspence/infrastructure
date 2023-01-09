@@ -4,8 +4,9 @@ resource "unifi_user" "client" {
   name = each.value.name == null ? title(replace(each.key, "_", " ")) : each.value.name
   note = each.value.note
 
-  network_id = each.value.network != null ? unifi_network.network[each.value.network].id : null
-  fixed_ip   = each.value.fixed_ip
+  network_id       = each.value.network != null ? unifi_network.network[each.value.network].id : null
+  fixed_ip         = each.value.fixed_ip
+  local_dns_record = each.value.dns_record
 
   dev_id_override = each.value.device_fingerprint_id
 
