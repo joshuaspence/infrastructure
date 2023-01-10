@@ -21,7 +21,7 @@ resource "github_repository" "repository" {
   has_issues             = true
   delete_branch_on_merge = true
   archive_on_destroy     = true
-  
+
   topics               = each.value.topics
   vulnerability_alerts = true
 
