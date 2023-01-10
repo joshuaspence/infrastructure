@@ -75,130 +75,45 @@ resource "random_shuffle" "nordvpn_server" {
   }
 }
 
-locals {
-  dnsmasq_conf_d = "/run/dnsmasq.conf.d"
-  splitvpn_base  = "/mnt/data/split-vpn"
-  nordvpn_base   = "${local.splitvpn_base}/nordvpn"
+output "nordvpn_config" {
+  value = format(
+    <<-EOT
+      client
+      dev tun
+      resolv-retry infinite
+      remote-random
+      nobind
+      tun-mtu 1500
+      tun-mtu-extra 32
+      mssfix 1450
+      persist-key
+      persist-tun
+      ping 15
+      ping-restart 0
+      ping-timer-rem
+      reneg-sec 0
+      comp-lzo no
 
-  nordvpn_auth    = "${local.nordvpn_base}/auth.txt"
-  nordvpn_conf    = "${local.nordvpn_base}/vpn.conf"
-  nordvpn_device  = "tun0"
-  nordvpn_dnsmasq = "${local.nordvpn_base}/dnsmasq.conf"
-  nordvpn_ovpn    = "${local.nordvpn_base}/nordvpn.ovpn"
-  nordvpn_pid     = "/run/openvpn-nordvpn.pid"
+      remote-cert-tls server
 
-  nordvpn_config = {
-    forced_source_interface   = ""
-    forced_source_ipv4        = ""
-    forced_source_ipv6        = ""
-    forced_source_mac         = ""
-    forced_destinations_ipv4  = ""
-    forced_destinations_ipv6  = ""
-    forced_local_interface    = ""
-    exempt_source_ipv4        = ""
-    exempt_source_ipv6        = ""
-    exempt_source_mac         = ""
-    exempt_destinations_ipv4  = ""
-    exempt_destinations_ipv6  = ""
-    forced_ipsets             = formatlist("%s:dst", local.netflix_ipsets)
-    exempt_ipsets             = ""
-    dns_ipv4_ip               = "DHCP"
-    dns_ipv4_port             = 53
-    dns_ipv4_interface        = ""
-    dns_ipv6_ip               = ""
-    dns_ipv6_port             = 53
-    dns_ipv6_interface        = ""
-    bypass_masquerade_ipv4    = ""
-    bypass_masquerade_ipv6    = ""
-    killswitch                = 0
-    remove_killswitch_on_exit = 1
-    remove_startup_blackholes = 1
-    vpn_provider              = "openvpn"
-    gateway_table             = "auto"
-    watcher_timer             = 1
-    route_table               = 101
-    mark                      = "0x169"
-    prefix                    = "VPN_"
-    pref                      = 99
-    dev                       = local.nordvpn_device
-  }
-
-  netflix_domains    = ["netflix.com", "netflix.net", "nflxext.com", "nflximg.com", "nflxso.net", "nflxvideo.net"]
-  netflix_ipset_ipv4 = "netflix_ipv4"
-  netflix_ipset_ipv6 = "netflix_ipv6"
-  netflix_ipsets     = [local.netflix_ipset_ipv4, local.netflix_ipset_ipv6]
-}
-
-# NOTE: I can't use the `remote_file` resource due to golang/go#8657.
-resource "ssh_resource" "gateway_nordvpn" {
-  host  = format("gateway.%s", var.networks["management"].domain_name)
-  user  = var.ssh_config.username
-  agent = true
-
-  pre_commands = [
-    "mkdir --parents ${local.splitvpn_base}",
-    "mkdir --parents ${local.nordvpn_base}",
-  ]
-
-  file {
-    content     = format("%s\n%s\n", var.nordvpn_auth.username, var.nordvpn_auth.password)
-    destination = local.nordvpn_auth
-    permissions = "0600"
-  }
-
-  file {
-    content     = join("\n", [for key, value in local.nordvpn_config : format("%s=%s", upper(key), jsonencode(join(" ", flatten([value]))))])
-    destination = local.nordvpn_conf
-  }
-
-  file {
-    content     = format("ipset=/%s/%s\n", join("/", local.netflix_domains), join(",", local.netflix_ipsets))
-    destination = local.nordvpn_dnsmasq
-  }
-
-  file {
-    content = format(
-      <<-EOT
-        client
-        dev tun
-        resolv-retry infinite
-        remote-random
-        nobind
-        tun-mtu 1500
-        tun-mtu-extra 32
-        mssfix 1450
-        persist-key
-        persist-tun
-        ping 15
-        ping-restart 0
-        ping-timer-rem
-        reneg-sec 0
-        comp-lzo no
-
-        remote-cert-tls server
-
-        auth-user-pass
-        verb 3
-        pull
-        fast-io
-        cipher AES-256-CBC
-        auth SHA512
-        <ca>
-        %s
-        </ca>
-        key-direction 1
-        <tls-auth>
-        %s
-        </tls-auth>
-        %s
-      EOT
-      ,
-      trimspace(data.http.nordvpn_certificate.response_body),
-      trimspace(local.nordvpn_tls_key),
-      join("\n", formatlist("remote %s 1194 udp", sort(random_shuffle.nordvpn_server.result))),
-
-    )
-    destination = local.nordvpn_ovpn
-  }
-
+      auth-user-pass
+      verb 3
+      pull
+      fast-io
+      cipher AES-256-CBC
+      auth SHA512
+      <ca>
+      %s
+      </ca>
+      key-direction 1
+      <tls-auth>
+      %s
+      </tls-auth>
+      %s
+    EOT
+    ,
+    trimspace(data.http.nordvpn_certificate.response_body),
+    trimspace(local.nordvpn_tls_key),
+    join("\n", formatlist("remote %s 1194 udp", sort(random_shuffle.nordvpn_server.result))),
+  )
 }

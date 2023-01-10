@@ -126,6 +126,10 @@ module "unifi" {
   vpn                 = merge(var.unifi_vpn, { gateway = aws_route53_record.vpn.fqdn })
 }
 
+output "unifi_nordvpn_config" {
+  value = module.unifi.nordvpn_config
+}
+
 output "unifi_vpn_network_manager_connections" {
   value     = module.unifi.network_manager_connections
   sensitive = true

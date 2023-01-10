@@ -4,10 +4,6 @@ terraform {
       source = "tenstad/remote"
     }
 
-    ssh = {
-      source = "loafoe/ssh"
-    }
-
     unifi = {
       source  = "paultyng/unifi"
       version = ">= 0.33.0"
