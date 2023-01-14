@@ -57,6 +57,13 @@ resource "googleworkspace_group_settings" "dmarc_reports" {
   allow_external_members         = true
   include_in_global_address_list = false
   who_can_discover_group         = "ALL_MEMBERS_CAN_DISCOVER"
+
+  lifecycle {
+    ignore_changes = [
+      # See hashicorp/terraform-provider-googleworkspace#398.
+      is_archived,
+    ]
+  }
 }
 
 resource "googleworkspace_group_members" "dmarc_reports" {
