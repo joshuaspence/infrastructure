@@ -18,23 +18,16 @@ resource "remote_file" "multicast_relay" {
   permissions = "0755"
 }
 
-locals {
-  multicast_relay_interfaces             = [for network in unifi_network.network : network if network.purpose != "guest"]
-  multicast_relay_interfaces_no_transmit = [for network in local.multicast_relay_interfaces : network if network.id != unifi_network.network["trusted"].id]
-}
-
 resource "remote_file" "multicast_relay_config" {
   provider = remote.gateway
   path     = "/etc/default/multicast-relay"
   content = format(
     <<-EOT
       INTERFACES=%s
-      NO_TRANSMIT_INTERFACES=%s
       RELAY=%s
     EOT
     ,
-    join(" ", [for network in local.multicast_relay_interfaces : network.subnet]),
-    join(" ", [for network in local.multicast_relay_interfaces_no_transmit : network.subnet]),
+    join(" ", [for network in unifi_network.network : network.subnet if network.purpose != "guest"]),
     join(" ", [for device_discovery in local.device_discovery : format("255.255.255.255:%d", device_discovery.broadcast_port)]),
   )
 }
@@ -52,7 +45,7 @@ resource "remote_file" "multicast_relay_service" {
 
     [Service]
     Type=exec
-    ExecStart=/usr/local/bin/multicast-relay --interfaces $INTERFACES --noTransmitInterfaces $NO_TRANSMIT_INTERFACES --relay $RELAY --noMDNS --noSSDP --noSonosDiscovery --homebrewNetifaces --foreground --homebrewNetifaces --verbose
+    ExecStart=/usr/local/bin/multicast-relay --interfaces $INTERFACES --relay $RELAY --noMDNS --noSSDP --noSonosDiscovery --homebrewNetifaces --foreground --homebrewNetifaces --verbose
     Restart=on-failure
     EnvironmentFile=/etc/default/%p
 
