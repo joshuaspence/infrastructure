@@ -52,6 +52,13 @@ resource "remote_file" "multicast_relay_service" {
     [Install]
     WantedBy=multi-user.target network.target
   EOT
+}
+
+resource "null_resource" "multicast_relay_systemd" {
+  triggers = {
+    config  = remote_file.multicast_relay_config.content
+    service = remote_file.multicast_relay_service.content
+  }
 
   connection {
     type     = "ssh"
@@ -63,7 +70,7 @@ resource "remote_file" "multicast_relay_service" {
   provisioner "remote-exec" {
     inline = [
       "systemctl daemon-reload",
-      "systemctl enable multicast-relay.service",
+      "systemctl enable --now multicast-relay.service",
     ]
   }
 }
