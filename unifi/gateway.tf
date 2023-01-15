@@ -44,9 +44,10 @@ resource "remote_file" "multicast_relay_service" {
     After=udapi-server.service
 
     [Service]
-    Type=exec
     ExecStart=/usr/local/bin/multicast-relay --interfaces $INTERFACES --relay $RELAY --noMDNS --noSSDP --noSonosDiscovery --homebrewNetifaces --foreground --homebrewNetifaces --verbose
     Restart=on-failure
+    DynamicUser=true
+    AmbientCapabilities=CAP_NET_RAW
     EnvironmentFile=/etc/default/%p
 
     [Install]
