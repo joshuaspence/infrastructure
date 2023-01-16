@@ -51,7 +51,7 @@ resource "remote_file" "multicast_relay_service" {
     EnvironmentFile=/etc/default/%p
 
     [Install]
-    WantedBy=multi-user.target network.target
+    WantedBy=multi-user.target
   EOT
 }
 
