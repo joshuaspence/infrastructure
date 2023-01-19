@@ -7,27 +7,6 @@ resource "unifi_device" "gateway" {
   }
 }
 
-resource "remote_file" "dnsmasq_ipv6_ra" {
-  provider = remote.gateway
-  path     = "/run/dnsmasq.conf.d/ipv6-ra.conf"
-  content = join("\n", [
-    for network in unifi_network.network :
-    format(
-      "dhcp-range=set:%s,%s,%s,ra-stateless,%d,%d",
-      format(
-        "net_%s_br%d_%s_IPV6",
-        network.name,
-        network.vlan_id,
-        replace(network.subnet, "/[.\\/]/", "-"),
-      ),
-      network.dhcp_v6_start,
-      network.dhcp_v6_stop,
-      split("/", network.ipv6_static_subnet)[1],
-      network.ipv6_ra_valid_lifetime,
-    )
-  ])
-}
-
 data "http" "multicast_relay" {
   url = "https://raw.githubusercontent.com/joshuaspence/multicast-relay/broadcast/multicast-relay.py"
 }
