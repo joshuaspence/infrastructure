@@ -54,6 +54,7 @@ variable "unifi_networks" {
     wifi = optional(object({
       ssid       = string
       passphrase = string
+      security   = optional(string, "wpa2")
       band       = optional(string, "both")
       hide_ssid  = optional(bool)
     }))

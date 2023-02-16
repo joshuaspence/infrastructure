@@ -66,10 +66,16 @@ variable "networks" {
     wifi = optional(object({
       ssid       = string
       passphrase = string
+      security   = optional(string, "wpa2")
       band       = optional(string)
       hide_ssid  = optional(bool)
     }))
   }))
+
+  validation {
+    condition     = alltrue([for network in var.networks : contains(["wpa2", "wpa3"], network.wifi.security) if network.wifi != null])
+    error_message = "Security must be one of: wpa2, wpa3"
+  }
 }
 
 variable "nordvpn_auth" {

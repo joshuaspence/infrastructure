@@ -29,7 +29,6 @@ resource "unifi_network" "network" {
   for_each = var.networks
 }
 
-# TODO: Enable WPA3 support.
 # TODO: Maybe enable fast roaming.
 # TODO: Tweak other settings.
 # TODO: Enable BSS transition.
@@ -47,6 +46,9 @@ resource "unifi_wlan" "wlan" {
   hide_ssid         = each.value.wifi.hide_ssid
   is_guest          = each.value.purpose == "guest"
   l2_isolation      = each.value.purpose == "guest"
+
+  wpa3_support = each.value.wifi.security == "wpa3"
+  pmf_mode     = each.value.wifi.security == "wpa3" ? "required" : "disabled"
 
   lifecycle {
     ignore_changes = [minimum_data_rate_2g_kbps, radius_profile_id]
