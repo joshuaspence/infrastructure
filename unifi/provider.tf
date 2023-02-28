@@ -6,7 +6,7 @@ terraform {
 
     unifi = {
       source  = "paultyng/unifi"
-      version = ">= 0.33.0"
+      version = ">= 0.40.0"
     }
   }
 }

@@ -7,6 +7,7 @@ resource "unifi_network" "network" {
   subnet        = each.value.subnet
   domain_name   = each.value.domain_name
   igmp_snooping = true
+  multicast_dns = true
 
   dhcp_enabled = true
   dhcp_start   = cidrhost(each.value.subnet, 6)
