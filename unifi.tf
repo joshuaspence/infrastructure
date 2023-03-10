@@ -52,11 +52,12 @@ variable "unifi_networks" {
     domain_name = optional(string)
 
     wifi = optional(object({
-      ssid       = string
-      passphrase = string
-      security   = optional(string, "wpa2")
-      band       = optional(string, "both")
-      hide_ssid  = optional(bool)
+      ssid         = string
+      passphrase   = string
+      security     = optional(string, "wpa2")
+      band         = optional(string, "both")
+      hide_ssid    = optional(bool)
+      fast_roaming = optional(bool)
     }))
   }))
 }

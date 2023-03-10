@@ -64,11 +64,12 @@ variable "networks" {
     domain_name = optional(string)
 
     wifi = optional(object({
-      ssid       = string
-      passphrase = string
-      security   = optional(string, "wpa2")
-      band       = optional(string)
-      hide_ssid  = optional(bool)
+      ssid         = string
+      passphrase   = string
+      security     = optional(string, "wpa2")
+      band         = optional(string)
+      hide_ssid    = optional(bool)
+      fast_roaming = optional(bool)
     }))
   }))
 

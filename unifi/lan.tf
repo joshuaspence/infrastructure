@@ -30,23 +30,21 @@ resource "unifi_network" "network" {
   for_each = var.networks
 }
 
-# TODO: Maybe enable fast roaming.
-# TODO: Tweak other settings.
-# TODO: Enable BSS transition.
 resource "unifi_wlan" "wlan" {
   name       = each.value.wifi.ssid
   security   = "wpapsk"
   passphrase = each.value.wifi.passphrase
   network_id = unifi_network.network[each.key].id
 
-  wlan_band         = each.value.wifi.band
-  ap_group_ids      = [data.unifi_ap_group.default.id]
-  user_group_id     = unifi_user_group.default.id
-  multicast_enhance = true
-  no2ghz_oui        = false
-  hide_ssid         = each.value.wifi.hide_ssid
-  is_guest          = each.value.purpose == "guest"
-  l2_isolation      = each.value.purpose == "guest"
+  wlan_band            = each.value.wifi.band
+  ap_group_ids         = [data.unifi_ap_group.default.id]
+  user_group_id        = unifi_user_group.default.id
+  multicast_enhance    = true
+  no2ghz_oui           = false
+  hide_ssid            = each.value.wifi.hide_ssid
+  is_guest             = each.value.purpose == "guest"
+  l2_isolation         = each.value.purpose == "guest"
+  fast_roaming_enabled = each.value.wifi.fast_roaming
 
   wpa3_support = each.value.wifi.security == "wpa3"
   pmf_mode     = each.value.wifi.security == "wpa3" ? "required" : "disabled"

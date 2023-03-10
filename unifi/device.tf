@@ -122,10 +122,11 @@ resource "unifi_device" "switch" {
     }
   }
 
-  # TODO: Port 25-26 should be aggregated.
   port_override {
-    number          = 25
-    port_profile_id = data.unifi_port_profile.all.id
+    number              = 25
+    port_profile_id     = data.unifi_port_profile.all.id
+    op_mode             = "aggregate"
+    aggregate_num_ports = 2
   }
 
   port_override {
