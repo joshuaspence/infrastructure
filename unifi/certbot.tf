@@ -13,7 +13,7 @@ locals {
 }
 
 # TODO: Move this to gateway.
-resource "null_resource" "certbot" {
+resource "terraform_data" "certbot" {
   connection {
     type     = "ssh"
     user     = var.ssh_config.username

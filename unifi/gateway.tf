@@ -55,8 +55,8 @@ resource "remote_file" "multicast_relay_service" {
   EOT
 }
 
-resource "null_resource" "multicast_relay_systemd" {
-  triggers = {
+resource "terraform_data" "multicast_relay_systemd" {
+  triggers_replace = {
     config  = remote_file.multicast_relay_config.content
     service = remote_file.multicast_relay_service.content
   }
