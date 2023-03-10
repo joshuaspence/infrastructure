@@ -23,11 +23,21 @@ resource "terraform_data" "certbot" {
 
   provisioner "remote-exec" {
     inline = [
-      "test -f .acme.sh/acme.sh && exit 0",
       format(
-        "curl https://get.acme.sh | sh -s email=%s",
-        var.certbot.email,
+        "test -f .acme.sh/acme.sh || %s",
+        format("curl https://get.acme.sh | sh -s email=%s", var.certbot.email),
       ),
+
+      # Enable auto-upgrade.
+      format(
+        ".acme.sh/acme.sh --info | grep --extended-regexp --quiet \"^AUTO_UPGRADE=['\\\"]?1['\\\"]?$\" || %s",
+        ".acme.sh/acme.sh --upgrade --auto-upgrade",
+      ),
+
+      # Enable cronjob.
+      "crontab -l 2>/dev/null || .acme.sh/acme.sh --install-cronjob",
+
+      # Issue and deploy certificate.
       ".acme.sh/acme.sh --server letsencrypt --set-default-ca",
       format(
         "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s .acme.sh/acme.sh --dns dns_aws --domain %s --issue",
