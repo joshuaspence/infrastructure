@@ -58,6 +58,7 @@ resource "remote_file" "multicast_relay_service" {
 resource "terraform_data" "multicast_relay_systemd" {
   triggers_replace = {
     config  = remote_file.multicast_relay_config.content
+    script  = remote_file.multicast_relay.content
     service = remote_file.multicast_relay_service.content
   }
 
