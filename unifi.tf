@@ -129,7 +129,8 @@ module "unifi" {
 }
 
 output "unifi_nordvpn_config" {
-  value = module.unifi.nordvpn_config
+  value     = module.unifi.nordvpn_config
+  sensitive = true
 }
 
 output "unifi_vpn_network_manager_connections" {
