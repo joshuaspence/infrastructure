@@ -30,9 +30,8 @@ resource "unifi_device" "access_point" {
     iterator = port
 
     content {
-      name            = port.value.name
-      number          = port.key
-      port_profile_id = port.value.profile != null ? local.port_profiles[port.value.profile].id : null
+      name   = port.value.name
+      number = port.key
     }
   }
 
@@ -70,9 +69,8 @@ resource "unifi_device" "aggregation_switch" {
     iterator = port
 
     content {
-      name            = port.value.name
-      number          = port.key
-      port_profile_id = port.value.profile != null ? local.port_profiles[port.value.profile].id : null
+      name   = port.value.name
+      number = port.key
     }
   }
 
@@ -116,21 +114,18 @@ resource "unifi_device" "switch" {
     iterator = port
 
     content {
-      name            = port.value.name
-      number          = port.key
-      port_profile_id = port.value.profile != null ? local.port_profiles[port.value.profile].id : null
+      name   = port.value.name
+      number = port.key
     }
   }
 
   port_override {
     number              = 25
-    port_profile_id     = data.unifi_port_profile.all.id
     op_mode             = "aggregate"
     aggregate_num_ports = 2
   }
 
   port_override {
-    number          = 26
-    port_profile_id = data.unifi_port_profile.all.id
+    number = 26
   }
 }
