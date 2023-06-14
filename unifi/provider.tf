@@ -16,7 +16,7 @@ provider "remote" {
 
   conn {
     host     = var.clients["unifi_network_controller"].fixed_ip
-    user     = var.ssh_config.username
+    user     = "root"
     password = var.ssh_config.password
   }
 }
@@ -36,7 +36,7 @@ provider "remote" {
 
   conn {
     host     = var.clients["unifi_protect_nvr"].fixed_ip
-    user     = var.ssh_config.username
+    user     = "root"
     password = var.ssh_config.password
   }
 }

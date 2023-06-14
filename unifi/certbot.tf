@@ -16,7 +16,7 @@ locals {
 resource "terraform_data" "certbot" {
   connection {
     type     = "ssh"
-    user     = var.ssh_config.username
+    user     = "root"
     password = var.ssh_config.password
     host     = var.clients[each.value.host].fixed_ip
   }
