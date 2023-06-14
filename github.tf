@@ -84,8 +84,3 @@ resource "github_actions_secret" "secret" {
     secret.key => secret.value
   }
 }
-
-resource "dockerhub_token" "github_actions" {
-  label  = "GitHub Actions"
-  scopes = ["repo:write"]
-}
