@@ -1,0 +1,14 @@
+---
+all:
+  children:
+    proxmox:
+      hosts:
+        proxmox1:
+          ansible_host: '192.168.60.2'
+        proxmox2:
+          ansible_host: '192.168.60.3'
+        proxmox3:
+          ansible_host: '192.168.60.4'
+      vars:
+        ansible_become: true
+        ansible_user: 'pi'
