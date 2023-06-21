@@ -9,7 +9,7 @@ variable "nordvpn_auth" {
 variable "unifi_access_points" {
   type = map(object({
     mac   = string
-    ports = optional(number)
+    ports = optional(number, 0)
 
     uplink = object({
       switch = string
@@ -82,14 +82,18 @@ variable "unifi_ssh_config" {
   }
 }
 
-variable "unifi_switch_ports" {
-  type = set(object({
-    name    = string
-    number  = number
-    profile = optional(string)
-  }))
+variable "unifi_switches" {
+  type = map(object({
+    mac   = string
+    name  = optional(string)
+    ports = optional(number, 0)
 
-  default = []
+    port_overrides = optional(map(object({
+      name                = optional(string)
+      op_mode             = optional(string)
+      aggregate_num_ports = optional(number)
+    })), {})
+  }))
 }
 
 variable "unifi_vpn" {
@@ -113,7 +117,7 @@ module "unifi" {
   networks            = var.unifi_networks
   nordvpn_auth        = var.nordvpn_auth
   ssh_config          = var.unifi_ssh_config
-  switch_ports        = var.unifi_switch_ports
+  switches            = var.unifi_switches
   vpn                 = merge(var.unifi_vpn, { gateway = aws_route53_record.vpn.fqdn })
 
   certbot = {

@@ -1,7 +1,7 @@
 variable "access_points" {
   type = map(object({
     mac   = string
-    ports = optional(number)
+    ports = optional(number, 0)
 
     uplink = object({
       switch = string
@@ -107,14 +107,18 @@ variable "ssh_config" {
   }
 }
 
-variable "switch_ports" {
-  type = set(object({
-    name    = string
-    number  = number
-    profile = optional(string)
-  }))
+variable "switches" {
+  type = map(object({
+    mac   = string
+    name  = optional(string)
+    ports = optional(number, 0)
 
-  default = []
+    port_overrides = optional(map(object({
+      name                = optional(string)
+      op_mode             = optional(string)
+      aggregate_num_ports = optional(number)
+    })), {})
+  }))
 }
 
 variable "vpn" {
