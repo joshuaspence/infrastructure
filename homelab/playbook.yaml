@@ -1,9 +1,6 @@
 ---
-- hosts: 'proxmox'
-  tasks:
-    - ansible.builtin.ping: {}
-
-- hosts: 'proxmox'
+- name: 'Configure UCTRONICS RM0004'
+  hosts: 'proxmox'
   roles:
     - role: 'infothrill.rpi_boot_config'
       vars:
@@ -11,35 +8,47 @@
           - 'dtparam=i2c_arm=on,i2c_arm_baudrate=400000'
           - 'dtoverlay=gpio-shutdown,gpio_pin=4,active_low=1,gpio_pull=up'
   tasks:
-    - community.general.modprobe:
+    - name: 'Enable kernel modules'
+      community.general.modprobe:
         name: 'i2c-dev'
-    - ansible.builtin.apt:
+    - name: 'Install prerequisites'
+      ansible.builtin.apt:
         name: 'git'
-    - ansible.builtin.git:
+    - name: 'Download display driver'
+      ansible.builtin.git:  # noqa: latest
         repo: 'https://github.com/UCTRONICS/SKU_RM0004.git'
         dest: '/opt/uctronics/sku_rm0004'
-    - ansible.builtin.shell:
+    - name: 'Compile display driver'
+      ansible.builtin.command:
         chdir: '/opt/uctronics/sku_rm0004'
         cmd: 'make'
         creates: '/opt/uctronics/sku_rm0004/display'
-    - ansible.builtin.shell: 'nohup /opt/uctronics/sku_rm0004/display >/dev/null 2>&1 &'
+    - name: 'Run display driver'
+      ansible.builtin.shell: 'nohup /opt/uctronics/sku_rm0004/display >/dev/null 2>&1 &'  # noqa: no-changed-when
 
-- hosts: 'proxmox'
+- name: 'Install Pimox'
+  hosts: 'proxmox'
   tasks:
     - name: 'Set hostname'
       block:
-        - ansible.builtin.hostname:
+        - name: 'Configure hostname'
+          ansible.builtin.hostname:
             name: '{{ inventory_hostname }}'
-        - ansible.builtin.template:
+        - name: 'Configure /etc/hosts'
+          ansible.builtin.template:
             src: 'hosts.j2'
             dest: '/etc/hosts'
+            mode: '0644'
 
     - name: 'Install proxmox'
       block:
-        - ansible.builtin.apt_key:
+        - name: 'Install proxmox key'
+          ansible.builtin.apt_key:
             url: 'https://raw.githubusercontent.com/pimox/pimox7/master/KEY.gpg'
-        - ansible.builtin.apt_repository:
+        - name: 'Install proxmox repository'
+          ansible.builtin.apt_repository:
             filename: 'pimox'
             repo: 'deb https://raw.githubusercontent.com/pimox/pimox7/master/ dev/'
-        - ansible.builtin.apt:
+        - name: 'Install proxmox package'
+          ansible.builtin.apt:
             name: 'proxmox-ve'

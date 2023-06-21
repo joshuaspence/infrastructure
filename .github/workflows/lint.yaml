@@ -6,6 +6,15 @@ on:
   schedule:
     - cron: '0 0 * * 1'
 jobs:
+  ansible-lint:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: 'Bhacaz/checkout-files@v2'
+        with:
+          files: 'homelab'
+      - run: 'mv homelab/* .'
+      - uses: 'ansible/ansible-lint-action@v6'
+
   terraform-fmt:
     runs-on: 'ubuntu-latest'
     steps:

@@ -1,0 +1,7 @@
+---
+collections:
+  - 'community.general'
+
+roles:
+  - name: 'infothrill.rpi_boot_config'
+    version: '4.3.0'
