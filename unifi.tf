@@ -107,7 +107,15 @@ variable "unifi_vpn" {
 module "unifi" {
   source = "./unifi"
 
-  access_points = var.unifi_access_points
+  access_points       = var.unifi_access_points
+  clients             = var.unifi_clients
+  network_ipv6_subnet = var.unifi_network_ipv6_subnet
+  networks            = var.unifi_networks
+  nordvpn_auth        = var.nordvpn_auth
+  ssh_config          = var.unifi_ssh_config
+  switch_ports        = var.unifi_switch_ports
+  vpn                 = merge(var.unifi_vpn, { gateway = aws_route53_record.vpn.fqdn })
+
   certbot = {
     credentials = {
       aws_access_key_id     = aws_iam_access_key.certbot.id
@@ -119,13 +127,6 @@ module "unifi" {
     }
     email = format("josh@%s", googleworkspace_domain.secondary["spence.network"].domain_name)
   }
-  clients             = var.unifi_clients
-  network_ipv6_subnet = var.unifi_network_ipv6_subnet
-  networks            = var.unifi_networks
-  nordvpn_auth        = var.nordvpn_auth
-  ssh_config          = var.unifi_ssh_config
-  switch_ports        = var.unifi_switch_ports
-  vpn                 = merge(var.unifi_vpn, { gateway = aws_route53_record.vpn.fqdn })
 }
 
 output "unifi_nordvpn_config" {
