@@ -93,6 +93,11 @@ variable "unifi_switches" {
       op_mode             = optional(string)
       aggregate_num_ports = optional(number)
     })), {})
+
+    uplink = optional(object({
+      switch = string
+      port   = number
+    }))
   }))
 }
 
