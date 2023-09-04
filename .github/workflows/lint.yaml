@@ -18,7 +18,7 @@ jobs:
   terraform-fmt:
     runs-on: 'ubuntu-latest'
     steps:
-      - uses: 'actions/checkout@v3'
+      - uses: 'actions/checkout@v4'
       - run: 'rm secrets.auto.tfvars'
 
       - uses: 'hashicorp/setup-terraform@v2'
@@ -27,7 +27,7 @@ jobs:
   terraform-validate:
     runs-on: 'ubuntu-latest'
     steps:
-      - uses: 'actions/checkout@v3'
+      - uses: 'actions/checkout@v4'
       - run: 'rm secrets.auto.tfvars'
 
       - uses: 'hashicorp/setup-terraform@v2'
@@ -37,7 +37,7 @@ jobs:
   tflint:
     runs-on: 'ubuntu-latest'
     steps:
-      - uses: 'actions/checkout@v3'
+      - uses: 'actions/checkout@v4'
       - run: 'rm secrets.auto.tfvars'
 
       - uses: 'hashicorp/setup-terraform@v2'
@@ -55,5 +55,5 @@ jobs:
   yamllint:
     runs-on: 'ubuntu-latest'
     steps:
-      - uses: 'actions/checkout@v3'
+      - uses: 'actions/checkout@v4'
       - uses: 'ibiqlik/action-yamllint@v3'
