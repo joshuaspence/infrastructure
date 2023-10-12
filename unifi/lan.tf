@@ -14,8 +14,8 @@ resource "unifi_network" "network" {
   dhcp_stop    = cidrhost(each.value.subnet, -2)
 
   dhcp_v6_enabled = true
-  dhcp_v6_start   = cidrhost(cidrsubnet(var.network_ipv6_subnet, 16, coalesce(each.value.vlan, 1)), 2)
-  dhcp_v6_stop    = cidrhost(cidrsubnet(var.network_ipv6_subnet, 16, coalesce(each.value.vlan, 1)), 2001)
+  dhcp_v6_start   = "::2"
+  dhcp_v6_stop    = "::7d1"
 
   # TODO: Set `ipv6_interface_type` to `pd`.
   ipv6_interface_type = "static"
