@@ -8,7 +8,7 @@ resource "unifi_device" "gateway" {
 }
 
 data "http" "multicast_relay" {
-  url = "https://raw.githubusercontent.com/joshuaspence/multicast-relay/broadcast/multicast-relay.py"
+  url = "https://raw.githubusercontent.com/alsmith/multicast-relay/master/multicast-relay.py"
 }
 
 resource "remote_file" "multicast_relay" {
