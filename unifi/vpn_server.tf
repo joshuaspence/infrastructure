@@ -7,7 +7,7 @@ resource "unifi_radius_profile" "default" {
   use_usg_auth_server = true
 
   lifecycle {
-    ignore_changes = [auth_server, interim_update_interval]
+    ignore_changes = [acct_server, auth_server, interim_update_interval]
   }
 }
 
