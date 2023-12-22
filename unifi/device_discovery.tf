@@ -35,7 +35,7 @@ resource "unifi_firewall_group" "device_discovery_destination" {
 
 resource "unifi_firewall_rule" "device_discovery_source" {
   ruleset    = "LAN_OUT"
-  rule_index = 2003
+  rule_index = 20001
 
   name     = "Allow device discovery (source)"
   action   = "accept"
@@ -47,7 +47,7 @@ resource "unifi_firewall_rule" "device_discovery_source" {
 
 resource "unifi_firewall_rule" "device_discovery_destination" {
   ruleset    = "LAN_OUT"
-  rule_index = 2004
+  rule_index = 20002
 
   name     = "Allow device discovery (destination)"
   action   = "accept"

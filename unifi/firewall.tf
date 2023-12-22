@@ -10,7 +10,7 @@ resource "unifi_firewall_group" "xot" {
 
 resource "unifi_firewall_rule" "established" {
   ruleset    = "LAN_OUT"
-  rule_index = 2000
+  rule_index = 20000
 
   name     = "Accept established/related connections from XoT networks to main network"
   action   = "accept"
@@ -24,7 +24,7 @@ resource "unifi_firewall_rule" "established" {
 
 resource "unifi_firewall_rule" "iot_hass" {
   ruleset    = "LAN_OUT"
-  rule_index = 2010
+  rule_index = 20003
 
   name     = "Allow IoT network to Home Assistant"
   action   = "accept"
@@ -36,7 +36,7 @@ resource "unifi_firewall_rule" "iot_hass" {
 
 resource "unifi_firewall_rule" "inter_vlan" {
   ruleset    = "LAN_OUT"
-  rule_index = 2100
+  rule_index = 20004
 
   name     = "Drop inter-VLAN traffic from XoT networks"
   action   = "drop"
@@ -48,7 +48,7 @@ resource "unifi_firewall_rule" "inter_vlan" {
 
 resource "unifi_firewall_rule" "ntp" {
   ruleset    = "WAN_OUT"
-  rule_index = 2000
+  rule_index = 20000
 
   name     = "Allow outbound NTP traffic"
   action   = "accept"
@@ -59,7 +59,7 @@ resource "unifi_firewall_rule" "ntp" {
 
 resource "unifi_firewall_rule" "not_wan" {
   ruleset    = "WAN_OUT"
-  rule_index = 2100
+  rule_index = 20001
 
   name     = "Drop outbound NoT WAN traffic"
   action   = "drop"
