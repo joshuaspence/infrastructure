@@ -9,7 +9,11 @@ resource "tfe_organization_token" "github_actions" {
 }
 
 resource "tfe_workspace" "home" {
-  name           = "home"
-  organization   = tfe_organization.main.name
+  name         = "home"
+  organization = tfe_organization.main.name
+}
+
+resource "tfe_workspace_settings" "home" {
+  workspace_id   = tfe_workspace.home.id
   execution_mode = "local"
 }
