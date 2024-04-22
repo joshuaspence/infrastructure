@@ -12,8 +12,23 @@ locals {
   }
 }
 
-# TODO: Move this to gateway.
+data "remote_file" "version" {
+  conn {
+    host     = var.clients[each.value.host].fixed_ip
+    user     = "root"
+    password = var.ssh_config.password
+  }
+
+  path = "/usr/lib/version"
+
+  for_each = local.certbot_config
+}
+
 resource "terraform_data" "certbot" {
+  triggers_replace = [
+    data.remote_file.version[each.key],
+  ]
+
   connection {
     type     = "ssh"
     user     = "root"
@@ -39,15 +54,20 @@ resource "terraform_data" "certbot" {
 
       # Issue and deploy certificate.
       ".acme.sh/acme.sh --server letsencrypt --set-default-ca",
+
       format(
-        "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s .acme.sh/acme.sh --dns dns_aws --domain %s --issue",
-        var.certbot.credentials.aws_access_key_id,
-        nonsensitive(var.certbot.credentials.aws_secret_access_key),
+        "test -d .acme.sh/%s || (%s && %s)",
         each.value.domain,
-      ),
-      format(
-        ".acme.sh/acme.sh --deploy --deploy-hook unifi --domain %s",
-        each.value.domain,
+        format(
+          "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s .acme.sh/acme.sh --dns dns_aws --domain %s --issue",
+          var.certbot.credentials.aws_access_key_id,
+          nonsensitive(var.certbot.credentials.aws_secret_access_key),
+          each.value.domain,
+        ),
+        format(
+          ".acme.sh/acme.sh --deploy --deploy-hook unifi --domain %s",
+          each.value.domain,
+        ),
       ),
     ]
   }
