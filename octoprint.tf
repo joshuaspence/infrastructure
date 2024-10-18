@@ -3,7 +3,7 @@ resource "terraform_data" "octoprint_certbot" {
     type        = "ssh"
     user        = "root"
     host        = aws_route53_record.unifi_client["octoprint"].fqdn
-    private_key = file(pathexpand("~/.ssh/keys/rpi.key"))
+    private_key = try(file(pathexpand("~/.ssh/keys/rpi.key")), null)
   }
 
   provisioner "remote-exec" {
