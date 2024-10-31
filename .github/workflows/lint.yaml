@@ -9,11 +9,11 @@ jobs:
   ansible-lint:
     runs-on: 'ubuntu-latest'
     steps:
-      - uses: 'Bhacaz/checkout-files@v2'
+      - uses: 'actions/checkout@v4'
+      - uses: 'ansible/ansible-lint@v24'
         with:
-          files: 'homelab'
-      - run: 'mv homelab/* .'
-      - uses: 'ansible/ansible-lint-action@v6'
+          requirements_file: 'requirements.yaml'
+          working_directory: 'homelab'
 
   terraform-fmt:
     runs-on: 'ubuntu-latest'

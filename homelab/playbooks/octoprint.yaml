@@ -1,0 +1,9 @@
+---
+- name: 'Setup OctoPrint'
+  hosts: 'octoprint'
+  roles:
+    - role: 'octoprint'
+      vars:
+        domain: 'octoprint.spence.network'
+        printer_id: 'anycubic-i3-mega'
+        printer_serial: 'a6f209115bc6e711a92ac5ae16168d3e'

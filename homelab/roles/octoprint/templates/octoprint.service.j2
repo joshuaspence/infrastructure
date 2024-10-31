@@ -1,0 +1,14 @@
+[Unit]
+Description=The snappy web interface for your 3D printer
+After=network.online.target
+Wants=network.online.target
+
+[Service]
+Environment=HOST={{ listen_host }}
+Environment=PORT={{ listen_port }}
+Type=simple
+User={{ user }}
+ExecStart={{ pip.virtualenv }}/bin/octoprint serve --host=${HOST} --port=${PORT}
+
+[Install]
+WantedBy=multi-user.target

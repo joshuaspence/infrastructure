@@ -1,0 +1,80 @@
+---
+- name: 'Install dependencies'
+  ansible.builtin.apt:
+    name:
+      - 'python3'
+      - 'python3-virtualenv'
+  become: true
+
+- name: 'Install OctoPrint'
+  ansible.builtin.pip:
+    name: 'OctoPrint'
+    state: 'present'
+    version: '{{ version }}'
+    virtualenv: '{{ virtualenv }}'
+  register: 'pip'
+
+- name: 'Run OctoPrint'
+  block:
+    - name: 'Create systemd unit'
+      ansible.builtin.template:
+        src: 'templates/octoprint.service.j2'
+        dest: '/etc/systemd/system/octoprint.service'
+      notify: 'systemctl daemon-reload'
+
+    - name: 'Start service'
+      ansible.builtin.systemd_service:
+        name: 'octoprint.service'
+        enabled: true
+        state: 'started'
+  become: true
+
+- name: 'Create udev rule'
+  block:
+    - name: 'Create udev rule'
+      ansible.builtin.copy:
+        dest: '/etc/udev/rules.d/99-octoprint.rules'
+        content: 'SUBSYSTEM=="tty", ATTRS{serial}=="{{ printer_serial | mandatory }}", SYMLINK+="{{ printer_id | mandatory }}"'
+      notify:
+        - 'udevadm reload'
+        - 'udevadm trigger'
+    
+    - name: 'Configure OctoPrint serial port'
+      ansible.builtin.command: '{{ pip.virtualenv }}/bin/octoprint config set serial.port /dev/{{ printer_id | mandatory }}'
+      become: false
+  become: true
+
+- name: 'Configure user permissions'
+  block:
+    - name: 'Configure sudoers'
+      community.general.sudoers:
+        name: 'octoprint'
+        user: '{{ user }}'
+        commands:
+          - '/usr/sbin/reboot'
+          - '/usr/bin/systemctl'
+    - name: 'Configure groups'
+      ansible.builtin.user:
+        name: '{{ user }}'
+        append: true
+        groups:
+          - 'dialout'
+          - 'video'
+  become: true
+
+- name: 'Setup HAProxy'
+  block:
+    - name: 'Install HAProxy'
+      ansible.builtin.apt:
+        name: 'haproxy'
+    - name: 'Configure HAProxy'
+      ansible.builtin.template:
+        src: 'templates/haproxy.cfg.j2'
+        dest: '/etc/haproxy/haproxy.cfg'
+      notify: 'haproxy restart'
+    - name: 'Start HAProxy'
+      ansible.builtin.systemd_service:
+        name: 'haproxy.service'
+        enabled: true
+        state: 'started'
+  become: true

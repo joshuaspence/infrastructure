@@ -1,0 +1,6 @@
+---
+listen_host: '127.0.0.1'
+listen_port: 5000
+user: '{{ ansible_user }}'
+version: null
+virtualenv: '/home/{{ user }}/venv'
