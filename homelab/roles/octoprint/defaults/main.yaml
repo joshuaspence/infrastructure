@@ -1,6 +1,6 @@
 ---
-listen_host: '127.0.0.1'
-listen_port: 5000
-user: '{{ ansible_user }}'
-version: null
-virtualenv: '/home/{{ user }}/venv'
+octoprint_listen_host: '127.0.0.1'
+octoprint_listen_port: 5000
+octoprint_user: '{{ ansible_user }}'
+octoprint_version: null
+octoprint_virtualenv: '/home/{{ user }}/venv'

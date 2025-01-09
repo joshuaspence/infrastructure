@@ -22,7 +22,7 @@ defaults
 
 frontend octoprint
   bind :80
-  bind :443 ssl crt /etc/haproxy/{{ domain | mandatory }}.pem
+  bind :443 ssl crt /etc/haproxy/{{ octoprint_domain | mandatory }}.pem
   option forwardfor except 127.0.0.1
   redirect scheme https code 301 if !{ hdr(Host) -i 127.0.0.1 } !{ ssl_fc }
   use_backend webcam if { path_beg /webcam/ }
@@ -36,7 +36,7 @@ backend octoprint
   http-request add-header X-Scheme https if needs_scheme { ssl_fc }
   http-request add-header X-Scheme http if needs_scheme !{ ssl_fc }
   option forwardfor
-  server octoprint1 {{ listen_host }}:{{ listen_port }}
+  server octoprint1 {{ octoprint_listen_host }}:{{ octoprint_listen_port }}
 
 backend webcam
   http-request replace-path /webcam/(.*) /\1

@@ -2,8 +2,7 @@
 ungrouped:
   hosts:
     octoprint:
-      #ansible_host: 'octoprint.spence.network'
-      ansible_host: '192.168.10.85'
+      ansible_host: 'octoprint.spence.network'
       ansible_user: 'pi'
 
 unifi:

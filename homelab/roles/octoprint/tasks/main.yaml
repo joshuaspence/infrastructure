@@ -10,8 +10,8 @@
   ansible.builtin.pip:
     name: 'OctoPrint'
     state: 'present'
-    version: '{{ version }}'
-    virtualenv: '{{ virtualenv }}'
+    version: '{{ octoprint_version }}'
+    virtualenv: '{{ octoprint_virtualenv }}'
   register: 'pip'
 
 - name: 'Run OctoPrint'
@@ -34,13 +34,13 @@
     - name: 'Create udev rule'
       ansible.builtin.copy:
         dest: '/etc/udev/rules.d/99-octoprint.rules'
-        content: 'SUBSYSTEM=="tty", ATTRS{serial}=="{{ printer_serial | mandatory }}", SYMLINK+="{{ printer_id | mandatory }}"'
+        content: 'SUBSYSTEM=="tty", ATTRS{serial}=="{{ octoprint_printer_serial | mandatory }}", SYMLINK+="{{ octoprint_printer_id | mandatory }}"'
       notify:
         - 'udevadm reload'
         - 'udevadm trigger'
-    
+ 
     - name: 'Configure OctoPrint serial port'
-      ansible.builtin.command: '{{ pip.virtualenv }}/bin/octoprint config set serial.port /dev/{{ printer_id | mandatory }}'
+      ansible.builtin.command: '{{ pip.virtualenv }}/bin/octoprint config set serial.port /dev/{{ octoprint_printer_id | mandatory }}'
       become: false
   become: true
 
@@ -49,13 +49,13 @@
     - name: 'Configure sudoers'
       community.general.sudoers:
         name: 'octoprint'
-        user: '{{ user }}'
+        user: '{{ octoprint_user }}'
         commands:
           - '/usr/sbin/reboot'
           - '/usr/bin/systemctl'
     - name: 'Configure groups'
       ansible.builtin.user:
-        name: '{{ user }}'
+        name: '{{ octoprint_user }}'
         append: true
         groups:
           - 'dialout'
