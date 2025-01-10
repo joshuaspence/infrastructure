@@ -12,15 +12,18 @@ variable "access_points" {
 
 variable "certbot" {
   type = object({
+    email = string
+
     credentials = object({
       aws_access_key_id     = string
       aws_secret_access_key = string
     })
+
     domains = object({
+      drive   = string
+      network = string
       protect = string
-      unifi   = string
     })
-    email = string
   })
 }
 

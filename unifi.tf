@@ -126,15 +126,18 @@ module "unifi" {
   vpn                 = merge(var.unifi_vpn, { gateway = aws_route53_record.vpn.fqdn })
 
   certbot = {
+    email = format("josh@%s", googleworkspace_domain.secondary["spence.network"].domain_name)
+
     credentials = {
       aws_access_key_id     = aws_iam_access_key.certbot.id
       aws_secret_access_key = aws_iam_access_key.certbot.secret
     }
+
     domains = {
+      drive   = aws_route53_record.unifi_client["storage"].fqdn
+      network = aws_route53_record.unifi_client["unifi"].fqdn
       protect = aws_route53_record.unifi_client["protect"].fqdn
-      unifi   = aws_route53_record.unifi_client["unifi"].fqdn
     }
-    email = format("josh@%s", googleworkspace_domain.secondary["spence.network"].domain_name)
   }
 }
 

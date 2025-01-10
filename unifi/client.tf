@@ -18,6 +18,7 @@ output "dns_records" {
     homeassistant = unifi_user.client["home_assistant"].fixed_ip
     octoprint     = unifi_user.client["octoprint"].fixed_ip
     protect       = unifi_user.client["unifi_protect_nvr"].fixed_ip
+    storage       = unifi_user.client["unifi_drive_nas"].fixed_ip
     unifi         = unifi_user.client["unifi_network_controller"].fixed_ip
   }
 }

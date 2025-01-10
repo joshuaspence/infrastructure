@@ -1,8 +1,13 @@
 locals {
   certbot_config = {
     cloud_key = {
-      domain = var.certbot.domains.unifi
+      domain = var.certbot.domains.network
       host   = "unifi_network_controller"
+    }
+
+    nas = {
+      domain = var.certbot.domains.drive
+      host   = "unifi_drive_nas"
     }
 
     nvr = {
@@ -59,7 +64,7 @@ resource "terraform_data" "certbot" {
         "test -d .acme.sh/%s || (%s && %s)",
         each.value.domain,
         format(
-          "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s .acme.sh/acme.sh --dns dns_aws --domain %s --issue",
+          "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s .acme.sh/acme.sh --dns dns_aws --domain %s --issue --keylength 4096",
           var.certbot.credentials.aws_access_key_id,
           nonsensitive(var.certbot.credentials.aws_secret_access_key),
           each.value.domain,
