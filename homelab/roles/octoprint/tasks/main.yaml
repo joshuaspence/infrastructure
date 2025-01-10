@@ -22,7 +22,7 @@
         src: 'templates/octoprint.service.j2'
         dest: '/etc/systemd/system/octoprint.service'
         mode: '0644'
-      notify: 'systemctl daemon-reload'
+      notify: 'Reload systemctl daemon'
 
     - name: 'Start service'
       ansible.builtin.systemd_service:
@@ -39,8 +39,8 @@
         content: 'SUBSYSTEM=="tty", ATTRS{serial}=="{{ octoprint_printer_serial | mandatory }}", SYMLINK+="{{ octoprint_printer_id | mandatory }}"'
         mode: '0644'
       notify:
-        - 'udevadm reload'
-        - 'udevadm trigger'
+        - 'Reload udevadm'
+        - 'Trigger udevadm'
 
     - name: 'Configure OctoPrint serial port'
       ansible.builtin.command: '{{ pip.virtualenv }}/bin/octoprint config set serial.port /dev/{{ octoprint_printer_id | mandatory }}'
@@ -75,7 +75,7 @@
         src: 'templates/haproxy.cfg.j2'
         dest: '/etc/haproxy/haproxy.cfg'
         mode: '0644'
-      notify: 'haproxy restart'
+      notify: 'Restart HAProxy'
     - name: 'Start HAProxy'
       ansible.builtin.systemd_service:
         name: 'haproxy.service'
