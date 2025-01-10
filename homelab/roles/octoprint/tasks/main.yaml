@@ -15,11 +15,13 @@
   register: 'pip'
 
 - name: 'Run OctoPrint'
+  become: true
   block:
     - name: 'Create systemd unit'
       ansible.builtin.template:
         src: 'templates/octoprint.service.j2'
         dest: '/etc/systemd/system/octoprint.service'
+        mode: '0644'
       notify: 'systemctl daemon-reload'
 
     - name: 'Start service'
@@ -27,24 +29,25 @@
         name: 'octoprint.service'
         enabled: true
         state: 'started'
-  become: true
 
 - name: 'Create udev rule'
+  become: true
   block:
     - name: 'Create udev rule'
       ansible.builtin.copy:
         dest: '/etc/udev/rules.d/99-octoprint.rules'
         content: 'SUBSYSTEM=="tty", ATTRS{serial}=="{{ octoprint_printer_serial | mandatory }}", SYMLINK+="{{ octoprint_printer_id | mandatory }}"'
+        mode: '0644'
       notify:
         - 'udevadm reload'
         - 'udevadm trigger'
- 
+
     - name: 'Configure OctoPrint serial port'
       ansible.builtin.command: '{{ pip.virtualenv }}/bin/octoprint config set serial.port /dev/{{ octoprint_printer_id | mandatory }}'
       become: false
-  become: true
 
 - name: 'Configure user permissions'
+  become: true
   block:
     - name: 'Configure sudoers'
       community.general.sudoers:
@@ -60,9 +63,9 @@
         groups:
           - 'dialout'
           - 'video'
-  become: true
 
 - name: 'Setup HAProxy'
+  become: true
   block:
     - name: 'Install HAProxy'
       ansible.builtin.apt:
@@ -71,10 +74,10 @@
       ansible.builtin.template:
         src: 'templates/haproxy.cfg.j2'
         dest: '/etc/haproxy/haproxy.cfg'
+        mode: '0644'
       notify: 'haproxy restart'
     - name: 'Start HAProxy'
       ansible.builtin.systemd_service:
         name: 'haproxy.service'
         enabled: true
         state: 'started'
-  become: true
