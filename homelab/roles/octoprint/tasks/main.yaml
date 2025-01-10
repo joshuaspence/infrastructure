@@ -51,6 +51,7 @@
           changed_when: false
         - name: 'Set `serial.port` configuration"'
           ansible.builtin.command: '{{ pip.virtualenv }}/bin/octoprint config set serial.port /dev/{{ octoprint_printer_id | mandatory }}'
+          changed_when: true
           when: '(config_get_serialport.stdout | trim) != "/dev/" + (octoprint_printer_id | mandatory)'
 
 - name: 'Configure user permissions'
