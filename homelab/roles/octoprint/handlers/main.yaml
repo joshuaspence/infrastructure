@@ -13,6 +13,8 @@
 - name: 'Reload udevadm'
   ansible.builtin.command: 'udevadm control --reload-rules'
   become: true
+  changed_when: false
 - name: 'Trigger udevadm'
   ansible.builtin.command: 'udevadm trigger'
   become: true
+  changed_when: false

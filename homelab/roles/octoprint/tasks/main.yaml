@@ -43,8 +43,12 @@
         - 'Trigger udevadm'
 
     - name: 'Configure OctoPrint serial port'
-      ansible.builtin.command: '{{ pip.virtualenv }}/bin/octoprint config set serial.port /dev/{{ octoprint_printer_id | mandatory }}'
       become: false
+      block:
+        - ansible.builtin.command: '{{ pip.virtualenv }}/bin/octoprint config get --raw serial.port'
+          register: 'config_get_serialport'
+        - ansible.builtin.command: '{{ pip.virtualenv }}/bin/octoprint config set serial.port /dev/{{ octoprint_printer_id | mandatory }}'
+          when: '(config_get_serialport.stdout | trim) != "/dev/{{ octoprint_printer_id | mandatory }}"'
 
 - name: 'Configure user permissions'
   become: true
