@@ -82,14 +82,6 @@ variable "networks" {
   }
 }
 
-variable "nordvpn_auth" {
-  type = object({
-    username = string
-    password = string
-  })
-  sensitive = true
-}
-
 variable "ssh_config" {
   type = object({
     username = string

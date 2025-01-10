@@ -1,11 +1,3 @@
-variable "nordvpn_auth" {
-  type = object({
-    username = string
-    password = string
-  })
-  sensitive = true
-}
-
 variable "unifi_access_points" {
   type = map(object({
     mac   = string
@@ -120,7 +112,6 @@ module "unifi" {
   clients             = var.unifi_clients
   network_ipv6_subnet = var.unifi_network_ipv6_subnet
   networks            = var.unifi_networks
-  nordvpn_auth        = var.nordvpn_auth
   ssh_config          = var.unifi_ssh_config
   switches            = var.unifi_switches
   vpn                 = merge(var.unifi_vpn, { gateway = aws_route53_record.vpn.fqdn })
@@ -139,11 +130,6 @@ module "unifi" {
       protect = aws_route53_record.unifi_client["protect"].fqdn
     }
   }
-}
-
-output "unifi_nordvpn_config" {
-  value     = module.unifi.nordvpn_config
-  sensitive = true
 }
 
 output "unifi_vpn_network_manager_connections" {
