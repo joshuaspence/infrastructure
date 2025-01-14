@@ -56,6 +56,7 @@ resource "googleworkspace_group_settings" "dmarc_reports" {
   email                          = googleworkspace_group.dmarc_reports.email
   allow_external_members         = true
   include_in_global_address_list = false
+  who_can_assist_content         = "OWNERS_AND_MANAGERS"
   who_can_discover_group         = "ALL_MEMBERS_CAN_DISCOVER"
   primary_language               = "en_US"
 
