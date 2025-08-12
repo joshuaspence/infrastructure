@@ -9,7 +9,7 @@ jobs:
   ansible-lint:
     runs-on: 'ubuntu-latest'
     steps:
-      - uses: 'actions/checkout@v4'
+      - uses: 'actions/checkout@v5'
       - uses: 'ansible/ansible-lint@v25'
         with:
           requirements_file: 'requirements.yaml'
@@ -18,7 +18,7 @@ jobs:
   terraform-fmt:
     runs-on: 'ubuntu-latest'
     steps:
-      - uses: 'actions/checkout@v4'
+      - uses: 'actions/checkout@v5'
       - run: 'rm secrets.auto.tfvars'
 
       - uses: 'hashicorp/setup-terraform@v3'
@@ -27,7 +27,7 @@ jobs:
   terraform-validate:
     runs-on: 'ubuntu-latest'
     steps:
-      - uses: 'actions/checkout@v4'
+      - uses: 'actions/checkout@v5'
       - run: 'rm secrets.auto.tfvars'
 
       - uses: 'hashicorp/setup-terraform@v3'
@@ -37,7 +37,7 @@ jobs:
   tflint:
     runs-on: 'ubuntu-latest'
     steps:
-      - uses: 'actions/checkout@v4'
+      - uses: 'actions/checkout@v5'
       - run: 'rm secrets.auto.tfvars'
 
       - uses: 'hashicorp/setup-terraform@v3'
@@ -55,5 +55,5 @@ jobs:
   yamllint:
     runs-on: 'ubuntu-latest'
     steps:
-      - uses: 'actions/checkout@v4'
+      - uses: 'actions/checkout@v5'
       - uses: 'ibiqlik/action-yamllint@v3'
