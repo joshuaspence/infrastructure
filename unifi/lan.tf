@@ -17,14 +17,13 @@ resource "unifi_network" "network" {
   dhcp_v6_start   = "::2"
   dhcp_v6_stop    = "::7d1"
 
-  # TODO: Set `ipv6_interface_type` to `pd`.
-  ipv6_interface_type = "static"
-  ipv6_static_subnet  = cidrsubnet(var.network_ipv6_subnet, 16, coalesce(each.value.vlan, 1))
+  ipv6_interface_type = "pd"
+  ipv6_pd_interface   = "wan"
   ipv6_ra_enable      = true
   ipv6_ra_priority    = "high"
 
   lifecycle {
-    ignore_changes = [ipv6_pd_start, ipv6_pd_stop]
+    ignore_changes = [dhcp_v6_enabled, ipv6_pd_start, ipv6_pd_stop]
   }
 
   for_each = var.networks
@@ -46,8 +45,9 @@ resource "unifi_wlan" "wlan" {
   l2_isolation         = each.value.purpose == "guest"
   fast_roaming_enabled = each.value.wifi.fast_roaming
 
-  wpa3_support = each.value.wifi.security == "wpa3"
-  pmf_mode     = each.value.wifi.security == "wpa3" ? "required" : "disabled"
+  wpa3_support   = each.value.wifi.security == "wpa3"
+  pmf_mode       = each.value.wifi.security == "wpa3" ? "required" : "disabled"
+  bss_transition = each.value.wifi.bss_transition
 
   lifecycle {
     ignore_changes = [minimum_data_rate_2g_kbps, radius_profile_id]

@@ -24,17 +24,15 @@ resource "unifi_device" "switch" {
   dynamic "port_override" {
     for_each = {
       for idx in range(1, each.value.ports + 1) : idx => {
-        name                = try(each.value.port_overrides[idx].name, null)
-        op_mode             = try(each.value.port_overrides[idx].op_mode, null)
-        aggregate_num_ports = try(each.value.port_overrides[idx].aggregate_num_ports, null)
+        name    = try(each.value.port_overrides[idx].name, null)
+        op_mode = try(each.value.port_overrides[idx].op_mode, null)
       }
     }
 
     content {
-      name                = port_override.value.name
-      number              = port_override.key
-      op_mode             = port_override.value.op_mode
-      aggregate_num_ports = port_override.value.aggregate_num_ports
+      name    = port_override.value.name
+      number  = port_override.key
+      op_mode = port_override.value.op_mode
     }
   }
 

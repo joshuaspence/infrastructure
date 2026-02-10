@@ -67,12 +67,13 @@ variable "networks" {
     domain_name = optional(string)
 
     wifi = optional(object({
-      ssid         = string
-      passphrase   = string
-      security     = optional(string, "wpa2")
-      band         = optional(string)
-      hide_ssid    = optional(bool)
-      fast_roaming = optional(bool)
+      ssid           = string
+      passphrase     = string
+      security       = optional(string, "wpa2")
+      band           = optional(string)
+      hide_ssid      = optional(bool)
+      fast_roaming   = optional(bool)
+      bss_transition = optional(bool, true)
     }))
   }))
 
@@ -109,9 +110,8 @@ variable "switches" {
     ports = optional(number, 0)
 
     port_overrides = optional(map(object({
-      name                = optional(string)
-      op_mode             = optional(string)
-      aggregate_num_ports = optional(number)
+      name    = optional(string)
+      op_mode = optional(string)
     })), {})
   }))
 }
