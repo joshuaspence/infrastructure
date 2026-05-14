@@ -7,6 +7,7 @@ data "aws_iam_policy_document" "certbot" {
     actions = [
       "route53:GetChange",
       "route53:ListHostedZones",
+      "route53:ListHostedZonesByName",
     ]
     resources = ["*"]
   }
