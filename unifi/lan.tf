@@ -23,7 +23,16 @@ resource "unifi_network" "network" {
   ipv6_ra_priority    = "high"
 
   lifecycle {
-    ignore_changes = [dhcp_v6_enabled, ipv6_pd_start, ipv6_pd_stop]
+    ignore_changes = [
+      dhcp_v6_enabled,
+      ipv6_pd_start,
+      ipv6_pd_stop,
+
+      # TODO
+      igmp_snooping,
+      ipv6_interface_type,
+      ipv6_pd_interface,
+    ]
   }
 
   for_each = var.networks
