@@ -4,16 +4,6 @@ locals {
       domain = var.certbot.domains.network
       host   = "unifi_network_controller"
     }
-
-    nas = {
-      domain = var.certbot.domains.drive
-      host   = "unifi_drive_nas"
-    }
-
-    nvr = {
-      domain = var.certbot.domains.protect
-      host   = "unifi_protect_nvr"
-    }
   }
 }
 
