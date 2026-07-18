@@ -10,8 +10,8 @@ resource "unifi_device" "access_point" {
     }
 
     content {
-      name   = port_override.value.name
-      number = port_override.key
+      name  = port_override.value.name
+      index = port_override.key
     }
   }
 
@@ -31,7 +31,7 @@ resource "unifi_device" "switch" {
 
     content {
       name    = port_override.value.name
-      number  = port_override.key
+      index   = port_override.key
       op_mode = port_override.value.op_mode
     }
   }

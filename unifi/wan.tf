@@ -1,36 +1,38 @@
-locals {
-  wan_dns = ["1.1.1.1", "8.8.8.8"]
-}
+resource "unifi_wan" "primary" {
+  name             = "NBN"
+  network_group    = "WAN"
+  report_wan_event = true
+  type             = "dhcp"
+  type_v6          = "dhcpv6"
 
-# TODO: Add IPv6 settings.
-resource "unifi_network" "wan" {
-  name    = "WAN"
-  purpose = "wan"
-
-  wan_networkgroup    = "WAN"
-  wan_type            = "dhcp"
-  wan_type_v6         = "dhcpv6"
-  wan_dhcp_v6_pd_size = 48
-  wan_dns             = local.wan_dns
-
-  # TODO: Remove this after https://github.com/paultyng/terraform-provider-unifi/issues/107.
-  lifecycle {
-    ignore_changes = [dhcp_lease, dhcp_v6_dns_auto, dhcp_v6_lease, ipv6_interface_type, ipv6_ra_preferred_lifetime, ipv6_ra_valid_lifetime, network_group]
+  /*
+  dhcpv6 = {
+    pd_size = 48
   }
+  */
+
+  load_balance = {
+    type   = "weighted"
+    weight = 50
+  }
+
+  provider_capabilities = {
+    download_kilobits_per_second = 500 * 1000
+    upload_kilobits_per_second   = 50 * 1000
+  }
+
 }
 
 # TODO: Create traffic route for `192.168.0.2`.
-resource "unifi_network" "failover_wan" {
-  name    = "Failover WAN"
-  purpose = "wan"
+resource "unifi_wan" "secondary" {
+  name             = "LTE"
+  network_group    = "WAN2"
+  report_wan_event = true
+  type             = "dhcp"
+  type_v6          = "disabled"
 
-  wan_networkgroup = "WAN2"
-  wan_type         = "dhcp"
-  wan_type_v6      = "disabled"
-  wan_dns          = local.wan_dns
-
-  # TODO: Remove this after https://github.com/paultyng/terraform-provider-unifi/issues/107.
-  lifecycle {
-    ignore_changes = [dhcp_lease, dhcp_v6_dns_auto, dhcp_v6_lease, ipv6_interface_type, ipv6_ra_preferred_lifetime, ipv6_ra_valid_lifetime, network_group]
+  load_balance = {
+    type              = "failover-only"
+    failover_priority = 2
   }
 }

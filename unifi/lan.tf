@@ -1,37 +1,29 @@
 resource "unifi_network" "network" {
-  name    = each.value.name
-  purpose = each.value.purpose
+  name        = each.value.name
+  vlan        = each.value.vlan
+  subnet      = each.value.subnet
+  domain_name = each.value.domain_name
 
-  network_group = "LAN"
-  vlan_id       = each.value.vlan
-  subnet        = each.value.subnet
-  domain_name   = each.value.domain_name
-  igmp_snooping = true
-  multicast_dns = true
+  auto_scale         = false
+  igmp_snooping      = true
+  multicast_dns      = true
+  setting_preference = "manual"
 
-  dhcp_enabled = true
-  dhcp_start   = cidrhost(each.value.subnet, 6)
-  dhcp_stop    = cidrhost(each.value.subnet, -2)
-
-  dhcp_v6_enabled = true
-  dhcp_v6_start   = "::2"
-  dhcp_v6_stop    = "::7d1"
+  dhcp_server = {
+    enabled = true
+    start   = cidrhost(each.value.subnet, 6)
+    stop    = cidrhost(each.value.subnet, -2)
+  }
 
   ipv6_interface_type = "pd"
-  ipv6_pd_interface   = "wan"
-  ipv6_ra_enable      = true
-  ipv6_ra_priority    = "high"
 
   lifecycle {
     ignore_changes = [
-      dhcp_v6_enabled,
-      ipv6_pd_start,
-      ipv6_pd_stop,
-
       # TODO
       igmp_snooping,
       ipv6_interface_type,
-      ipv6_pd_interface,
+      lte_lan,
+      dhcp_server,
     ]
   }
 
@@ -46,7 +38,7 @@ resource "unifi_wlan" "wlan" {
 
   wlan_band            = each.value.wifi.band
   ap_group_ids         = [data.unifi_ap_group.default.id]
-  user_group_id        = unifi_user_group.default.id
+  user_group_id        = data.unifi_client_qos_rate.default.id
   multicast_enhance    = true
   no2ghz_oui           = false
   hide_ssid            = each.value.wifi.hide_ssid
@@ -59,7 +51,7 @@ resource "unifi_wlan" "wlan" {
   bss_transition = each.value.wifi.bss_transition
 
   lifecycle {
-    ignore_changes = [minimum_data_rate_2g_kbps, radius_profile_id]
+    ignore_changes = [minimum_data_rate_2g_kbps, radius_profile_id, mac_filter, minimum_data_rate_5g_kbps]
   }
 
   for_each = { for network_name, network in var.networks : network_name => network if network.wifi != null }

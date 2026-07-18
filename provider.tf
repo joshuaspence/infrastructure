@@ -24,7 +24,7 @@ terraform {
     }
 
     unifi = {
-      source = "paultyng/unifi"
+      source = "ubiquiti-community/unifi"
     }
   }
 

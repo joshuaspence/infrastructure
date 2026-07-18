@@ -1,7 +1,3 @@
-resource "unifi_setting_radius" "vpn" {
-  secret = var.vpn.secret
-}
-
 resource "unifi_radius_profile" "default" {
   name                = "Default"
   use_usg_auth_server = true
@@ -23,15 +19,16 @@ resource "unifi_account" "vpn" {
 
 # TODO: `purpose` should be `remote-user-vpn`.
 resource "unifi_network" "vpn" {
-  name    = "VPN"
-  purpose = "corporate"
+  name   = "VPN"
+  subnet = var.vpn.subnet
 
-  subnet     = var.vpn.subnet
-  dhcp_start = cidrhost(var.vpn.subnet, 1)
-  dhcp_stop  = cidrhost(var.vpn.subnet, -2)
+  dhcp_server = {
+    start = cidrhost(var.vpn.subnet, 1)
+    stop  = cidrhost(var.vpn.subnet, -2)
+  }
 
   lifecycle {
-    ignore_changes = [dhcp_lease, dhcp_v6_dns_auto, dhcp_v6_lease, ipv6_interface_type, ipv6_ra_preferred_lifetime, ipv6_ra_valid_lifetime, network_group, purpose]
+    ignore_changes = [ipv6_interface_type]
   }
 }
 
