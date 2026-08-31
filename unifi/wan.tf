@@ -1,9 +1,8 @@
 resource "unifi_wan" "primary" {
-  name             = "NBN"
-  network_group    = "WAN"
-  report_wan_event = true
-  type             = "dhcp"
-  type_v6          = "dhcpv6"
+  name         = "NBN"
+  networkgroup = "WAN"
+  type         = "dhcp"
+  type_v6      = "dhcpv6"
 
   /*
   dhcpv6 = {
@@ -25,11 +24,10 @@ resource "unifi_wan" "primary" {
 
 # TODO: Create traffic route for `192.168.0.2`.
 resource "unifi_wan" "secondary" {
-  name             = "LTE"
-  network_group    = "WAN2"
-  report_wan_event = true
-  type             = "dhcp"
-  type_v6          = "disabled"
+  name         = "LTE"
+  networkgroup = "WAN2"
+  type         = "dhcp"
+  type_v6      = "disabled"
 
   load_balance = {
     type              = "failover-only"

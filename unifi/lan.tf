@@ -5,7 +5,6 @@ resource "unifi_network" "network" {
   domain_name = each.value.domain_name
 
   auto_scale         = false
-  igmp_snooping      = true
   multicast_dns      = true
   setting_preference = "manual"
 
@@ -16,16 +15,7 @@ resource "unifi_network" "network" {
   }
 
   ipv6_interface_type = "pd"
-
-  lifecycle {
-    ignore_changes = [
-      # TODO
-      igmp_snooping,
-      ipv6_interface_type,
-      lte_lan,
-      dhcp_server,
-    ]
-  }
+  ipv6_pd_interface   = "wan"
 
   for_each = var.networks
 }
@@ -36,7 +26,8 @@ resource "unifi_wlan" "wlan" {
   passphrase = each.value.wifi.passphrase
   network_id = unifi_network.network[each.key].id
 
-  wlan_band            = each.value.wifi.band
+  wlan_band            = each.value.wifi.bands != null ? (length(each.value.wifi.bands) > 1 ? "both" : one(tolist(each.value.wifi.bands))) : null
+  wlan_bands           = each.value.wifi.bands
   ap_group_ids         = [data.unifi_ap_group.default.id]
   user_group_id        = data.unifi_client_qos_rate.default.id
   multicast_enhance    = true
@@ -45,14 +36,12 @@ resource "unifi_wlan" "wlan" {
   is_guest             = each.value.purpose == "guest"
   l2_isolation         = each.value.purpose == "guest"
   fast_roaming_enabled = each.value.wifi.fast_roaming
+  enhanced_iot         = each.value.wifi.enhanced_iot
+  group_rekey          = !each.value.wifi.enhanced_iot ? 3600 : 0
 
   wpa3_support   = each.value.wifi.security == "wpa3"
   pmf_mode       = each.value.wifi.security == "wpa3" ? "required" : "disabled"
   bss_transition = each.value.wifi.bss_transition
-
-  lifecycle {
-    ignore_changes = [minimum_data_rate_2g_kbps, radius_profile_id, mac_filter, minimum_data_rate_5g_kbps]
-  }
 
   for_each = { for network_name, network in var.networks : network_name => network if network.wifi != null }
 }

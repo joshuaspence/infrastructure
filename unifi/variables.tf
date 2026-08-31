@@ -70,10 +70,11 @@ variable "networks" {
       ssid           = string
       passphrase     = string
       security       = optional(string, "wpa2")
-      band           = optional(string)
+      bands          = optional(set(string))
       hide_ssid      = optional(bool)
       fast_roaming   = optional(bool)
       bss_transition = optional(bool, true)
+      enhanced_iot   = optional(bool, false)
     }))
   }))
 

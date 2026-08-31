@@ -47,10 +47,11 @@ variable "unifi_networks" {
       ssid           = string
       passphrase     = string
       security       = optional(string, "wpa2")
-      band           = optional(string, "both")
+      bands          = optional(set(string))
       hide_ssid      = optional(bool)
       fast_roaming   = optional(bool)
       bss_transition = optional(bool)
+      enhanced_iot   = optional(bool)
     }))
   }))
 }
@@ -130,11 +131,6 @@ module "unifi" {
       protect = aws_route53_record.unifi_client["protect"].fqdn
     }
   }
-}
-
-output "unifi_vpn_network_manager_connections" {
-  value     = module.unifi.network_manager_connections
-  sensitive = true
 }
 
 resource "aws_route53_record" "unifi_client" {
