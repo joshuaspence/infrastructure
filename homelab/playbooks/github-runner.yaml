@@ -7,8 +7,6 @@
     - role: 'github_runner'
       vars:
         github_runner_access_token: '{{ lookup("pipe", "gh auth token") }}'
-        github_runner_account: 'spence-com-au'
         github_runner_group: 'Homelab'
-        github_runner_labels:
-          - 'homelab'
+        github_runner_organization: 'spence-com-au'
         github_runner_version: '2.337.0'
