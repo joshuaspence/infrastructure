@@ -48,5 +48,25 @@
     runner_user: '{{ github_runner_user }}'
     runner_version: '{{ github_runner_version }}'
 
+# `config.sh` writes these as the runner account but under the connection umask, not the runner service's `UMask=`,
+# which only governs what the service itself creates. So they land world-readable in a directory the upstream role
+# keeps at `0755`, and `.credentials_rsaparams` is the key the runner authenticates to GitHub with -- readable by
+# `pi`, and by anything a job leaves behind under an account of its own.
+#
+# The mode is fixed on the files rather than on the directory around them: the upstream role resets that to `0755` on
+# every run, and it reads `bin/Runner.Listener.deps.json` and `.service` under it as the connection account, so a
+# directory a job's account cannot read is a directory the next play cannot use either.
+- name: 'Restrict the runner credentials'
+  become: true
+  ansible.builtin.file:
+    path: '{{ github_runner_dir }}/{{ item }}'
+    owner: '{{ github_runner_user }}'
+    group: '{{ github_runner_user }}'
+    mode: '0600'
+  loop:
+    - '.credentials'
+    - '.credentials_rsaparams'
+    - '.runner'
+
 - name: 'Sandbox the CI jobs'
   ansible.builtin.import_tasks: 'sandbox.yaml'
