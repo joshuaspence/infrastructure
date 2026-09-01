@@ -2,6 +2,8 @@
 collections:
   - 'ansible.posix'
   - 'community.general'
+  - name: 'compscidr.github_cli'
+    version: '0.0.16'
 
 roles:
   - name: 'geerlingguy.raspberry-pi'
