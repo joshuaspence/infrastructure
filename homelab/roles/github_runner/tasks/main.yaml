@@ -25,8 +25,9 @@
 - name: 'Install the container engine'
   ansible.builtin.import_tasks: 'containers.yaml'
 
-# Included rather than applied from the playbook so that the sandbox below runs against the service this installs.
-# The unit it generates is named after the runner registration and only exists once this has run.
+# Included here rather than applied alongside this role from the playbook, so that anything this role adds around the
+# runner can be ordered against the install rather than merely hoping to land after it. The unit `svc.sh install`
+# generates, in particular, only exists once this has run and is named after the registration it just made.
 - name: 'Install the runner'
   ansible.builtin.include_role:
     name: 'monolithprojects.github_actions_runner'
