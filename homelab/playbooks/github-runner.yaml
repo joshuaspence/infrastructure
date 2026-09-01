@@ -5,6 +5,7 @@
     github_runner_user: 'github-runner'
   roles:
     - role: 'common'
+    - role: 'claude_daemon'
     - role: 'github_runner'
     - role: 'monolithprojects.github_actions_runner'
       vars:

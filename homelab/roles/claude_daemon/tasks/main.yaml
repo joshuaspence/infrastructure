@@ -1,0 +1,119 @@
+---
+- name: 'Setup the Claude daemon'
+  become: true
+  when: 'ansible_architecture in claude_daemon_architectures'
+  block:
+    - name: 'Install the signing key dependencies'
+      ansible.builtin.apt:
+        name: 'gnupg'
+
+    - name: 'Create the apt keyring directory'
+      ansible.builtin.file:
+        path: '{{ claude_daemon_apt_keyring | dirname }}'
+        state: 'directory'
+        owner: 'root'
+        group: 'root'
+        mode: '0755'
+
+    - name: 'Install the Claude Code signing key'
+      ansible.builtin.get_url:
+        url: '{{ claude_daemon_apt_key_url }}'
+        dest: '{{ claude_daemon_apt_keyring }}'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+
+    # `--with-colons` rather than the human-readable output because the fingerprint is then a whole field, so this
+    # matches the key exactly instead of matching a substring of a prettier rendering of it.
+    - name: 'Verify the Claude Code signing key'
+      ansible.builtin.command:
+        argv:
+          - 'gpg'
+          - '--show-keys'
+          - '--with-colons'
+          - '{{ claude_daemon_apt_keyring }}'
+      changed_when: false
+      register: 'claude_daemon_key'
+      failed_when: '"fpr:::::::::" ~ claude_daemon_apt_key_fingerprint ~ ":" not in claude_daemon_key.stdout'
+
+    - name: 'Register the Claude Code apt repository'
+      ansible.builtin.copy:
+        dest: '/etc/apt/sources.list.d/claude-code.sources'
+        content: |
+          Types: deb
+          URIs: {{ claude_daemon_apt_uri }}
+          Suites: {{ claude_daemon_channel }}
+          Components: main
+          Signed-By: {{ claude_daemon_apt_keyring }}
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+
+    # No `cache_valid_time`: the package lists have to be re-read after the repository above is registered, and the
+    # `common` role will usually have refreshed them minutes earlier, which is exactly the case a cache window would
+    # let through.
+    - name: 'Install Claude Code'
+      ansible.builtin.apt:
+        name: '{{ "claude-code=" ~ claude_daemon_version if claude_daemon_version else "claude-code" }}'
+        update_cache: true
+      notify: 'Restart the Claude daemon'
+
+    - name: 'Create the daemon group'
+      ansible.builtin.group:
+        name: '{{ claude_daemon_group }}'
+        system: true
+
+    # No login shell: the one thing this account is used for interactively is `claude auth login`, and `sudo --user`
+    # execs that directly rather than going through a shell.
+    - name: 'Create the daemon user account'
+      ansible.builtin.user:
+        name: '{{ claude_daemon_user }}'
+        group: '{{ claude_daemon_group }}'
+        home: '{{ claude_daemon_home }}'
+        create_home: true
+        shell: '/usr/sbin/nologin'
+        password: '!'
+        system: true
+
+    # systemd re-applies this on every start from `StateDirectoryMode=`; it is set here as well so that the claude.ai
+    # credentials are never briefly world-readable in the window between logging in and the first start.
+    - name: 'Restrict the daemon home directory'
+      ansible.builtin.file:
+        path: '{{ claude_daemon_home }}'
+        state: 'directory'
+        owner: '{{ claude_daemon_user }}'
+        group: '{{ claude_daemon_group }}'
+        mode: '0700'
+
+    - name: 'Create the daemon service'
+      ansible.builtin.template:
+        src: 'claude-daemon.service.j2'
+        dest: '/etc/systemd/system/{{ claude_daemon_service }}'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      notify: 'Restart the Claude daemon'
+
+    - name: 'Start the daemon service'
+      ansible.builtin.systemd_service:
+        name: '{{ claude_daemon_service }}'
+        enabled: true
+        state: 'started'
+        daemon_reload: true
+
+    # `Restart=always` means `systemctl start` succeeds the moment the process is spawned, so an unauthenticated host
+    # would otherwise report green while the daemon quietly restarts every 30 seconds forever. Remote Control refuses
+    # `CLAUDE_CODE_OAUTH_TOKEN` and `claude setup-token` tokens, which can only make model requests, so there is
+    # nothing to hand the host from here and the login has to happen on it.
+    - name: 'Check whether the daemon has been signed in'
+      ansible.builtin.stat:
+        path: '{{ claude_daemon_credentials }}'
+      register: 'claude_daemon_signed_in'
+
+    - name: 'Report a daemon that has not been signed in'
+      when: 'not claude_daemon_signed_in.stat.exists'
+      ansible.builtin.debug:
+        msg: >-
+          {{ claude_daemon_service }} is installed and enabled but has no claude.ai credentials, so Remote Control will
+          not come up. Run `sudo --set-home --user={{ claude_daemon_user }} {{ claude_daemon_executable }} auth login`
+          on this host and choose the claude.ai option, then `systemctl restart {{ claude_daemon_service }}`.
