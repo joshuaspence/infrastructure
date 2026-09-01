@@ -4,11 +4,6 @@
   vars:
     github_runner_tmpfiles_conf: '/etc/tmpfiles.d/github-runner.conf'
   block:
-    # `containernetworking-plugins` and `iptables` are here because the `podman` package depends on neither and every
-    # containerised job needs both: the runner creates a network of its own for each job before it starts the container
-    # (`ContainerOperationProvider.CreateContainerNetworkAsync`), and Podman cannot serve that without a network
-    # backend. Bookworm ships Podman 4.3, which falls back to CNI when `netavark` is absent, so the CNI plugins are
-    # what it reaches for; `iptables` is what they in turn shell out to, and the `podman` package only suggests it.
     - name: 'Install Podman'
       ansible.builtin.apt:
         name:
