@@ -1,6 +1,6 @@
-# Confines the GitHub Actions runner service. With a job container mandatory the job's own steps do not run here: they 
-# are children of the container engine, in that unit's cgroup and mount namespace. So what is below bounds the listener 
-# and the worker, the processes that hold the runner's registration credential and every job's token. The engine unit 
+# Confines the GitHub Actions runner service. With a job container mandatory the job's own steps do not run here: they
+# are children of the container engine, in that unit's cgroup and mount namespace. So what is below bounds the listener
+# and the worker, the processes that hold the runner's registration credential and every job's token. The engine unit
 # carries the confinement that reaches a job, and the slice carries the limits that cover both.
 
 [Unit]
