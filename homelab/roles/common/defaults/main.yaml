@@ -16,6 +16,7 @@ common_apt_packages:
   - 'git'
   - 'htop'
   - 'jq'
+  - 'locales'
   - 'tar'
   - 'unzip'
   - 'vim'
@@ -24,7 +25,3 @@ common_apt_packages:
   # Handing temporary files to an unprivileged `become_user` needs `setfacl`; without it Ansible falls back to
   # a `chmod` syntax that does not exist on Linux.
   - 'acl'
-
-  # `locale-gen` and `/etc/locale.gen` come from here. It is only Priority `standard`, so a trimmed image can
-  # legitimately be without it, and the locale tasks are ordered after this list for that reason.
-  - 'locales'
