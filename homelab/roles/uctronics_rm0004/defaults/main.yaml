@@ -22,7 +22,7 @@ uctronics_rm0004_boot_config_options:
   - regexp: '^#?dtoverlay=gpio-shutdown'
     line: 'dtoverlay=gpio-shutdown,gpio_pin=4,active_low=1,gpio_pull=up{{ ",debounce=1000" if "Raspberry Pi 5" in uctronics_rm0004_board else "" }}'
 
-# The directory holding the message that `uctronics-display-cli` writes and the `uctronics-display` reads. Compiled 
+# The directory holding the message that `uctronics-display-cli` writes and the `uctronics-display` reads. Compiled
 # into both binaries as `DISPLAY_MESSAGE_PATH`, so changing it here alone leaves the CLI writing where the display
 # never looks. It sits under `/run` deliberately: that is a tmpfs the kernel brings up empty, so a message lasts until
 # the Pi reboots.
@@ -32,4 +32,3 @@ uctronics_rm0004_message_directory: '/run/uctronics-display'
 # root, so the CLI cannot create the directory for itself and has to be handed one. `uctronics-display` runs as root
 # and only ever reads the file, so nothing is given up by handing the directory to the account that logs in.
 uctronics_rm0004_message_owner: '{{ ansible_user_id }}'
-
