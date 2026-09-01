@@ -17,7 +17,18 @@ Wants=network-online.target
 # `Type=exec` would call the service started as soon as the binary is executing, which is before the socket is bound:
 # the play's own `docker version` check, and any job picked up in that window, would fail against a healthy engine.
 # Podman sends `READY=1` once it is listening.
+#
+# It sends it from the wrong process for the default `NotifyAccess=main`, though: rootless Podman re-executes itself
+# inside a user namespace, and it is that child which binds the socket and notifies, while the process systemd started
+# only waits on it. systemd discards a notification from anything but the main process, so the unit sits in
+# `activating` with a working engine underneath it until `TimeoutStartSec`, and is then killed and -- `Restart=always`
+# -- started again, forever. The notification carries `MAINPID=` alongside `READY=1`, so accepting it also moves
+# systemd onto the process that is actually serving.
+#
+# The cost is that any process in the cgroup may notify, job containers included. They are children of this service,
+# so the widened access reaches them; the most it offers is a restart of the engine they are running in.
 Type=notify
+NotifyAccess=all
 User={{ github_runner_user }}
 Group={{ github_runner_user }}
 Environment=XDG_RUNTIME_DIR={{ github_runner_podman_runtime_dir }}

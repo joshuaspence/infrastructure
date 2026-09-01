@@ -32,32 +32,34 @@
     mode: '0644'
   notify: 'Reload the systemd configuration'
 
-# On a host already running a confined runner, the upstream role leaves it running and this is `started`. On any other,
-# it would install the service and start it before the drop-in exists, and a job picked up in that window would run on
-# the host, unconfined and without the container requirement. Handing it `stopped` for that case leaves the service
-# installed and not running; `tasks/sandbox.yaml` starts it once the confinement is in place.
-#
-# What is asked is whether the runner is confined, not whether it is installed. `.service` is written by `svc.sh
-# install`, which the upstream role runs before this one has ever written a drop-in, so a first run that failed
-# anywhere after it -- an apt failure, an unreachable Docker repository, an engine that would not verify -- would
-# leave the next run reading `.service`, taking the runner for established, and starting it unconfined.
-- name: 'Check whether the runner is already installed'
+# Written by `config.sh`, and the only local record that this host holds a registration. The upstream role decides
+# whether to re-register from GitHub's view instead, which is wrong here; see the include below.
+- name: 'Check whether the runner is already configured'
   become: true
   ansible.builtin.stat:
-    path: '{{ github_runner_dir }}/.service'
-  register: 'github_runner_installed'
+    path: '{{ github_runner_dir }}/.runner'
+  register: 'github_runner_configured'
 
-# Read here as well as in `tasks/sandbox.yaml` because the drop-in is named after the service, and this has to be
-# answered before the upstream role runs, whereas that file is written after it.
+# On a host already running a confined runner, the upstream role leaves it running and it is handed `started`. On any
+# other -- no runner at all, or one left by a run that stopped before the drop-in was written -- it would start the
+# runner before the confinement exists, and a job picked up in that window would run on the host, unconfined and
+# without the container requirement. Handing those `stopped` leaves the service installed and not running;
+# `tasks/sandbox.yaml` starts it once the confinement is in place.
+#
+# What is asked is whether the runner is confined, not whether it is installed: `.service` is written by `svc.sh
+# install`, which the upstream role runs before this one has ever written a drop-in, so a first run that failed
+# anywhere after it -- an apt failure, an unreachable Docker repository, an engine that would not verify -- would
+# leave the next run taking the runner for established and starting it unconfined. The drop-in is named after the
+# unit `svc.sh install` chose, and recorded in `.service`, so a host that has not got that far has nothing to look for.
 - name: 'Read the name of the installed runner service'
-  when: 'github_runner_installed.stat.exists'
   become: true
   ansible.builtin.slurp:
     src: '{{ github_runner_dir }}/.service'
   register: 'github_runner_installed_service'
+  failed_when: false
 
 - name: 'Check whether the runner is already confined'
-  when: 'github_runner_installed.stat.exists'
+  when: 'github_runner_installed_service.content is defined'
   become: true
   ansible.builtin.stat:
     path: '/etc/systemd/system/{{ github_runner_installed_service.content | b64decode | trim }}.d/sandbox.conf'
@@ -67,7 +69,14 @@
   ansible.builtin.include_role:
     name: 'monolithprojects.github_actions_runner'
   vars:
-    runner_state: '{{ "started" if (github_runner_confined.stat.exists | default(false)) else "stopped" }}'
+    # The upstream role sets this itself, from whether GitHub reports the runner offline, and acts on it by running
+    # `config.sh --replace` over the runner directory -- which the runner refuses outright when that directory is
+    # already configured, failing the play. Offline is this deployment's normal state between the runner being
+    # registered and `tasks/sandbox.yaml` starting it, so a run interrupted anywhere in between could never complete
+    # another. What that task is good for is a registration the host has lost, so it is driven from exactly that. A
+    # role parameter outranks the `set_fact` the role would otherwise decide this with.
+    reinstall_runner: '{{ not github_runner_configured.stat.exists }}'
+    runner_state: '{{ "started" if github_runner_confined.stat.exists | default(false) else "stopped" }}'
     access_token: '{{ github_runner_access_token }}'
     github_account: '{{ github_runner_organization }}'
     runner_dir: '{{ github_runner_dir }}'
