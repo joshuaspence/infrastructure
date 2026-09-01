@@ -1,13 +1,6 @@
-# Managed by Ansible.
-#
 # Serves the Docker-compatible API that the runner drives to create each job's container. It runs as the runner
 # account rather than root: a container it starts is confined by a user namespace that maps the account onto the
 # subordinate id range, so root inside a job container is this unprivileged account outside it.
-#
-# The hardening applied to the runner service is deliberately absent here. This is the process that has to create
-# namespaces, mount filesystems and open `/dev/fuse` to build a container at all, and a mount namespace of its own
-# would keep those mounts from reaching the containers it starts. Nothing is gained by confining it in the same way:
-# it holds no privileges the runner does not, and both are the same unprivileged account.
 
 [Unit]
 Description=Rootless Podman API for the GitHub Actions runner
@@ -18,25 +11,25 @@ Wants=network-online.target
 Type=exec
 User={{ github_runner_user }}
 Group={{ github_runner_user }}
+Environment=XDG_RUNTIME_DIR={{ github_runner_podman_runtime_dir }}
+Restart=always
+RestartSec=15
 
 # `/run/github-runner`, owned by the account and emptied when the service stops. The socket lives here rather than in
 # `/run/user/<uid>`, which needs a login session the account does not have and which the runner service cannot see
 # through `ProtectHome=`.
 RuntimeDirectory={{ github_runner_podman_runtime_dir | basename }}
 RuntimeDirectoryMode=0700
-Environment=XDG_RUNTIME_DIR={{ github_runner_podman_runtime_dir }}
 
-# Rootless Podman gains the id range through the setuid `newuidmap`, so it cannot run under `NoNewPrivileges=`.
 ExecStart=/usr/bin/podman \
-    --root {{ github_runner_containers_dir }} \
-    --runroot {{ github_runner_podman_runtime_dir }}/containers \
-    system service --time=0 unix://{{ github_runner_podman_runtime_dir }}/podman.sock
+  --root {{ github_runner_containers_dir }} \
+  --runroot {{ github_runner_podman_runtime_dir }}/containers \
+  system service \
+  --time=0 \
+  unix://{{ github_runner_podman_runtime_dir }}/podman.sock
 
 # Podman needs a cgroup subtree of its own to place containers in.
 Delegate=yes
-
-Restart=always
-RestartSec=15
 
 [Install]
 WantedBy=multi-user.target

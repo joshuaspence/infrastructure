@@ -25,7 +25,7 @@
     - name: 'Install the runner service sandbox'
       ansible.builtin.template:
         src: 'sandbox.conf.j2'
-        dest: '/etc/systemd/system/{{ github_runner_service }}.d/10-sandbox.conf'
+        dest: '/etc/systemd/system/{{ github_runner_service }}.d/sandbox.conf'
         owner: 'root'
         group: 'root'
         mode: '0644'

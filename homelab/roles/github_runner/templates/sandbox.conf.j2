@@ -1,5 +1,3 @@
-# Managed by Ansible.
-#
 # Confines the GitHub Actions runner service, and with it the CI jobs that run on it. A job is not a process the
 # runner isolates in any way: it is forked from the listener and lands in this unit's cgroup and namespaces, so
 # everything below applies to it too. The mount, device and `/proc` views in particular are set up before the runner
@@ -7,20 +5,14 @@
 
 [Unit]
 # The API the runner creates job containers through. Ordering only: a runner that starts first simply fails the jobs
-# it picks up before the socket is there, and `Wants=` keeps that from being a hard dependency on a service the
-# runner does not need when no job asks for a container.
+# it picks up before the socket is there, and `Wants=` keeps that from being a hard dependency on a service the runner
+# does not need when no job asks for a container.
 After={{ github_runner_podman_service }}
 Wants={{ github_runner_podman_service }}
 
 [Service]
-# Where the runner finds the container engine. The socket is a Podman one, but the runner only ever speaks the
-# Docker API to it.
-Environment=DOCKER_HOST=unix://{{ github_runner_podman_runtime_dir }}/podman.sock
-
-# Every job runs in a container, and a job that declares none is rejected rather than run on the host. This is what
-# turns the confinement below from the only boundary into the outer one, so it is not a setting: a runner that would
-# take a job onto the host is not the thing this role installs.
 Environment=ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER=true
+Environment=DOCKER_HOST=unix://{{ github_runner_podman_runtime_dir }}/podman.sock
 
 # The generated unit sets `KillMode=process`, which leaves whatever a job started running after the service stops.
 KillMode=control-group
@@ -29,8 +21,7 @@ KillMode=control-group
 Restart=always
 RestartSec=15
 
-# A job cannot gain privileges the runner was not started with, which makes `sudo` and every other setuid binary on
-# the host a dead end.
+# A job cannot gain privileges the runner was not started with.
 NoNewPrivileges=true
 CapabilityBoundingSet=
 RestrictSUIDSGID=true
