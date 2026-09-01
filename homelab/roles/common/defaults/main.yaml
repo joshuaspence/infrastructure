@@ -2,6 +2,7 @@
 common_apt_reboot: true
 common_apt_reboot_timeout: 600
 common_hostname: '{{ inventory_hostname }}'
+common_locale: 'en_AU.UTF-8'
 common_ssh_authorized_keys: |
   ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOR0gnX8bnu31Liwmb9ppl7frnBujBDOwRIjf0Qhin7w
 common_ssh_password_authentication: false
@@ -19,7 +20,3 @@ common_apt_packages:
   - 'unzip'
   - 'vim'
   - 'wget'
-
-  # Handing temporary files to an unprivileged `become_user` needs `setfacl`; without it Ansible falls back to
-  # a `chmod` syntax that does not exist on Linux.
-  - 'acl'

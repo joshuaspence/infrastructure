@@ -1,0 +1,13 @@
+---
+- name: 'Configure the locale'
+  become: true
+  block:
+    - name: 'Install locales'
+      become: true
+      ansible.builtin.apt:
+        name: 'locales'
+        update_cache: true
+        cache_valid_time: 3600
+    - name: 'Generate the locale'
+      community.general.locale_gen:
+        name: '{{ common_locale }}'
