@@ -1,0 +1,32 @@
+---
+- name: 'Install the GitHub CLI'
+  become: true
+  block:
+    - name: 'Install the GitHub CLI apt keyring'
+      ansible.builtin.get_url:
+        url: 'https://cli.github.com/packages/githubcli-archive-keyring.gpg'
+        dest: '/etc/apt/keyrings/githubcli-archive-keyring.gpg'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+
+    # `ansible.builtin.deb822_repository` would be the obvious choice here, but it requires `python3-debian` to be
+    # installed on the managed host.
+    - name: 'Install the GitHub CLI apt repository'
+      ansible.builtin.copy:
+        dest: '/etc/apt/sources.list.d/github-cli.sources'
+        content: |
+          Types: deb
+          URIs: https://cli.github.com/packages
+          Suites: stable
+          Components: main
+          Architectures: {{ github_cli_architectures[ansible_facts["architecture"]] }}
+          Signed-By: /etc/apt/keyrings/githubcli-archive-keyring.gpg
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+
+    - name: 'Install the gh package'
+      ansible.builtin.apt:
+        name: 'gh'
+        update_cache: true

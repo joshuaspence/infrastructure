@@ -5,8 +5,8 @@
     github_runner_user: 'github-runner'
   roles:
     - role: 'common'
+    - role: 'github_cli'
     - role: 'github_runner'
-    - role: 'compscidr.github_cli.github_cli'
     - role: 'monolithprojects.github_actions_runner'
       vars:
         access_token: '{{ lookup("pipe", "gh auth token") }}'
