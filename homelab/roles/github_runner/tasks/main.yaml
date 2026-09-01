@@ -76,6 +76,18 @@
     - '.credentials_rsaparams'
     - '.runner'
 
+# The engine is handed write access to this one path inside an otherwise read-only runner root, and systemd skips a
+# carve-out whose path is missing when the service starts. Left to the runner, it would appear at the first job, which
+# is well after the engine has started -- and the runner cannot mount a work directory the engine may not write.
+- name: 'Create the runner work directory'
+  become: true
+  ansible.builtin.file:
+    path: '{{ github_runner_dir }}/_work'
+    state: 'directory'
+    owner: '{{ github_runner_user }}'
+    group: '{{ github_runner_user }}'
+    mode: '0700'
+
 # After the runner, so that the credentials above exist by the time the engine starts: they are masked from it with
 # `InaccessiblePaths`, and systemd skips a path that is missing at start rather than applying it later.
 - name: 'Install the container engine'
