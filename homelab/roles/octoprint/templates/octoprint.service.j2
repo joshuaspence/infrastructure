@@ -8,7 +8,7 @@ Environment=HOST={{ octoprint_listen_host }}
 Environment=PORT={{ octoprint_listen_port }}
 Type=simple
 User={{ octoprint_user }}
-ExecStart={{ pip.virtualenv }}/bin/octoprint serve --host=${HOST} --port=${PORT}
+ExecStart={{ octoprint_pip.virtualenv }}/bin/octoprint serve --host=${HOST} --port=${PORT}
 
 [Install]
 WantedBy=multi-user.target
