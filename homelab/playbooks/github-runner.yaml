@@ -10,7 +10,6 @@
       vars:
         access_token: '{{ lookup("pipe", "gh auth token") }}'
         github_account: 'spence-com-au'
-        github_repo: 'invoice-tool'
         runner_dir: '/opt/github/actions-runner'
         runner_group: 'Homelab'
         runner_labels:
