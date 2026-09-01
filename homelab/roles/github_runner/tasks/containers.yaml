@@ -1,0 +1,126 @@
+---
+- name: 'Install the container engine'
+  become: true
+  block:
+    - name: 'Install Podman'
+      ansible.builtin.apt:
+        name:
+          # Rootless networking. Podman 4 in Debian bookworm reaches for `slirp4netns`; `passt` is only the default
+          # from Podman 5.
+          - 'slirp4netns'
+
+          # The storage driver Podman falls back to where the kernel will not mount overlayfs from a user namespace.
+          - 'fuse-overlayfs'
+
+          - 'podman'
+
+          # `newuidmap`/`newgidmap`, without which Podman cannot apply the id range below.
+          - 'uidmap'
+        update_cache: true
+        cache_valid_time: 3600
+
+    # The runner shells out to a binary named `docker` and reads the server API version out of `docker version`,
+    # failing the job when it comes back empty. Podman's own `podman-docker` shim answers that with a client version
+    # and no server, so the real client is installed and pointed at the Podman API socket instead.
+    - name: 'Install the Docker CLI'
+      block:
+        - name: 'Install the Docker apt keyring'
+          ansible.builtin.get_url:
+            url: 'https://download.docker.com/linux/debian/gpg'
+            dest: '/etc/apt/keyrings/docker.asc'
+            owner: 'root'
+            group: 'root'
+            mode: '0644'
+
+        - name: 'Install the Docker apt repository'
+          ansible.builtin.deb822_repository:
+            name: 'docker'
+            types: 'deb'
+            uris: 'https://download.docker.com/linux/debian'
+            suites: '{{ ansible_facts["distribution_release"] }}'
+            components: 'stable'
+            architectures: '{{ github_runner_docker_architectures[ansible_facts["architecture"]] }}'
+            signed_by: '/etc/apt/keyrings/docker.asc'
+
+        # The client only. The daemon it would otherwise bring runs as root and would undo the point of this.
+        - name: 'Install the docker-ce-cli package'
+          ansible.builtin.apt:
+            name: 'docker-ce-cli'
+            update_cache: true
+
+    # Written rather than left to `useradd`, which allocates no range for a system account. The range is arbitrary so
+    # long as nothing else on the host claims it; changing it later needs `podman system reset`, since the ids already
+    # written into the image store no longer map.
+    - name: 'Allocate the subordinate id range'
+      ansible.builtin.lineinfile:
+        path: '/etc/{{ item }}'
+        regexp: '^{{ github_runner_user }}:'
+        line: '{{ github_runner_user }}:{{ github_runner_subid_start }}:{{ github_runner_subid_count }}'
+        create: true
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      loop:
+        - 'subuid'
+        - 'subgid'
+      notify: 'Restart the container engine'
+
+    # Deliberately outside the runner's home: the image store is the one piece of container state worth keeping
+    # between jobs, and `clean.sh` empties everything a job can write. A job can still poison a tag here for the next
+    # job, which is the price of not re-pulling a whole image on a Raspberry Pi every run.
+    - name: 'Create the image store'
+      ansible.builtin.file:
+        path: '{{ github_runner_containers_dir }}'
+        state: 'directory'
+        owner: '{{ github_runner_user }}'
+        group: '{{ github_runner_user }}'
+        mode: '0750'
+
+    - name: 'Create the container engine service'
+      ansible.builtin.template:
+        src: 'podman.service.j2'
+        dest: '/etc/systemd/system/{{ github_runner_podman_service }}'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      notify: 'Restart the container engine'
+
+    - name: 'Start the container engine service'
+      ansible.builtin.systemd_service:
+        name: '{{ github_runner_podman_service }}'
+        enabled: true
+        state: 'started'
+        daemon_reload: true
+
+- name: 'Apply the container engine configuration'
+  ansible.builtin.meta: 'flush_handlers'
+
+# The same check the runner makes before it will start a job container, made here so that a broken socket is one
+# failed play rather than every job on the host failing at "Initialize containers". `podman unshare` covers what the
+# version check cannot: the id range above, and the setuid helpers that apply it.
+- name: 'Verify the container engine'
+  when: 'not ansible_check_mode'
+  become: true
+  become_user: '{{ github_runner_user }}'
+  environment:
+    DOCKER_HOST: 'unix://{{ github_runner_podman_runtime_dir }}/podman.sock'
+    XDG_RUNTIME_DIR: '{{ github_runner_podman_runtime_dir }}'
+  block:
+    - name: 'Verify that the container engine answers as a Docker daemon'
+      ansible.builtin.command:
+        argv:
+          - 'docker'
+          - 'version'
+          - '--format'
+          - '{{ "{{" }}.Server.APIVersion{{ "}}" }}'
+      register: 'github_runner_docker_version'
+      changed_when: false
+      failed_when: '(github_runner_docker_version.stdout | trim) == ""'
+
+    - name: 'Verify that the subordinate id range is usable'
+      ansible.builtin.command:
+        argv:
+          - 'podman'
+          - 'unshare'
+          - 'true'
+      changed_when: false

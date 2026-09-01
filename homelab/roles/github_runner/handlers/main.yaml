@@ -7,3 +7,12 @@
     name: '{{ github_runner_service }}'
     state: 'restarted'
     daemon_reload: true
+
+# The runner is not restarted with it: it reconnects to the socket for each job, and a restart would kill the job
+# running now to no purpose.
+- name: 'Restart the container engine'
+  become: true
+  ansible.builtin.systemd_service:
+    name: '{{ github_runner_podman_service }}'
+    state: 'restarted'
+    daemon_reload: true

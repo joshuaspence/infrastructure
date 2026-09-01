@@ -18,3 +18,27 @@ github_runner_sandbox_tasks_max: 512
 # Everything outside the runner directory and its home is read-only to a job. Anything a job legitimately needs to
 # write elsewhere has to be listed here, since the alternative it will reach for is turning the sandbox off.
 github_runner_sandbox_read_write_paths: []
+
+# Rootless Podman, running as the runner account, serving the Docker-compatible API the runner speaks. Kept in its own
+# service so that the runner itself never needs the namespace, mount and `/dev/fuse` access a container engine does,
+# and keeps the confinement in `templates/sandbox.conf.j2`.
+github_runner_containers_dir: '/opt/github/containers'
+github_runner_podman_runtime_dir: '/run/github-runner'
+github_runner_podman_service: 'github-runner-podman.service'
+
+# Rootless containers map the account onto a range of unused ids. `useradd --system` allocates none, and Podman
+# without a range gives every container a single uid, which almost no image survives.
+github_runner_subid_count: 65536
+github_runner_subid_start: 200000
+
+# Rejects any job that does not declare a `container:`, which is what makes the per-job sandbox mandatory rather than
+# a workflow's choice. Left off until every workflow reaching these runners carries one: the runner fails the rest
+# outright, so turning this on ahead of the workflows takes CI down.
+github_runner_require_job_container: false
+
+# `ansible_facts.architecture` reports the kernel architecture (e.g. `aarch64`), whereas apt expects the Debian
+# architecture (e.g. `arm64`).
+github_runner_docker_architectures:
+  aarch64: 'arm64'
+  armv7l: 'armhf'
+  x86_64: 'amd64'

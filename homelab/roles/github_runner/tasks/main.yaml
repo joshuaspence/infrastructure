@@ -22,6 +22,9 @@
     group: '{{ github_runner_user }}'
     mode: '0750'
 
+- name: 'Install the container engine'
+  ansible.builtin.import_tasks: 'containers.yaml'
+
 # Included rather than applied from the playbook so that the sandbox below runs against the service this installs.
 # The unit it generates is named after the runner registration and only exists once this has run.
 - name: 'Install the runner'

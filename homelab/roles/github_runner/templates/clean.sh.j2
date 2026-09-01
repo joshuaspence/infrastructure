@@ -27,3 +27,12 @@ purge() {
 # output files out of it when the hook returns.
 purge '{{ github_runner_dir }}/_work' ! -name '_temp'
 purge '{{ github_runner_home }}'
+
+# Containers outlive the job that started them: they are the container engine's children rather than the runner's, so
+# neither the runner's `KillMode=` nor a restart of it reaches them. Images are left alone, being the one piece of
+# state worth keeping between jobs. Tolerant of a missing engine because this also runs before the runner starts,
+# where the socket may not be up yet.
+if command -v docker >/dev/null && docker info >/dev/null 2>&1; then
+  docker ps --all --quiet | xargs --no-run-if-empty docker rm --force
+  docker volume prune --force
+fi
