@@ -149,12 +149,12 @@
           - 'true'
       changed_when: false
 
-# `systemctl show` would report `InaccessiblePaths=` back whether or not it took effect, and the failure worth
-# catching is exactly the one it cannot see: a path that was missing when the service started is skipped for the
-# lifetime of that start, without a word in the journal. So the check is made against the engine's own view of the
-# filesystem, which `/proc/<pid>/root` resolves into. A masked path is an empty file there, mode `0000`; an unmasked
-# one is the credential a job could have named in its `container.volumes:`. Only the size is looked at, so that a
-# failure here does not put the key into the play's output.
+# `systemctl show` would report `InaccessiblePaths` back whether or not it took effect, and the failure worth catching
+# is exactly the one it cannot see: a path that was missing when the service started is skipped for the lifetime of
+# that start, without a word in the journal. So the check is made against the engine's own view of the filesystem,
+# which `/proc/<pid>/root` resolves into. A masked path is an empty file there, mode `0000`; an unmasked one is the
+# credential a job could have named in its `container.volumes`. Only the size is looked at, so that a failure here does
+# not put the key into the play's output.
 - name: 'Verify that the runner credentials are masked from the container engine'
   when: 'not ansible_check_mode'
   become: true

@@ -12,8 +12,8 @@ github_runner_docker_architectures:
 
 # Kept out of `/home` so that `/home`, which holds the administrative accounts and their SSH keys, can be hidden from
 # CI jobs wholesale rather than hidden around the one directory the runner needs. Mode `0755` rather than anything
-# tighter because `monolithprojects.github_actions_runner` reads under here without `become:`, as the connection
-# account; what protects a checkout is `UMask=` on the runner service, and what protects the credentials is the mode
+# tighter because `monolithprojects.github_actions_runner` reads under here without `become`, as the connection
+# account; what protects a checkout is `UMask` on the runner service, and what protects the credentials is the mode
 # set on them in `tasks/main.yaml`, not this.
 github_runner_home: '/var/lib/github'
 github_runner_home_mode: '0755'
@@ -35,7 +35,7 @@ github_runner_sandbox_read_write_paths: []
 github_runner_containers_dir: '{{ github_runner_home }}/containers'
 github_runner_podman_service: 'github-runner-podman.service'
 
-# Has to be a directory directly under `/run`: it is served by `RuntimeDirectory=`, which is always relative to it.
+# Has to be a directory directly under `/run`: it is served by `RuntimeDirectory`, which is always relative to it.
 github_runner_podman_runtime_dir: '/run/github-runner'
 
 # Rootless containers map the account onto a range of unused ids. `useradd --system` allocates none, and Podman

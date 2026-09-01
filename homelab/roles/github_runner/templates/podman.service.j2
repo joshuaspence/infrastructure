@@ -1,12 +1,12 @@
-# Serves the Docker-compatible API that the runner drives to create each job's container. It runs as the runner
-# account rather than root: a container it starts is confined by a user namespace that maps the account onto the
-# subordinate id range, so root inside a job container is this unprivileged account outside it.
+# Serves the Docker-compatible API that the runner drives to create each job's container. It runs as the runner account
+# rather than root: a container it starts is confined by a user namespace that maps the account onto the subordinate id
+# range, so root inside a job container is this unprivileged account outside it.
 #
 # A job's processes are children of this service rather than of the runner, so this unit -- not the runner's drop-in
 # -- is where a restriction has to sit to reach a job. Most of what confines the runner cannot be repeated here: the
-# engine needs the namespaces, mounts and setuid helpers that `NoNewPrivileges=`, `RestrictNamespaces=` and
+# engine needs the namespaces, mounts and `setuid` helpers that `NoNewPrivileges`, `RestrictNamespaces` and
 # `ProtectSystem=strict` take away. The mount restrictions are the exception, and they are the ones that matter, since
-# a job's `container.volumes:` is free to name any host path the engine can see.
+# a job's `container.volumes` is free to name any host path the engine can see.
 
 [Unit]
 Description=Rootless Podman API for the GitHub Actions runner
@@ -23,12 +23,10 @@ Group={{ github_runner_user }}
 Environment=XDG_RUNTIME_DIR={{ github_runner_podman_runtime_dir }}
 Restart=always
 RestartSec=15
-
 Slice={{ github_runner_slice }}
-
 ProtectHome=true
 
-# `ProtectHome=` keeps a job from mounting the administrative accounts, but it leaves the runner's own directory, and
+# `ProtectHome` keeps a job from mounting the administrative accounts, but it leaves the runner's own directory, and
 # the credentials in it are worth more than anything under `/home`: `.credentials_rsaparams` holds the key the runner
 # authenticates to GitHub with, and a job that read it could register as this runner and collect the tokens of every
 # job that follows. Owner alone does not stop that -- the files belong to this account, and a rootless container's
@@ -47,16 +45,16 @@ InaccessiblePaths=-{{ github_runner_dir }}/.credentials \
   -{{ github_runner_dir }}/_diag
 
 # `/run/github-runner`, owned by the account. The socket lives here rather than in `/run/user/<uid>`, which needs a
-# login session the account does not have and which the runner service cannot see through `ProtectHome=`. Kept
-# across a restart of this service so that restarting the engine does not pull the runtime state out from under a
-# container that is still running.
+# login session the account does not have and which the runner service cannot see through `ProtectHome`. Kept across a
+# restart of this service so that restarting the engine does not pull the runtime state out from under a container that
+# is still running.
 RuntimeDirectory={{ github_runner_podman_runtime_dir | basename }}
 RuntimeDirectoryMode=0700
 RuntimeDirectoryPreserve=restart
 
 # `--cgroup-manager=cgroupfs` because the default, `systemd`, asks a *user* systemd instance over a session bus to
 # place each container. This account has neither: it is a system account with `nologin` and no lingering, so the
-# default fails at the first container while every check in this play still passes. `Delegate=` below is what makes
+# default fails at the first container while every check in this play still passes. `Delegate` below is what makes
 # `cgroupfs` correct here -- podman gets a subtree of its own to write, and the slice's limits still apply to it.
 ExecStart=/usr/bin/podman \
   --cgroup-manager=cgroupfs \

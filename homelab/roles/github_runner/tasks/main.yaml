@@ -32,10 +32,10 @@
     mode: '0644'
   notify: 'Reload the systemd configuration'
 
-# On a host that has one already, the upstream role leaves it running and this is `started`. On a host that does
-# not, it would install the service and start it before the drop-in below exists, and a job picked up in that window
-# would run on the host, unconfined and without the container requirement. Handing it `stopped` for that case leaves
-# the service installed and not running; `tasks/sandbox.yaml` starts it once the confinement is in place.
+# On a host that has one already, the upstream role leaves it running and this is `started`. On a host that does not,
+# it would install the service and start it before the drop-in below exists, and a job picked up in that window would
+# run on the host, unconfined and without the container requirement. Handing it `stopped` for that case leaves the
+# service installed and not running; `tasks/sandbox.yaml` starts it once the confinement is in place.
 - name: 'Check whether the runner is already installed'
   become: true
   ansible.builtin.stat:
@@ -56,10 +56,10 @@
     runner_user: '{{ github_runner_user }}'
     runner_version: '{{ github_runner_version }}'
 
-# `config.sh` writes these as the runner account but under the connection umask, not the runner service's `UMask=`,
+# `config.sh` writes these as the runner account but under the connection umask, not the runner service's `UMask`,
 # which only governs what the service itself creates. So they land world-readable in a directory the upstream role
-# keeps at `0755`, and `.credentials_rsaparams` is the key the runner authenticates to GitHub with -- readable by
-# `pi`, and by anything a job leaves behind under an account of its own.
+# keeps at `0755`, and `.credentials_rsaparams` is the key the runner authenticates to GitHub with -- readable by `pi`,
+# and by anything a job leaves behind under an account of its own.
 #
 # The mode is fixed on the files rather than on the directory around them: the upstream role resets that to `0755` on
 # every run, and it reads `bin/Runner.Listener.deps.json` and `.service` under it as the connection account, so a
@@ -77,7 +77,7 @@
     - '.runner'
 
 # After the runner, so that the credentials above exist by the time the engine starts: they are masked from it with
-# `InaccessiblePaths=`, and systemd skips a path that is missing at start rather than applying it later.
+# `InaccessiblePaths`, and systemd skips a path that is missing at start rather than applying it later.
 - name: 'Install the container engine'
   ansible.builtin.import_tasks: 'containers.yaml'
 

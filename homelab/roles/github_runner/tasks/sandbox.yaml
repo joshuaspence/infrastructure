@@ -1,7 +1,7 @@
 ---
-# Skipped wholesale under `--check`: the file below is written by `svc.sh install`, which a check run does not
-# perform, so against a host without a runner there is nothing to read and every task here would fail on a name it
-# never learned. A check run reports nothing about the sandbox rather than reporting something untrue.
+# Skipped wholesale under `--check`: the file below is written by `svc.sh install`, which a check run does not perform,
+# so against a host without a runner there is nothing to read and every task here would fail on a name it never learned.
+# A check run reports nothing about the sandbox rather than reporting something untrue.
 - name: 'Confine the runner service'
   when: 'not ansible_check_mode'
   become: true
@@ -42,8 +42,8 @@
   ansible.builtin.meta: 'flush_handlers'
 
 # Started here rather than by the upstream role, which is handed `stopped` for a host that has no runner yet: this is
-# the first point at which starting one is safe. A runner that was already running is left alone, having been
-# restarted by the handler above if the drop-in changed.
+# the first point at which starting one is safe. A runner that was already running is left alone, having been restarted
+# by the handler above if the drop-in changed.
 - name: 'Start the runner service'
   when: 'not ansible_check_mode'
   become: true
