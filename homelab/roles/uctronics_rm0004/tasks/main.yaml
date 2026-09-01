@@ -12,11 +12,26 @@
     src: '/proc/device-tree/model'
   register: 'uctronics_rm0004_model'
 
+# Kept as a fact rather than re-decoded at each use: the boot options below vary by board, so the model is needed
+# after the guard as well as in it. The value keeps its trailing NUL, which no comparison here is sensitive to.
+- name: 'Record the board model'
+  when: 'uctronics_rm0004_model.content is defined'
+  ansible.builtin.set_fact:
+    uctronics_rm0004_board: '{{ uctronics_rm0004_model.content | b64decode }}'
+
 - name: 'Install the UCTRONICS RM0004 support'
   when:
-    - 'uctronics_rm0004_model.content is defined'
-    - '"Raspberry Pi 4" in (uctronics_rm0004_model.content | b64decode) or "Raspberry Pi 5" in (uctronics_rm0004_model.content | b64decode)'
+    - 'uctronics_rm0004_board is defined'
+    - '"Raspberry Pi 4" in uctronics_rm0004_board or "Raspberry Pi 5" in uctronics_rm0004_board'
   block:
+    # Checksummed either side of the include: the boot options only take effect at boot, and `/dev/i2c-1` alone
+    # reports on `dtparam=i2c_arm`, so a host that already had I2C enabled would take the newly written
+    # `gpio-shutdown` overlay without ever rebooting into it and report success with a dead power button.
+    - name: 'Read the boot configuration'
+      ansible.builtin.stat:
+        path: '{{ uctronics_rm0004_boot_config }}'
+      register: 'uctronics_rm0004_boot_config_before'
+
     - name: 'Configure the boot options'
       ansible.builtin.include_role:
         name: 'geerlingguy.raspberry-pi'
@@ -25,6 +40,11 @@
       vars:
         raspberry_pi_boot_config_options: '{{ uctronics_rm0004_boot_config_options }}'
         raspberry_pi_rc_local_options: []
+
+    - name: 'Re-read the boot configuration'
+      ansible.builtin.stat:
+        path: '{{ uctronics_rm0004_boot_config }}'
+      register: 'uctronics_rm0004_boot_config_after'
 
     # `dtparam=i2c_arm` brings up the bus, but the character devices the display opens come from `i2c-dev`, which is not autoloaded.
     - name: 'Load i2c-dev at boot'
@@ -42,25 +62,32 @@
         name: 'i2c-dev'
         state: 'present'
 
-    # The overlays above only take effect at boot. Keying the reboot off the bus being absent rather than off a
-    # changed task makes it self-healing: a host that is already configured never reboots.
+    # The bus is checked as well as the checksum, so a host whose `config.txt` was already correct but which has not
+    # yet booted into it still reboots. A host that is fully configured matches on both and never does.
     - name: 'Check whether the I2C bus is available'
       ansible.builtin.stat:
         path: '/dev/i2c-1'
       register: 'uctronics_rm0004_i2c'
 
     - name: 'Reboot to apply the boot configuration'
-      when: 'not uctronics_rm0004_i2c.stat.exists'
+      when: >-
+        not uctronics_rm0004_i2c.stat.exists
+        or uctronics_rm0004_boot_config_before.stat.checksum
+        != uctronics_rm0004_boot_config_after.stat.checksum
       become: true
       ansible.builtin.reboot:
         reboot_timeout: '{{ uctronics_rm0004_reboot_timeout }}'
 
+    # `update_cache` because this playbook does not apply `common`, and a freshly flashed image has no package lists
+    # at all, which fails the install rather than merely leaving it stale.
     - name: 'Install the build dependencies'
       become: true
       ansible.builtin.apt:
         name:
           - 'build-essential'
           - 'git'
+        update_cache: true
+        cache_valid_time: 3600
 
     - name: 'Clone the display source'
       become: true
@@ -112,7 +139,7 @@
 
           [Service]
           ExecStart=/usr/local/bin/uctronics-display
-          Restart=on-failure
+          Restart=always
           RestartSec=5
 
           [Install]

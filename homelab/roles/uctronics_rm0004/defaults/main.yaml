@@ -1,4 +1,5 @@
 ---
+uctronics_rm0004_boot_config: '/boot/firmware/config.txt'
 uctronics_rm0004_reboot_timeout: 600
 uctronics_rm0004_repository: 'https://github.com/UCTRONICS/SKU_RM0004.git'
 uctronics_rm0004_service: 'uctronics-display.service'
@@ -10,5 +11,7 @@ uctronics_rm0004_version: 'a9cfa2345f83d4e2f0ea8013d3634eee42105bb0'
 uctronics_rm0004_boot_config_options:
   - regexp: '^#?dtparam=i2c_arm'
     line: 'dtparam=i2c_arm=on,i2c_arm_baudrate=400000'
+  # Upstream sets a longer debounce on the Pi 5 and not on the Pi 4, and the model guard admits both. Without it a
+  # Pi 5 can take contact bounce on the button as a second press and shut down on a stray touch.
   - regexp: '^#?dtoverlay=gpio-shutdown'
-    line: 'dtoverlay=gpio-shutdown,gpio_pin=4,active_low=1,gpio_pull=up'
+    line: 'dtoverlay=gpio-shutdown,gpio_pin=4,active_low=1,gpio_pull=up{{ ",debounce=1000" if "Raspberry Pi 5" in uctronics_rm0004_board else "" }}'
