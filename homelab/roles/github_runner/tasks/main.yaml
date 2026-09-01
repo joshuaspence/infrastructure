@@ -32,21 +32,42 @@
     mode: '0644'
   notify: 'Reload the systemd configuration'
 
-# On a host that has one already, the upstream role leaves it running and this is `started`. On a host that does not,
-# it would install the service and start it before the drop-in below exists, and a job picked up in that window would
-# run on the host, unconfined and without the container requirement. Handing it `stopped` for that case leaves the
-# service installed and not running; `tasks/sandbox.yaml` starts it once the confinement is in place.
+# On a host already running a confined runner, the upstream role leaves it running and this is `started`. On any other,
+# it would install the service and start it before the drop-in exists, and a job picked up in that window would run on
+# the host, unconfined and without the container requirement. Handing it `stopped` for that case leaves the service
+# installed and not running; `tasks/sandbox.yaml` starts it once the confinement is in place.
+#
+# What is asked is whether the runner is confined, not whether it is installed. `.service` is written by `svc.sh
+# install`, which the upstream role runs before this one has ever written a drop-in, so a first run that failed
+# anywhere after it -- an apt failure, an unreachable Docker repository, an engine that would not verify -- would
+# leave the next run reading `.service`, taking the runner for established, and starting it unconfined.
 - name: 'Check whether the runner is already installed'
   become: true
   ansible.builtin.stat:
     path: '{{ github_runner_dir }}/.service'
   register: 'github_runner_installed'
 
+# Read here as well as in `tasks/sandbox.yaml` because the drop-in is named after the service, and this has to be
+# answered before the upstream role runs, whereas that file is written after it.
+- name: 'Read the name of the installed runner service'
+  when: 'github_runner_installed.stat.exists'
+  become: true
+  ansible.builtin.slurp:
+    src: '{{ github_runner_dir }}/.service'
+  register: 'github_runner_installed_service'
+
+- name: 'Check whether the runner is already confined'
+  when: 'github_runner_installed.stat.exists'
+  become: true
+  ansible.builtin.stat:
+    path: '/etc/systemd/system/{{ github_runner_installed_service.content | b64decode | trim }}.d/sandbox.conf'
+  register: 'github_runner_confined'
+
 - name: 'Install the runner'
   ansible.builtin.include_role:
     name: 'monolithprojects.github_actions_runner'
   vars:
-    runner_state: '{{ "started" if github_runner_installed.stat.exists else "stopped" }}'
+    runner_state: '{{ "started" if (github_runner_confined.stat.exists | default(false)) else "stopped" }}'
     access_token: '{{ github_runner_access_token }}'
     github_account: '{{ github_runner_organization }}'
     runner_dir: '{{ github_runner_dir }}'

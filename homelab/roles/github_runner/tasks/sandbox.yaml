@@ -41,9 +41,9 @@
 - name: 'Apply the sandbox'
   ansible.builtin.meta: 'flush_handlers'
 
-# Started here rather than by the upstream role, which is handed `stopped` for a host that has no runner yet: this is
-# the first point at which starting one is safe. A runner that was already running is left alone, having been restarted
-# by the handler above if the drop-in changed.
+# Started here rather than by the upstream role, which is handed `stopped` for a host whose runner is not yet confined:
+# this is the first point at which starting one is safe. A runner that was already running under the drop-in is left
+# alone, having been restarted by the handler above if the drop-in changed.
 - name: 'Start the runner service'
   when: 'not ansible_check_mode'
   become: true
