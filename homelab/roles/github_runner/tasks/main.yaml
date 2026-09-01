@@ -32,6 +32,14 @@
     mode: '0644'
   notify: 'Reload the systemd configuration'
 
+# Written by `config.sh`, and the only local record that this host holds a registration. The upstream role decides
+# whether to re-register from GitHub's view instead, which is wrong here; see the include below.
+- name: 'Check whether the runner is already configured'
+  become: true
+  ansible.builtin.stat:
+    path: '{{ github_runner_dir }}/.runner'
+  register: 'github_runner_configured'
+
 # On a host that has one already, the upstream role leaves it running and this is `started`. On a host that does not,
 # it would install the service and start it before the drop-in below exists, and a job picked up in that window would
 # run on the host, unconfined and without the container requirement. Handing it `stopped` for that case leaves the
@@ -46,6 +54,13 @@
   ansible.builtin.include_role:
     name: 'monolithprojects.github_actions_runner'
   vars:
+    # The upstream role sets this itself, from whether GitHub reports the runner offline, and acts on it by running
+    # `config.sh --replace` over the runner directory -- which the runner refuses outright when that directory is
+    # already configured, failing the play. Offline is this deployment's normal state between the runner being
+    # registered and `tasks/sandbox.yaml` starting it, so a run interrupted anywhere in between could never complete
+    # another. What that task is good for is a registration the host has lost, so it is driven from exactly that. A
+    # role parameter outranks the `set_fact` the role would otherwise decide this with.
+    reinstall_runner: '{{ not github_runner_configured.stat.exists }}'
     runner_state: '{{ "started" if github_runner_installed.stat.exists else "stopped" }}'
     access_token: '{{ github_runner_access_token }}'
     github_account: '{{ github_runner_organization }}'
