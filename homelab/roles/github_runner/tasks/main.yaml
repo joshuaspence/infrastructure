@@ -5,9 +5,62 @@
   become: true
   ansible.builtin.user:
     name: '{{ github_runner_user }}'
+    home: '{{ github_runner_home }}'
     shell: '/usr/sbin/nologin'
     password: '!'
     system: true
+
+# Created here rather than left to whichever task first has cause to: `useradd` makes it only when the account is new,
+# `usermod` never does, and a directory that first appears as the parent of something else inherits that thing's mode.
+# The upstream role reads under here as the connection account, so it has to stay traversable by more than the runner.
+- name: 'Create the runner home directory'
+  become: true
+  ansible.builtin.file:
+    path: '{{ github_runner_home }}'
+    state: 'directory'
+    owner: '{{ github_runner_user }}'
+    group: '{{ github_runner_user }}'
+    mode: '{{ github_runner_home_mode }}'
+
+- name: 'Limit the resources of the runner and the container engine'
+  become: true
+  ansible.builtin.template:
+    src: 'slice.j2'
+    dest: '/etc/systemd/system/{{ github_runner_slice }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify: 'Reload the systemd configuration'
+
+# Written by `config.sh`, and the only local record that this host holds a registration. The upstream role decides
+# whether to re-register from GitHub's view instead, which is wrong here; see the include below.
+- name: 'Check whether the runner is already configured'
+  become: true
+  ansible.builtin.stat:
+    path: '{{ github_runner_dir }}/.runner'
+  register: 'github_runner_configured'
+
+# On a host already running a confined runner, the upstream role leaves it running and it is handed `started`. On any
+# other -- no runner at all, or one left by a run that stopped before the drop-in was written -- it would start the
+# runner before the confinement exists, and a job picked up in that window would run on the host, unconfined and
+# without the container requirement. Handing those `stopped` leaves the service installed and not running;
+# `tasks/sandbox.yaml` starts it once the confinement is in place.
+#
+# The drop-in is named after the unit, which `svc.sh install` chooses and records in `.service`, so a host that has
+# not got that far has no drop-in to look for either.
+- name: 'Read the name of the installed runner service'
+  become: true
+  ansible.builtin.slurp:
+    src: '{{ github_runner_dir }}/.service'
+  register: 'github_runner_installed_service'
+  failed_when: false
+
+- name: 'Check whether the runner is already confined'
+  when: 'github_runner_installed_service.content is defined'
+  become: true
+  ansible.builtin.stat:
+    path: '/etc/systemd/system/{{ github_runner_installed_service.content | b64decode | trim }}.d/sandbox.conf'
+  register: 'github_runner_confined'
 
 - name: 'Install the runner'
   ansible.builtin.include_role:
@@ -21,3 +74,40 @@
     runner_org: true
     runner_user: '{{ github_runner_user }}'
     runner_version: '{{ github_runner_version }}'
+
+    # The upstream role sets this itself, from whether GitHub reports the runner offline, and acts on it by running
+    # `config.sh --replace` over the runner directory -- which the runner refuses outright when that directory is
+    # already configured, failing the play. Offline is this deployment's normal state between the runner being
+    # registered and `tasks/sandbox.yaml` starting it, so a run interrupted anywhere in between could never complete
+    # another. What that task is good for is a registration the host has lost, so it is driven from exactly that. A
+    # role parameter outranks the `set_fact` the role would otherwise decide this with.
+    reinstall_runner: '{{ not github_runner_configured.stat.exists }}'
+    runner_state: '{{ "started" if github_runner_confined.stat.exists | default(false) else "stopped" }}'
+
+# `config.sh` writes these as the runner account but under the connection umask, not the runner service's `UMask`,
+# which only governs what the service itself creates. So they land world-readable in a directory the upstream role
+# keeps at `0755`, and `.credentials_rsaparams` is the key the runner authenticates to GitHub with -- readable by `pi`,
+# and by anything a job leaves behind under an account of its own.
+#
+# The mode is fixed on the files rather than on the directory around them: the upstream role resets that to `0755` on
+# every run, and it reads `bin/Runner.Listener.deps.json` and `.service` under it as the connection account, so a
+# directory a job's account cannot read is a directory the next play cannot use either.
+- name: 'Restrict the runner credentials'
+  become: true
+  ansible.builtin.file:
+    path: '{{ github_runner_dir }}/{{ item }}'
+    owner: '{{ github_runner_user }}'
+    group: '{{ github_runner_user }}'
+    mode: '0600'
+  loop:
+    - '.credentials'
+    - '.credentials_rsaparams'
+    - '.runner'
+
+# After the runner, so that the credentials above exist by the time the engine starts: they are masked from it with
+# `InaccessiblePaths`, and systemd skips a path that is missing at start rather than applying it later.
+- name: 'Install the container engine'
+  ansible.builtin.import_tasks: 'containers.yaml'
+
+- name: 'Sandbox the CI jobs'
+  ansible.builtin.import_tasks: 'sandbox.yaml'

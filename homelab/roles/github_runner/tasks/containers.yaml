@@ -1,0 +1,179 @@
+---
+- name: 'Install the container engine'
+  become: true
+  block:
+    - name: 'Install Podman'
+      ansible.builtin.apt:
+        name:
+          - 'fuse-overlayfs'
+          - 'podman'
+          - 'slirp4netns'
+          - 'uidmap'
+        update_cache: true
+        cache_valid_time: 3600
+
+    # The runner shells out to a binary named `docker` and reads the server API version out of `docker version`,
+    # failing the job when it comes back empty. Podman's own `podman-docker` shim answers that with a client version
+    # and no server, so the real client is installed and pointed at the Podman API socket instead.
+    - name: 'Install the Docker CLI'
+      block:
+        - name: 'Install the Docker apt keyring'
+          ansible.builtin.get_url:
+            url: 'https://download.docker.com/linux/debian/gpg'
+            dest: '/etc/apt/keyrings/docker.asc'
+            owner: 'root'
+            group: 'root'
+            mode: '0644'
+
+        - name: 'Install the Docker apt repository'
+          ansible.builtin.deb822_repository:
+            name: 'docker'
+            types: 'deb'
+            uris: 'https://download.docker.com/linux/debian'
+            suites: '{{ ansible_facts["distribution_release"] }}'
+            components: 'stable'
+            architectures: '{{ github_runner_docker_architectures[ansible_facts["architecture"]] }}'
+            signed_by: '/etc/apt/keyrings/docker.asc'
+
+        - name: 'Install the docker-ce-cli package'
+          ansible.builtin.apt:
+            name: 'docker-ce-cli'
+            update_cache: true
+
+    # Written rather than left to `useradd`, which allocates no range for a system account. The range is arbitrary so
+    # long as nothing else on the host claims it; changing it later needs `podman system reset`, since the ids already
+    # written into the image store no longer map.
+    - name: 'Allocate the subordinate id range'
+      ansible.builtin.lineinfile:
+        path: '/etc/{{ item }}'
+        regexp: '^{{ github_runner_user }}:'
+        line: '{{ github_runner_user }}:{{ github_runner_subid_start }}:{{ github_runner_subid_count }}'
+        create: true
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      loop:
+        - 'subuid'
+        - 'subgid'
+      notify: 'Restart the container engine'
+
+    - name: 'Create the image store'
+      ansible.builtin.file:
+        path: '{{ github_runner_containers_dir }}'
+        state: 'directory'
+        owner: '{{ github_runner_user }}'
+        group: '{{ github_runner_user }}'
+        mode: '0750'
+
+    # The runner mounts `/var/run/docker.sock` into every job container unconditionally, with no check that it is
+    # there (`ContainerInfo.cs`, guarded only by `IsJobContainer`). Nothing serves that path here -- the engine
+    # listens in `/run/github-runner` -- and rootless Podman cannot create a missing bind source under root-owned
+    # `/run`, so without a placeholder every containerised job fails before its first step. An empty directory
+    # satisfies the mount and gives the job nothing: a socket there would hand every job the engine's API, and with
+    # it the ability to start a container that mounts the host.
+    #
+    # `/run` is a tmpfs, so this is written as a tmpfiles rule to survive a reboot as well as created now. It also
+    # means a rootful Docker daemon could not claim the path later, which this design has no use for anyway.
+    - name: 'Reserve the Docker socket path'
+      ansible.builtin.copy:
+        dest: '/etc/tmpfiles.d/github-runner.conf'
+        content: 'd /run/docker.sock 0555 root root -'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+
+    - name: 'Create the reserved Docker socket path'
+      ansible.builtin.file:
+        path: '/run/docker.sock'
+        state: 'directory'
+        owner: 'root'
+        group: 'root'
+        mode: '0555'
+
+    - name: 'Create the container engine service'
+      ansible.builtin.template:
+        src: 'podman.service.j2'
+        dest: '/etc/systemd/system/{{ github_runner_podman_service }}'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      notify: 'Restart the container engine'
+
+# Flushed before the service is started rather than at the end of the play, so that the engine the tasks below start
+# and check is the one just configured. The handlers are the whole play's, not this role's, but the only others in it
+# restart SSH, which is no worse for happening here.
+- name: 'Apply the container engine configuration'
+  ansible.builtin.meta: 'flush_handlers'
+
+- name: 'Start the container engine service'
+  become: true
+  ansible.builtin.systemd_service:
+    name: '{{ github_runner_podman_service }}'
+    enabled: true
+    state: 'started'
+    daemon_reload: true
+
+# The same check the runner makes before it will start a job container, made here so that a broken socket is one
+# failed play rather than every job on the host failing at "Initialize containers". `podman unshare` covers what the
+# version check cannot: the id range above, and the setuid helpers that apply it. It is given the same store the
+# service runs on, since a check against the default rootless store would neither exercise that store nor leave the
+# host with only the one.
+- name: 'Verify the container engine'
+  when: 'not ansible_check_mode'
+  become: true
+  become_user: '{{ github_runner_user }}'
+  environment:
+    DOCKER_HOST: 'unix://{{ github_runner_podman_runtime_dir }}/podman.sock'
+    XDG_RUNTIME_DIR: '{{ github_runner_podman_runtime_dir }}'
+  block:
+    - name: 'Verify that the container engine answers as a Docker daemon'
+      ansible.builtin.command:
+        argv:
+          - 'docker'
+          - 'version'
+          - '--format'
+          - '{{ "{{" }}.Server.APIVersion{{ "}}" }}'
+      register: 'github_runner_docker_version'
+      changed_when: false
+      failed_when: '(github_runner_docker_version.stdout | trim) == ""'
+
+    - name: 'Verify that the subordinate id range is usable'
+      ansible.builtin.command:
+        argv:
+          - 'podman'
+          - '--root'
+          - '{{ github_runner_containers_dir }}'
+          - '--runroot'
+          - '{{ github_runner_podman_runtime_dir }}/containers'
+          - 'unshare'
+          - 'true'
+      changed_when: false
+
+# `systemctl show` would report `InaccessiblePaths` back whether or not it took effect, and the failure worth catching
+# is exactly the one it cannot see: a path that was missing when the service started is skipped for the lifetime of
+# that start, without a word in the journal. So the check is made against the engine's own view of the filesystem,
+# which `/proc/<pid>/root` resolves into. A masked path is an empty file there, mode `0000`; an unmasked one is the
+# credential a job could have named in its `container.volumes`. Only the size is looked at, so that a failure here does
+# not put the key into the play's output.
+- name: 'Verify that the runner credentials are masked from the container engine'
+  when: 'not ansible_check_mode'
+  become: true
+  block:
+    - name: 'Find the container engine process'
+      ansible.builtin.command:
+        argv:
+          - 'systemctl'
+          - 'show'
+          - '--property=MainPID'
+          - '--value'
+          - '{{ github_runner_podman_service }}'
+      register: 'github_runner_podman_pid'
+      changed_when: false
+      failed_when: '(github_runner_podman_pid.stdout | trim | int) == 0'
+
+    - name: 'Inspect the runner credentials as the container engine sees them'
+      ansible.builtin.stat:
+        path: '/proc/{{ github_runner_podman_pid.stdout | trim }}/root{{ github_runner_dir }}/.credentials_rsaparams'
+        get_checksum: false
+      register: 'github_runner_masked_credentials'
+      failed_when: 'not github_runner_masked_credentials.stat.exists or github_runner_masked_credentials.stat.size != 0'

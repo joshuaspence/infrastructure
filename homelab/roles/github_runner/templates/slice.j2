@@ -1,0 +1,14 @@
+# Bounds the runner and its container engine together. The two are one workload -- the listener picks up a job, the
+# engine runs it -- and it is the pair that has to leave the Pi enough memory to stay reachable while a job is
+# misbehaving. The limits cannot sit on the runner unit alone: with a job container mandatory, a job's processes are
+# children of `podman system service` and land in its cgroup rather than the runner's, so nothing set on the runner
+# reaches them.
+
+[Unit]
+Description=GitHub Actions runner and its container engine
+
+[Slice]
+# A fork bomb or a build that eats all the memory costs a job rather than the host: without a limit the Pi stops
+# answering SSH long before anything notices which job is responsible.
+MemoryMax={{ github_runner_sandbox_memory_max }}
+TasksMax={{ github_runner_sandbox_tasks_max }}

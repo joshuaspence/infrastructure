@@ -1,0 +1,19 @@
+---
+- name: 'Reload the systemd configuration'
+  become: true
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: 'Restart the GitHub Actions runner'
+  become: true
+  ansible.builtin.systemd_service:
+    name: '{{ github_runner_service }}'
+    state: 'restarted'
+    daemon_reload: true
+
+- name: 'Restart the container engine'
+  become: true
+  ansible.builtin.systemd_service:
+    name: '{{ github_runner_podman_service }}'
+    state: 'restarted'
+    daemon_reload: true

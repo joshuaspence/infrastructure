@@ -1,4 +1,44 @@
 ---
-github_runner_dir: '/opt/github/actions-runner'
+github_runner_dir: '{{ github_runner_home }}/actions-runner'
 github_runner_name: '{{ inventory_hostname }}'
 github_runner_user: 'github-runner'
+
+# `ansible_facts.architecture` reports the kernel architecture (e.g. `aarch64`), whereas apt expects the Debian
+# architecture (e.g. `arm64`).
+github_runner_docker_architectures:
+  aarch64: 'arm64'
+  armv7l: 'armhf'
+  x86_64: 'amd64'
+
+# Kept out of `/home` so that `/home`, which holds the administrative accounts and their SSH keys, can be hidden from
+# CI jobs wholesale rather than hidden around the one directory the runner needs. Mode `0755` rather than anything
+# tighter because `monolithprojects.github_actions_runner` reads under here without `become`, as the connection
+# account; what protects a checkout is `UMask` on the runner service, and what protects the credentials is the mode
+# set on them in `tasks/main.yaml`, not this.
+github_runner_home: '/var/lib/github'
+github_runner_home_mode: '0755'
+
+# The runner and the container engine are held to these together, in a slice, rather than separately: a job's
+# processes belong to the engine, so a limit on the runner alone would not reach them, and a limit on each would let
+# the pair reach twice what either is allowed.
+github_runner_sandbox_memory_max: '75%'
+github_runner_sandbox_tasks_max: 1024
+github_runner_slice: 'github-runner.slice'
+
+# Everything outside the runner directory and its home is read-only to the runner. Anything that legitimately needs
+# to be written elsewhere has to be listed here, since the alternative it will reach for is turning the sandbox off.
+github_runner_sandbox_read_write_paths: []
+
+# Rootless Podman, running as the runner account, serving the Docker-compatible API the runner speaks. Kept in its own
+# service so that the runner itself never needs the namespace, mount and `/dev/fuse` access a container engine does,
+# and keeps the confinement in `templates/sandbox.conf.j2`.
+github_runner_containers_dir: '{{ github_runner_home }}/containers'
+github_runner_podman_service: 'github-runner-podman.service'
+
+# Has to be a directory directly under `/run`: it is served by `RuntimeDirectory`, which is always relative to it.
+github_runner_podman_runtime_dir: '/run/github-runner'
+
+# Rootless containers map the account onto a range of unused ids. `useradd --system` allocates none, and Podman
+# without a range gives every container a single uid, which almost no image survives.
+github_runner_subid_count: 65536
+github_runner_subid_start: 200000
