@@ -10,18 +10,6 @@
     password: '!'
     system: true
 
-# Also creates the directory: `user` only builds a home for an account it is creating, so an account whose home moved
-# here from `/home` would otherwise be left pointing at nothing, and the sandbox refuses to start the service over a
-# writable path that does not exist.
-- name: 'Restrict the runner home directory'
-  become: true
-  ansible.builtin.file:
-    path: '{{ github_runner_home }}'
-    state: 'directory'
-    owner: '{{ github_runner_user }}'
-    group: '{{ github_runner_user }}'
-    mode: '0750'
-
 - name: 'Install the container engine'
   ansible.builtin.import_tasks: 'containers.yaml'
 
