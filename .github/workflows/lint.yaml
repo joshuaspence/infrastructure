@@ -10,7 +10,7 @@ jobs:
     runs-on: 'ubuntu-latest'
     steps:
       - uses: 'actions/checkout@v4'
-      - uses: 'ansible/ansible-lint@v25'
+      - uses: 'ansible/ansible-lint@v26'
         with:
           requirements_file: 'requirements.yaml'
           working_directory: 'homelab'
