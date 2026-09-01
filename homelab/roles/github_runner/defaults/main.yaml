@@ -7,9 +7,6 @@ github_runner_user: 'github-runner'
 # CI jobs wholesale rather than hidden around the one directory the runner needs.
 github_runner_home: '/opt/github/home'
 
-# Root owned and outside every path a job can write to, so that a job cannot rewrite the cleanup that runs after it.
-github_runner_sandbox_dir: '/opt/github/sandbox'
-
 # The runners share their Pi with nothing else, so these only need to leave the host enough to stay reachable while a
 # job is misbehaving. A job that exceeds them is killed; the runner is restarted.
 github_runner_sandbox_memory_max: '75%'

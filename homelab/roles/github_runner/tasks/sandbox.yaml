@@ -11,25 +11,6 @@
   ansible.builtin.set_fact:
     github_runner_service: '{{ github_runner_service_file.content | b64decode | trim }}'
 
-- name: 'Install the job cleanup script'
-  become: true
-  block:
-    - name: 'Create the sandbox directory'
-      ansible.builtin.file:
-        path: '{{ github_runner_sandbox_dir }}'
-        state: 'directory'
-        owner: 'root'
-        group: 'root'
-        mode: '0755'
-
-    - name: 'Install the cleanup script'
-      ansible.builtin.template:
-        src: 'clean.sh.j2'
-        dest: '{{ github_runner_sandbox_dir }}/clean.sh'
-        owner: 'root'
-        group: 'root'
-        mode: '0755'
-
 - name: 'Confine the runner service'
   become: true
   block:

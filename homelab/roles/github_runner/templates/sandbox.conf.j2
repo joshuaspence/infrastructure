@@ -29,13 +29,6 @@ KillMode=control-group
 Restart=always
 RestartSec=15
 
-# One job's leftovers are the next job's starting point otherwise. The cleanup also runs before the service starts,
-# which covers the jobs that never reach their hook: a runner killed mid-job, or a reboot. A failure there is not
-# fatal, since a dirty work directory is still better than a runner that refuses to start; the next job's hook runs
-# the same script and does fail loudly.
-ExecStartPre=-{{ github_runner_sandbox_dir }}/clean.sh
-Environment=ACTIONS_RUNNER_HOOK_JOB_COMPLETED={{ github_runner_sandbox_dir }}/clean.sh
-
 # A job cannot gain privileges the runner was not started with, which makes `sudo` and every other setuid binary on
 # the host a dead end.
 NoNewPrivileges=true
