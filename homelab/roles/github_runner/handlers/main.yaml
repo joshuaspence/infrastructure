@@ -1,4 +1,9 @@
 ---
+# Both restarts below abort whatever job the host is running at the time, and neither has a way to know that it is:
+# `KillMode=control-group` takes the runner's job processes down with it, and restarting the engine takes down the
+# containers it is holding open. GitHub reports the job as having failed and it can be re-run, so nothing is lost but
+# the time -- worth knowing all the same before applying this role to a busy runner, since the handlers fire on any
+# change to the drop-in, the engine unit or the subordinate id range.
 - name: 'Reload the systemd configuration'
   become: true
   ansible.builtin.systemd_service:
