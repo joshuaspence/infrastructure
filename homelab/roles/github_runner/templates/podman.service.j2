@@ -1,0 +1,71 @@
+# Serves the Docker-compatible API that the runner drives to create each job's container. It runs as the runner account
+# rather than root: a container it starts is confined by a user namespace that maps the account onto the subordinate id
+# range, so root inside a job container is this unprivileged account outside it.
+#
+# A job's processes are children of this service rather than of the runner, so this unit -- not the runner's drop-in
+# -- is where a restriction has to sit to reach a job. Most of what confines the runner cannot be repeated here: the
+# engine needs the namespaces, mounts and `setuid` helpers that `NoNewPrivileges`, `RestrictNamespaces` and
+# `ProtectSystem=strict` take away. The mount restrictions are the exception, and they are the ones that matter, since
+# a job's `container.volumes` is free to name any host path the engine can see.
+
+[Unit]
+Description=Rootless Podman API for the GitHub Actions runner
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# `Type=exec` would call the service started as soon as the binary is executing, which is before the socket is bound:
+# the play's own `docker version` check, and any job picked up in that window, would fail against a healthy engine.
+# Podman sends `READY=1` once it is listening.
+Type=notify
+User={{ github_runner_user }}
+Group={{ github_runner_user }}
+Environment=XDG_RUNTIME_DIR={{ github_runner_podman_runtime_dir }}
+Restart=always
+RestartSec=15
+Slice={{ github_runner_slice }}
+ProtectHome=true
+
+# `ProtectHome` keeps a job from mounting the administrative accounts, but it leaves the runner's own directory, and
+# the credentials in it are worth more than anything under `/home`: `.credentials_rsaparams` holds the key the runner
+# authenticates to GitHub with, and a job that read it could register as this runner and collect the tokens of every
+# job that follows. Owner alone does not stop that -- the files belong to this account, and a rootless container's
+# root maps back onto it, so a job that mounted them would have write access as well as read.
+#
+# The engine never needs them. The runner asks it to mount the work directory and `externals`, never the runner root,
+# so masking them here costs nothing and removes the path entirely: a file the engine cannot see is a file a job
+# cannot ask it to bind. `_diag` is masked with them, since a job's logs land there.
+#
+# Prefixed with `-` because none of them exist until the runner has been configured, and systemd refuses to start a
+# service over a missing path otherwise. That is also why this service is set up after the runner in `tasks/main.yaml`
+# -- a path that is absent when the service starts is skipped for the lifetime of that start, silently.
+InaccessiblePaths=-{{ github_runner_dir }}/.credentials \
+  -{{ github_runner_dir }}/.credentials_rsaparams \
+  -{{ github_runner_dir }}/.runner \
+  -{{ github_runner_dir }}/_diag
+
+# `/run/github-runner`, owned by the account. The socket lives here rather than in `/run/user/<uid>`, which needs a
+# login session the account does not have and which the runner service cannot see through `ProtectHome`. Kept across a
+# restart of this service so that restarting the engine does not pull the runtime state out from under a container that
+# is still running.
+RuntimeDirectory={{ github_runner_podman_runtime_dir | basename }}
+RuntimeDirectoryMode=0700
+RuntimeDirectoryPreserve=restart
+
+# `--cgroup-manager=cgroupfs` because the default, `systemd`, asks a *user* systemd instance over a session bus to
+# place each container. This account has neither: it is a system account with `nologin` and no lingering, so the
+# default fails at the first container while every check in this play still passes. `Delegate` below is what makes
+# `cgroupfs` correct here -- podman gets a subtree of its own to write, and the slice's limits still apply to it.
+ExecStart=/usr/bin/podman \
+  --cgroup-manager=cgroupfs \
+  --root {{ github_runner_containers_dir }} \
+  --runroot {{ github_runner_podman_runtime_dir }}/containers \
+  system service \
+  --time=0 \
+  unix://{{ github_runner_podman_runtime_dir }}/podman.sock
+
+# Podman needs a cgroup subtree of its own to place containers in.
+Delegate=yes
+
+[Install]
+WantedBy=multi-user.target

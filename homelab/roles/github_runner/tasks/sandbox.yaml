@@ -1,0 +1,71 @@
+---
+# Skipped wholesale under `--check`: the file below is written by `svc.sh install`, which a check run does not perform,
+# so against a host without a runner there is nothing to read and every task here would fail on a name it never learned.
+# A check run reports nothing about the sandbox rather than reporting something untrue.
+- name: 'Confine the runner service'
+  when: 'not ansible_check_mode'
+  become: true
+  block:
+    # Read rather than derived from the registration: `svc.sh install` decides the unit name and records it here, and
+    # a drop-in whose directory does not match it is a file systemd never reads. Guessing wrong leaves the runner
+    # unconfined and every task below reporting success.
+    - name: 'Read the runner service name'
+      ansible.builtin.slurp:
+        src: '{{ github_runner_dir }}/.service'
+      register: 'github_runner_service_file'
+
+    - name: 'Record the runner service name'
+      ansible.builtin.set_fact:
+        github_runner_service: '{{ github_runner_service_file.content | b64decode | trim }}'
+
+    - name: 'Create the runner service drop-in directory'
+      ansible.builtin.file:
+        path: '/etc/systemd/system/{{ github_runner_service }}.d'
+        state: 'directory'
+        owner: 'root'
+        group: 'root'
+        mode: '0755'
+
+    - name: 'Install the runner service sandbox'
+      ansible.builtin.template:
+        src: 'sandbox.conf.j2'
+        dest: '/etc/systemd/system/{{ github_runner_service }}.d/sandbox.conf'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      notify: 'Restart the GitHub Actions runner'
+
+# The confinement only reaches the runner through the service, so it is worth nothing until the runner has been
+# restarted under it. Flushed here rather than at the end of the play so that the check below is made against the
+# running service and not the one that was already there.
+- name: 'Apply the sandbox'
+  ansible.builtin.meta: 'flush_handlers'
+
+# Started here rather than by the upstream role, which is handed `stopped` for a host that has no runner yet: this is
+# the first point at which starting one is safe. A runner that was already running is left alone, having been restarted
+# by the handler above if the drop-in changed.
+- name: 'Start the runner service'
+  when: 'not ansible_check_mode'
+  become: true
+  ansible.builtin.systemd_service:
+    name: '{{ github_runner_service }}'
+    enabled: true
+    state: 'started'
+    daemon_reload: true
+
+# Nothing above proves systemd read the drop-in; a misnamed directory or a directive this systemd does not know is a
+# quietly unconfined runner. `NoNewPrivileges` is not set by the generated unit, so systemd reporting it can only come
+# from the drop-in. Skipped under `--check`, where the drop-in was never written.
+- name: 'Verify that the sandbox is in effect'
+  when: 'not ansible_check_mode'
+  become: true
+  ansible.builtin.command:
+    argv:
+      - 'systemctl'
+      - 'show'
+      - '--property=NoNewPrivileges'
+      - '--value'
+      - '{{ github_runner_service }}'
+  register: 'github_runner_sandbox_applied'
+  changed_when: false
+  failed_when: '(github_runner_sandbox_applied.stdout | trim) != "yes"'

@@ -1,0 +1,59 @@
+# Confines the GitHub Actions runner service. With a job container mandatory the job's own steps do not run here: they
+# are children of the container engine, in that unit's cgroup and mount namespace. So what is below bounds the listener
+# and the worker, the processes that hold the runner's registration credential and every job's token. The engine unit
+# carries the confinement that reaches a job, and the slice carries the limits that cover both.
+
+[Unit]
+# The API the runner creates job containers through. Ordering only: a runner that starts first simply fails the jobs
+# it picks up before the socket is there, and `Wants` keeps that from being a hard dependency on a service the runner
+# does not need when no job asks for a container.
+After={{ github_runner_podman_service }}
+Wants={{ github_runner_podman_service }}
+
+[Service]
+Environment=ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER=true
+Environment=DOCKER_HOST=unix://{{ github_runner_podman_runtime_dir }}/podman.sock
+Slice={{ github_runner_slice }}
+
+# The generated unit sets `KillMode=process`, which leaves whatever a job started running after the service stops.
+KillMode=control-group
+
+# The generated unit sets no `Restart`, so the runner stays down after any crash.
+Restart=always
+RestartSec=15
+
+# The runner cannot gain privileges it was not started with.
+NoNewPrivileges=true
+CapabilityBoundingSet=
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+LockPersonality=true
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+
+# `RemoveIPC` is deliberately absent: the container engine runs as the same account, so removing that account's IPC
+# objects when this unit stops would reach into the engine and the containers it is holding open.
+
+# The filesystem is read-only apart from the runner's own directories, and `/home` is not there at all: the
+# administrative accounts and their SSH keys are the shortest path off one of these Pis and onto the rest of the
+# network. The same block on the engine unit is what keeps a job's `volumes:` from mounting `/home` into a container.
+# `/tmp` is private to this service, and a job container gets its own regardless.
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths={{ ([github_runner_dir, github_runner_home] + github_runner_sandbox_read_write_paths) | join(' ') }}
+PrivateTmp=true
+PrivateDevices=true
+ProtectProc=invisible
+ProtectClock=true
+ProtectHostname=true
+ProtectControlGroups=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+
+# The runner directory itself is world-readable and `monolithprojects.github_actions_runner` resets it to that on
+# every run, so a checkout that lands in it is otherwise readable by every other account on the Pi.
+UMask=0077
