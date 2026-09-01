@@ -1,7 +1,7 @@
 ---
 - name: 'Setup the Claude daemon'
   become: true
-  when: 'ansible_architecture in claude_daemon_architectures'
+  when: 'ansible_facts["architecture"] in claude_daemon_architectures'
   block:
     - name: 'Install the signing key dependencies'
       ansible.builtin.apt:
@@ -36,18 +36,15 @@
       register: 'claude_daemon_key'
       failed_when: '"fpr:::::::::" ~ claude_daemon_apt_key_fingerprint ~ ":" not in claude_daemon_key.stdout'
 
-    - name: 'Register the Claude Code apt repository'
-      ansible.builtin.copy:
-        dest: '/etc/apt/sources.list.d/claude-code.sources'
-        content: |
-          Types: deb
-          URIs: {{ claude_daemon_apt_uri }}
-          Suites: {{ claude_daemon_channel }}
-          Components: main
-          Signed-By: {{ claude_daemon_apt_keyring }}
-        owner: 'root'
-        group: 'root'
-        mode: '0644'
+    - name: 'Install the Claude Code apt repository'
+      ansible.builtin.deb822_repository:
+        name: 'claude-code'
+        types: 'deb'
+        uris: '{{ claude_daemon_apt_uri }}'
+        suites: '{{ claude_daemon_channel }}'
+        components: 'main'
+        architectures: '{{ claude_daemon_architectures[ansible_facts["architecture"]] }}'
+        signed_by: '{{ claude_daemon_apt_keyring }}'
 
     # No `cache_valid_time`: the package lists have to be re-read after the repository above is registered, and the
     # `common` role will usually have refreshed them minutes earlier, which is exactly the case a cache window would

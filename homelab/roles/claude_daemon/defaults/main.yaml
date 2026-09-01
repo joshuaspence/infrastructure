@@ -31,12 +31,13 @@ claude_daemon_working_directory: '/var/cache/{{ claude_daemon_name }}'
 # sit here until someone runs `claude auth login` on it.
 claude_daemon_credentials: '{{ claude_daemon_home }}/.claude/.credentials.json'
 
-# The apt repository publishes `amd64` and `arm64` only. Registering it on a 32-bit Raspberry Pi OS install would
-# leave every later `apt update` on that host failing, taking the runner role down with it, so those hosts are skipped
-# instead of half-configured.
+# `ansible_facts.architecture` reports the kernel architecture (e.g. `aarch64`), whereas apt expects the Debian
+# architecture (e.g. `arm64`). Unlike `github_cli_architectures` there is no `armv7l` entry, because the Claude Code
+# repository publishes `amd64` and `arm64` only: this doubles as the guard that skips a 32-bit host altogether, rather
+# than registering a repository that would leave every later `apt update` on it failing.
 claude_daemon_architectures:
-  - 'aarch64'
-  - 'x86_64'
+  aarch64: 'arm64'
+  x86_64: 'amd64'
 
 claude_daemon_apt_keyring: '/etc/apt/keyrings/claude-code.asc'
 claude_daemon_apt_key_url: 'https://downloads.claude.ai/keys/claude-code.asc'
