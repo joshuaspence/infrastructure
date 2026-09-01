@@ -112,8 +112,8 @@
         version: '{{ uctronics_rm0004_version }}'
       register: 'uctronics_rm0004_clone'
 
-    # Both binaries, not just the daemon: a host built before `display-cli` existed has a `display` that makes the
-    # build look done, and would never produce the CLI. Checking each means the missing one is enough to rebuild.
+    # Both binaries, not just the daemon: a host built before `display-cli` existed has a `display` binary that makes
+    # the build look done, and would never produce the CLI. Checking each means the missing one is enough to rebuild.
     - name: 'Check whether the display has been built'
       ansible.builtin.stat:
         path: '{{ uctronics_rm0004_source }}/{{ item }}'
@@ -166,16 +166,13 @@
         group: 'root'
         mode: '0755'
 
-    # `/run` is emptied on every boot, directory and all, so the message file needs somewhere to land each time the
-    # Pi comes up. `systemd-tmpfiles` is what puts it back. The file name matches the service rather than this role,
-    # so a host that was ever set up by the repository's own `deployment_service.sh` ends with one rule and not two
-    # that disagree about the owner.
+    # `/run` is emptied on every boot, so the message file needs somewhere to land each time the Pi comes up.
+    # `systemd-tmpfiles` is what puts it back.
     - name: 'Recreate the message directory at boot'
       become: true
       ansible.builtin.copy:
         dest: '/etc/tmpfiles.d/uctronics-display.conf'
-        content: |
-          d {{ uctronics_rm0004_message_directory }} 0755 {{ uctronics_rm0004_message_owner }} - -
+        content: 'd {{ uctronics_rm0004_message_directory }} 0755 {{ uctronics_rm0004_message_owner }} - -'
         owner: 'root'
         group: 'root'
         mode: '0644'
