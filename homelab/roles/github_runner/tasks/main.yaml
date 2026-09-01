@@ -17,8 +17,6 @@
     github_account: '{{ github_runner_organization }}'
     runner_dir: '{{ github_runner_dir }}'
     runner_group: '{{ github_runner_group }}'
-    runner_labels:
-      - 'homelab'
     runner_name: '{{ github_runner_name }}'
     runner_org: true
     runner_user: '{{ github_runner_user }}'
