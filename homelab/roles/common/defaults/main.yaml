@@ -16,7 +16,6 @@ common_apt_packages:
   - 'git'
   - 'htop'
   - 'jq'
-  - 'locales'
   - 'tar'
   - 'unzip'
   - 'vim'
