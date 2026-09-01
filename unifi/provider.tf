@@ -22,16 +22,6 @@ provider "remote" {
 }
 
 provider "remote" {
-  alias = "gateway"
-
-  conn {
-    host     = format("gateway.%s", var.networks["management"].domain_name)
-    user     = var.ssh_config.username
-    password = var.ssh_config.password
-  }
-}
-
-provider "remote" {
   alias = "nvr"
 
   conn {
