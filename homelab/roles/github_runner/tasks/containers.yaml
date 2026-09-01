@@ -215,10 +215,14 @@
 # `systemctl show` would report `InaccessiblePaths` back whether or not it took effect, and the failure worth catching
 # is exactly the one it cannot see: a path that was missing when the service started is skipped for the lifetime of
 # that start, without a word in the journal. So the check is made against the engine's own view of the filesystem,
-# which `/proc/<pid>/root` resolves into. A masked path is an empty file there, mode `0000`; an unmasked one is the
-# credential a job could have named in its `container.volumes`. Only the size is looked at, so that a failure here does
-# not put the key into the play's output.
-- name: 'Verify that the runner credentials are masked from the container engine'
+# which `/proc/<pid>/root` resolves into. Every masked path is checked rather than only the key: they are masked by one
+# directive and skipped by one rule, so any of them can be the one that was missing.
+#
+# What is looked at is the mode. systemd mounts an empty file, or an empty directory, of mode `0000` over each path, so
+# `0000` is the mask and anything else is the real thing a job could have named in its `container.volumes`. The mode
+# also covers `_diag`, which being a directory has no size worth reading. Nothing of the contents is looked at, so a
+# failure here does not put the key into the play's output.
+- name: 'Verify that the runner state is masked from the container engine'
   when: 'not ansible_check_mode'
   become: true
   block:
@@ -234,9 +238,14 @@
       changed_when: false
       failed_when: '(github_runner_podman_pid.stdout | trim | int) == 0'
 
-    - name: 'Inspect the runner credentials as the container engine sees them'
+    - name: 'Inspect the masked paths as the container engine sees them'
       ansible.builtin.stat:
-        path: '/proc/{{ github_runner_podman_pid.stdout | trim }}/root{{ github_runner_dir }}/.credentials_rsaparams'
+        path: '/proc/{{ github_runner_podman_pid.stdout | trim }}/root{{ github_runner_dir }}/{{ item }}'
         get_checksum: false
-      register: 'github_runner_masked_credentials'
-      failed_when: 'not github_runner_masked_credentials.stat.exists or github_runner_masked_credentials.stat.size != 0'
+      register: 'github_runner_masked'
+      failed_when: 'not github_runner_masked.stat.exists or github_runner_masked.stat.mode != "0000"'
+      loop:
+        - '.credentials'
+        - '.credentials_rsaparams'
+        - '.runner'
+        - '_diag'
