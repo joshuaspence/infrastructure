@@ -2,10 +2,17 @@
 - name: 'Install the container engine'
   become: true
   block:
+    # `containernetworking-plugins` and `iptables` are here because the `podman` package depends on neither and every
+    # containerised job needs both: the runner creates a network of its own for each job before it starts the container
+    # (`ContainerOperationProvider.CreateContainerNetworkAsync`), and Podman cannot serve that without a network
+    # backend. Bookworm ships Podman 4.3, which falls back to CNI when `netavark` is absent, so the CNI plugins are
+    # what it reaches for; `iptables` is what they in turn shell out to, and the `podman` package only suggests it.
     - name: 'Install Podman'
       ansible.builtin.apt:
         name:
+          - 'containernetworking-plugins'
           - 'fuse-overlayfs'
+          - 'iptables'
           - 'podman'
           - 'slirp4netns'
           - 'uidmap'
@@ -125,6 +132,8 @@
   environment:
     DOCKER_HOST: 'unix://{{ github_runner_podman_runtime_dir }}/podman.sock'
     XDG_RUNTIME_DIR: '{{ github_runner_podman_runtime_dir }}'
+  vars:
+    github_runner_verify_network: 'github-runner-verify'
   block:
     - name: 'Verify that the container engine answers as a Docker daemon'
       ansible.builtin.command:
@@ -148,6 +157,39 @@
           - 'unshare'
           - 'true'
       changed_when: false
+
+    # The one thing every job does that the checks above do not reach: `docker version` answers from the API socket
+    # without touching the network stack, so a host with no network backend passes every check here and then fails
+    # each job at "Initialize containers". Removed either side of the create, since a run interrupted between the two
+    # would otherwise leave behind a name the next run cannot create.
+    - name: 'Remove the verification network left by an interrupted run'
+      ansible.builtin.command:
+        argv:
+          - 'docker'
+          - 'network'
+          - 'rm'
+          - '{{ github_runner_verify_network }}'
+      changed_when: false
+      failed_when: false
+
+    - name: 'Verify that the container engine can create a job network'
+      ansible.builtin.command:
+        argv:
+          - 'docker'
+          - 'network'
+          - 'create'
+          - '{{ github_runner_verify_network }}'
+      changed_when: false
+
+    - name: 'Remove the verification network'
+      ansible.builtin.command:
+        argv:
+          - 'docker'
+          - 'network'
+          - 'rm'
+          - '{{ github_runner_verify_network }}'
+      changed_when: false
+      failed_when: false
 
 # `systemctl show` would report `InaccessiblePaths` back whether or not it took effect, and the failure worth catching
 # is exactly the one it cannot see: a path that was missing when the service started is skipped for the lifetime of
