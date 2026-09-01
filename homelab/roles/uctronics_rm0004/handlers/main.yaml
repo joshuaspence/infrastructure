@@ -1,0 +1,7 @@
+---
+- name: 'Restart the UCTRONICS display service'
+  become: true
+  ansible.builtin.systemd_service:
+    name: '{{ uctronics_rm0004_service }}'
+    state: 'restarted'
+    daemon_reload: true

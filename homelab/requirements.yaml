@@ -4,5 +4,7 @@ collections:
   - 'community.general'
 
 roles:
+  - name: 'geerlingguy.raspberry-pi'
+    version: '1.3.0'
   - name: 'monolithprojects.github_actions_runner'
     version: '1.28.1'
