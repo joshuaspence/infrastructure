@@ -4,6 +4,17 @@
 # so this has to be updated by hand if that role ever moves the path. Point it at a file the role does not write and
 # both checksums match on every run: the reboot never fires and the boot options are silently never applied.
 uctronics_rm0004_boot_config: '/boot/firmware/config.txt'
+
+# The directory holding the message that `display-cli` writes and the display reads. Compiled into both binaries as
+# `DISPLAY_MESSAGE_PATH`, so changing it here alone leaves the CLI writing where the display never looks. It sits
+# under `/run` deliberately: that is a tmpfs the kernel brings up empty, so a message lasts until the Pi reboots.
+uctronics_rm0004_message_directory: '/run/uctronics-display'
+
+# Who owns that directory, and so who can set a message without `sudo`. `/run` itself is not writable by anyone but
+# root, so the CLI cannot create the directory for itself and has to be handed one. The display runs as root and
+# only ever reads the file, so nothing is given up by handing the directory to the account that logs in.
+uctronics_rm0004_message_owner: '{{ ansible_user_id }}'
+
 uctronics_rm0004_reboot_timeout: 600
 uctronics_rm0004_repository: 'https://github.com/joshuaspence/SKU_RM0004.git'
 uctronics_rm0004_service: 'uctronics-display.service'
