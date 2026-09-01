@@ -2,6 +2,6 @@
 - name: 'Restart the UCTRONICS display'
   become: true
   ansible.builtin.systemd_service:
-    name: '{{ github_runner_uctronics_service }}'
+    name: '{{ uctronics_service }}'
     state: 'restarted'
     daemon_reload: true

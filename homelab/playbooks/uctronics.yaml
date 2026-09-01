@@ -1,0 +1,7 @@
+---
+# The whole rack, not just the runners: the OLED and power button are a property of the chassis a Pi is mounted in
+# rather than of anything it happens to run.
+- name: 'Setup the UCTRONICS Pi Rack Pro'
+  hosts: 'homelab'
+  roles:
+    - role: 'uctronics'
