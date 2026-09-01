@@ -1,0 +1,33 @@
+---
+# Generated before it is made the default, so a host is never left with `LANG` naming a locale that does not exist.
+- name: 'Configure the locale'
+  become: true
+  block:
+    - name: 'Generate the locale'
+      community.general.locale_gen:
+        name: '{{ common_locale }}'
+
+    # No package ships `/etc/default/locale` — `update-locale` creates it at runtime — so it has to be created here
+    # rather than assumed. Doing it separately from the `lineinfile` below is what lets the mode be set at all: on
+    # these images the path is a symlink to `/etc/locale.conf`, and Ansible compares a requested mode against the
+    # symlink's own `0777` (`os.lstat`, not `os.stat`), so any module writing through it and setting a mode reports
+    # `changed` on every run forever. `follow` resolves to the target, which the mode then describes correctly.
+    - name: 'Create the locale defaults file'
+      ansible.builtin.file:
+        path: '/etc/default/locale'
+        state: 'touch'
+        follow: true
+        access_time: 'preserve'
+        modification_time: 'preserve'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+
+    # `lineinfile` rather than rewriting the file: `/etc/default/locale` belongs to `update-locale` and
+    # `dpkg-reconfigure locales`, and may carry `LC_*` entries this role has no opinion about. It sets no attributes
+    # of its own, both because the task above owns them and because setting them here is the trap described there.
+    - name: 'Set the default locale'
+      ansible.builtin.lineinfile:
+        path: '/etc/default/locale'
+        regexp: '^LANG='
+        line: 'LANG={{ common_locale }}'

@@ -8,5 +8,10 @@
 - name: 'Configure APT'
   ansible.builtin.import_tasks: 'apt.yaml'
 
+# After APT rather than beside the timezone, which is where it belongs by subject: `locale-gen` comes from the
+# `locales` package installed there.
+- name: 'Configure the locale'
+  ansible.builtin.import_tasks: 'locale.yaml'
+
 - name: 'Configure SSH'
   ansible.builtin.import_tasks: 'ssh.yaml'
