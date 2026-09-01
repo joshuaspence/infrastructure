@@ -2,6 +2,9 @@
 - name: 'Configure the hostname'
   ansible.builtin.import_tasks: 'hostname.yaml'
 
+- name: 'Configure the locale'
+  ansible.builtin.import_tasks: 'locale.yaml'
+
 - name: 'Configure the timezone'
   ansible.builtin.import_tasks: 'timezone.yaml'
 
