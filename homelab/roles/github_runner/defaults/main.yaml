@@ -1,2 +1,20 @@
 ---
+github_runner_dir: '/opt/github/actions-runner'
+github_runner_name: '{{ inventory_hostname }}'
 github_runner_user: 'github-runner'
+
+# Kept out of `/home` so that `/home`, which holds the administrative accounts and their SSH keys, can be hidden from
+# CI jobs wholesale rather than hidden around the one directory the runner needs.
+github_runner_home: '/opt/github/home'
+
+# Root owned and outside every path a job can write to, so that a job cannot rewrite the cleanup that runs after it.
+github_runner_sandbox_dir: '/opt/github/sandbox'
+
+# The runners share their Pi with nothing else, so these only need to leave the host enough to stay reachable while a
+# job is misbehaving. A job that exceeds them is killed; the runner is restarted.
+github_runner_sandbox_memory_max: '75%'
+github_runner_sandbox_tasks_max: 512
+
+# Everything outside the runner directory and its home is read-only to a job. Anything a job legitimately needs to
+# write elsewhere has to be listed here, since the alternative it will reach for is turning the sandbox off.
+github_runner_sandbox_read_write_paths: []

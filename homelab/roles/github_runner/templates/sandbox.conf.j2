@@ -1,0 +1,60 @@
+# Managed by Ansible.
+#
+# Confines the GitHub Actions runner service, and with it the CI jobs that run on it. A job is not a process the
+# runner isolates in any way: it is forked from the listener and lands in this unit's cgroup and namespaces, so
+# everything below applies to it too. The mount, device and `/proc` views in particular are set up before the runner
+# starts and a job has no privileges left to undo them.
+
+[Service]
+# The generated unit sets `KillMode=process`, which leaves whatever a job started running after the service stops.
+KillMode=control-group
+
+# The generated unit sets no `Restart=`, so the runner stays down after any crash, the memory limit below included.
+Restart=always
+RestartSec=15
+
+# One job's leftovers are the next job's starting point otherwise. The cleanup also runs before the service starts,
+# which covers the jobs that never reach their hook: a runner killed mid-job, or a reboot. A failure there is not
+# fatal, since a dirty work directory is still better than a runner that refuses to start; the next job's hook runs
+# the same script and does fail loudly.
+ExecStartPre=-{{ github_runner_sandbox_dir }}/clean.sh
+Environment=ACTIONS_RUNNER_HOOK_JOB_COMPLETED={{ github_runner_sandbox_dir }}/clean.sh
+
+# A job cannot gain privileges the runner was not started with, which makes `sudo` and every other setuid binary on
+# the host a dead end.
+NoNewPrivileges=true
+CapabilityBoundingSet=
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+LockPersonality=true
+RemoveIPC=true
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+
+# The filesystem is read-only to a job apart from the runner's own directories, and `/home` is not there at all: the
+# administrative accounts and their SSH keys are the shortest path off one of these Pis and onto the rest of the
+# network. `/tmp` is private to this service, so a job shares it only with the jobs that ran since the last restart.
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths={{ ([github_runner_dir, github_runner_home] + github_runner_sandbox_read_write_paths) | join(' ') }}
+PrivateTmp=true
+PrivateDevices=true
+ProtectProc=invisible
+ProtectClock=true
+ProtectHostname=true
+ProtectControlGroups=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+
+# The runner directory itself is world-readable and `monolithprojects.github_actions_runner` resets it to that on
+# every run, so a checkout that lands in it is otherwise readable by every other account on the Pi.
+UMask=0077
+
+# A fork bomb or a build that eats all the memory costs a job rather than the host: without a limit the Pi stops
+# answering SSH long before anything notices which job is responsible.
+MemoryMax={{ github_runner_sandbox_memory_max }}
+TasksMax={{ github_runner_sandbox_tasks_max }}

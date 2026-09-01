@@ -1,0 +1,29 @@
+#!/bin/bash
+# Managed by Ansible.
+#
+# Empties everything a CI job can write, so that a job starts with nothing the job before it left behind: the
+# checkout, the actions and tool caches, and the runner's home, where toolchains keep their own caches and
+# credentials. Run by the runner after every job (`ACTIONS_RUNNER_HOOK_JOB_COMPLETED`) and by the service before it
+# starts.
+#
+# The paths are written in rather than read from `RUNNER_WORKSPACE` and friends, which a job can point somewhere else
+# through `$GITHUB_ENV` before the hook runs.
+set -o errexit -o nounset -o pipefail
+
+purge() {
+  local directory="$1"
+  shift
+
+  [[ -d "${directory}" ]] || return 0
+
+  # Toolchains such as `go` leave their caches without write permission, and `rm` cannot descend into a directory it
+  # cannot write to.
+  chmod -R u+w "${directory}" || true
+
+  find "${directory}" -mindepth 1 -maxdepth 1 "$@" -exec rm -rf -- '{}' +
+}
+
+# `_temp` is left to the runner, which empties it either side of every job itself and is still reading this hook's own
+# output files out of it when the hook returns.
+purge '{{ github_runner_dir }}/_work' ! -name '_temp'
+purge '{{ github_runner_home }}'

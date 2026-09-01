@@ -5,6 +5,38 @@
   become: true
   ansible.builtin.user:
     name: '{{ github_runner_user }}'
+    home: '{{ github_runner_home }}'
     shell: '/usr/sbin/nologin'
     password: '!'
     system: true
+
+# Also creates the directory: `user` only builds a home for an account it is creating, so an account whose home moved
+# here from `/home` would otherwise be left pointing at nothing, and the sandbox refuses to start the service over a
+# writable path that does not exist.
+- name: 'Restrict the runner home directory'
+  become: true
+  ansible.builtin.file:
+    path: '{{ github_runner_home }}'
+    state: 'directory'
+    owner: '{{ github_runner_user }}'
+    group: '{{ github_runner_user }}'
+    mode: '0750'
+
+# Included rather than applied from the playbook so that the sandbox below runs against the service this installs.
+# The unit it generates is named after the runner registration and only exists once this has run.
+- name: 'Install the runner'
+  ansible.builtin.include_role:
+    name: 'monolithprojects.github_actions_runner'
+  vars:
+    access_token: '{{ github_runner_access_token }}'
+    github_account: '{{ github_runner_account }}'
+    runner_dir: '{{ github_runner_dir }}'
+    runner_group: '{{ github_runner_group }}'
+    runner_labels: '{{ github_runner_labels }}'
+    runner_name: '{{ github_runner_name }}'
+    runner_org: true
+    runner_user: '{{ github_runner_user }}'
+    runner_version: '{{ github_runner_version }}'
+
+- name: 'Sandbox the CI jobs'
+  ansible.builtin.import_tasks: 'sandbox.yaml'

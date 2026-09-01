@@ -1,0 +1,9 @@
+---
+# `daemon_reload` because the drop-in is only picked up when the unit is reloaded, and a restart alone would leave the
+# runner running under the configuration it started with.
+- name: 'Restart the GitHub Actions runner'
+  become: true
+  ansible.builtin.systemd_service:
+    name: '{{ github_runner_service }}'
+    state: 'restarted'
+    daemon_reload: true
