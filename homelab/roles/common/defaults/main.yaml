@@ -1,0 +1,24 @@
+---
+common_apt_reboot: true
+common_apt_reboot_timeout: 600
+common_hostname: '{{ inventory_hostname }}'
+common_ssh_authorized_keys: 'https://github.com/joshuaspence.keys'
+common_ssh_password_authentication: false
+common_ssh_permit_root_login: false
+common_ssh_user: '{{ ansible_user | default(ansible_user_id) }}'
+common_timezone: 'Australia/Sydney'
+
+common_apt_packages:
+  - 'ca-certificates'
+  - 'curl'
+  - 'git'
+  - 'htop'
+  - 'jq'
+  - 'tar'
+  - 'unzip'
+  - 'vim'
+  - 'wget'
+
+  # Handing temporary files to an unprivileged `become_user` needs `setfacl`; without it Ansible falls back to
+  # a `chmod` syntax that does not exist on Linux.
+  - 'acl'

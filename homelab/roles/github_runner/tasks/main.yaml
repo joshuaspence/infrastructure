@@ -1,0 +1,10 @@
+---
+# `monolithprojects.github_actions_runner` runs `config.sh` and `svc.sh install` as this account and gives it ownership
+# of the runner directory, but never creates it.
+- name: 'Create the runner user account'
+  become: true
+  ansible.builtin.user:
+    name: '{{ github_runner_user }}'
+    shell: '/usr/sbin/nologin'
+    password: '!'
+    system: true

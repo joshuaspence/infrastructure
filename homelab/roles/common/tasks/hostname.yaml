@@ -1,0 +1,16 @@
+---
+- name: 'Configure the hostname'
+  become: true
+  block:
+    - name: 'Set the hostname'
+      ansible.builtin.hostname:
+        name: '{{ common_hostname }}'
+
+    - name: 'Set the hostname in /etc/hosts'
+      ansible.builtin.lineinfile:
+        path: '/etc/hosts'
+        regexp: '^127\.0\.1\.1\s'
+        line: '127.0.1.1 {{ common_hostname }}'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'

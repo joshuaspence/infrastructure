@@ -1,0 +1,12 @@
+---
+- name: 'Configure the hostname'
+  ansible.builtin.import_tasks: 'hostname.yaml'
+
+- name: 'Configure the timezone'
+  ansible.builtin.import_tasks: 'timezone.yaml'
+
+- name: 'Configure APT'
+  ansible.builtin.import_tasks: 'apt.yaml'
+
+- name: 'Configure SSH'
+  ansible.builtin.import_tasks: 'ssh.yaml'

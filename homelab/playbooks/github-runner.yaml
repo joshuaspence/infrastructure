@@ -1,0 +1,20 @@
+---
+- name: 'Setup the GitHub Actions runners'
+  hosts: 'github_runners'
+  vars:
+    github_runner_user: 'github-runner'
+  roles:
+    - role: 'common'
+    - role: 'github_runner'
+    - role: 'monolithprojects.github_actions_runner'
+      vars:
+        access_token: '{{ lookup("pipe", "gh auth token") }}'
+        all_runners_in_same_repo: true
+        github_account: 'joshuaspence'
+        github_repo: 'invoice-tool'
+        runner_dir: '/opt/github/actions-runner'
+        runner_labels:
+          - 'homelab'
+        runner_name: '{{ inventory_hostname }}'
+        runner_user: '{{ github_runner_user }}'
+        runner_version: '2.337.0'

@@ -1,2 +1,8 @@
 ---
 extends: '.github/yamllint.yaml'
+
+# Galaxy roles are vendored into `.roles` (see `homelab/.gitignore`) and are not ours to lint. CI never sees them,
+# since they are not in the checkout, but a local run would otherwise drown in their findings.
+ignore:
+  - '.ansible/'
+  - '.roles/'

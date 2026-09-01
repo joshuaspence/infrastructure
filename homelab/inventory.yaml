@@ -1,4 +1,19 @@
 ---
+github_runners:
+  hosts:
+    rpi1: {}
+    rpi2: {}
+    rpi3: {}
+
+homelab:
+  hosts:
+    rpi1: {}
+    rpi2: {}
+    rpi3: {}
+  vars:
+    ansible_host: '{{ inventory_hostname }}.homelab.spence.network'
+    ansible_user: 'pi'
+
 ungrouped:
   hosts:
     octoprint:
@@ -13,3 +28,5 @@ unifi:
       ansible_host: 'unifi.spence.network'
     protect:
       ansible_host: 'protect.spence.network'
+    storage:
+      ansible_host: 'storage.spence.network'
