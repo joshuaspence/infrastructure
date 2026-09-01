@@ -1,10 +1,19 @@
 #!/bin/bash
 # Managed by Ansible.
 #
-# Empties everything a CI job can write, so that a job starts with nothing the job before it left behind: the
-# checkout, and the actions and tool caches. A container does not cover these -- the runner bind-mounts the whole
-# work directory into every job -- which is why the per-job container does not make this redundant. Run by the runner
-# after every job (`ACTIONS_RUNNER_HOOK_JOB_COMPLETED`) and by the service before it starts.
+# Empties what one job leaves behind that the next one would still see. Two things, both of which outlive a job's
+# container because the runner bind-mounts the whole work directory into every job:
+#
+#   - The checkout. `PipelineDirectoryManager` only deletes it when the job message asks it to, and no GitHub Actions
+#     workflow syntax sets that, so the workspace is created with `deleteExisting: false` and survives.
+#   - The tool cache, which nothing in the runner ever clears. A job can write to it, and the `setup-*` actions run
+#     what they find there in the next job.
+#
+# `_actions` goes with them, though the runner already deletes it at the start of every job. `_temp` is left alone:
+# the runner empties it either side of every job itself, and is still reading this hook's own output files out of it
+# when the hook returns.
+#
+# Run by the runner after every job (`ACTIONS_RUNNER_HOOK_JOB_COMPLETED`) and by the service before it starts.
 #
 # The paths are written in rather than read from `RUNNER_WORKSPACE` and friends, which a job can point somewhere else
 # through `$GITHUB_ENV` before the hook runs.
@@ -23,8 +32,6 @@ purge() {
   find "${directory}" -mindepth 1 -maxdepth 1 "$@" -exec rm -rf -- '{}' +
 }
 
-# `_temp` is left to the runner, which empties it either side of every job itself and is still reading this hook's own
-# output files out of it when the hook returns.
 purge '{{ github_runner_dir }}/_work' ! -name '_temp'
 
 # Containers outlive the job that started them: they are the container engine's children rather than the runner's, so
