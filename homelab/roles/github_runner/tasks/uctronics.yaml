@@ -1,0 +1,137 @@
+---
+# Read rather than gathered: Ansible has no fact for the board, and the UCTRONICS software only supports the Pi 4 and
+# Pi 5, so anything else is skipped instead of being handed a display it cannot drive.
+- name: 'Read the board model'
+  ansible.builtin.stat:
+    path: '/proc/device-tree/model'
+  register: 'github_runner_uctronics_model_file'
+
+- name: 'Resolve the board model'
+  when: 'github_runner_uctronics_model_file.stat.exists'
+  ansible.builtin.slurp:
+    src: '/proc/device-tree/model'
+  register: 'github_runner_uctronics_model'
+
+- name: 'Install the UCTRONICS RM0004 support'
+  when:
+    - 'github_runner_uctronics'
+    - 'github_runner_uctronics_model.content is defined'
+    - '"Raspberry Pi 4" in (github_runner_uctronics_model.content | b64decode) or "Raspberry Pi 5" in (github_runner_uctronics_model.content | b64decode)'
+  block:
+    # `become` cannot be set on `include_role` itself, so it is applied to the included tasks. The upstream role also
+    # writes to `/etc/rc.local`, which this image does not have, so that list is emptied rather than left at its
+    # default of disabling HDMI.
+    - name: 'Configure the boot options'
+      ansible.builtin.include_role:
+        name: 'geerlingguy.raspberry-pi'
+        apply:
+          become: true
+      vars:
+        raspberry_pi_boot_config_options: '{{ github_runner_uctronics_boot_config_options }}'
+        raspberry_pi_rc_local_options: []
+
+    # `dtparam=i2c_arm` brings up the bus, but the character devices the display opens come from `i2c-dev`, which is
+    # not autoloaded on this image.
+    - name: 'Load i2c-dev at boot'
+      become: true
+      ansible.builtin.lineinfile:
+        path: '/etc/modules'
+        line: 'i2c-dev'
+        create: true
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+
+    - name: 'Load i2c-dev now'
+      become: true
+      community.general.modprobe:
+        name: 'i2c-dev'
+        state: 'present'
+
+    # The overlays above only take effect at boot. Keying the reboot off the bus being absent rather than off a
+    # changed task makes it self-healing: a host that is already configured never reboots.
+    - name: 'Check whether the I2C bus is available'
+      ansible.builtin.stat:
+        path: '/dev/i2c-1'
+      register: 'github_runner_uctronics_i2c'
+
+    - name: 'Reboot to apply the boot configuration'
+      when: 'not github_runner_uctronics_i2c.stat.exists'
+      become: true
+      ansible.builtin.reboot:
+        reboot_timeout: '{{ github_runner_uctronics_reboot_timeout }}'
+
+    - name: 'Install the build dependencies'
+      become: true
+      ansible.builtin.apt:
+        name:
+          - 'build-essential'
+          - 'git'
+
+    - name: 'Clone the display source'
+      become: true
+      ansible.builtin.git:
+        repo: '{{ github_runner_uctronics_repository }}'
+        dest: '{{ github_runner_uctronics_source }}'
+        version: '{{ github_runner_uctronics_version }}'
+      register: 'github_runner_uctronics_clone'
+
+    - name: 'Check whether the display has been built'
+      ansible.builtin.stat:
+        path: '{{ github_runner_uctronics_source }}/display'
+      register: 'github_runner_uctronics_binary'
+
+    # `-B` because the checkout above may have replaced sources that are newer than nothing, `make` having no record
+    # of the previous build once the pin moves.
+    - name: 'Build the display'
+      when: 'github_runner_uctronics_clone.changed or not github_runner_uctronics_binary.stat.exists'
+      become: true
+      ansible.builtin.command:
+        argv:
+          - 'make'
+          - '-B'
+        chdir: '{{ github_runner_uctronics_source }}'
+      changed_when: true
+      notify: 'Restart the UCTRONICS display'
+
+    # Installed rather than run from the build tree: the binary reads only absolute paths, so it has no working
+    # directory of its own to keep.
+    - name: 'Install the display'
+      become: true
+      ansible.builtin.copy:
+        src: '{{ github_runner_uctronics_source }}/display'
+        dest: '/usr/local/bin/uctronics-display'
+        remote_src: true
+        owner: 'root'
+        group: 'root'
+        mode: '0755'
+      notify: 'Restart the UCTRONICS display'
+
+    - name: 'Create the display service'
+      become: true
+      ansible.builtin.copy:
+        dest: '/etc/systemd/system/{{ github_runner_uctronics_service }}'
+        content: |
+          [Unit]
+          Description=UCTRONICS RM0004 OLED display
+          After=multi-user.target
+
+          [Service]
+          ExecStart=/usr/local/bin/uctronics-display
+          Restart=on-failure
+          RestartSec=5
+
+          [Install]
+          WantedBy=multi-user.target
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      notify: 'Restart the UCTRONICS display'
+
+    - name: 'Start the display service'
+      become: true
+      ansible.builtin.systemd_service:
+        name: '{{ github_runner_uctronics_service }}'
+        enabled: true
+        state: 'started'
+        daemon_reload: true
