@@ -76,6 +76,32 @@
         group: '{{ github_runner_user }}'
         mode: '0750'
 
+    # The runner mounts `/var/run/docker.sock` into every job container unconditionally, with no check that it is
+    # there (`ContainerInfo.cs`, guarded only by `IsJobContainer`). Nothing serves that path here -- the engine
+    # listens in `/run/github-runner` -- and rootless Podman cannot create a missing bind source under root-owned
+    # `/run`, so without a placeholder every containerised job fails before its first step. An empty directory
+    # satisfies the mount and gives the job nothing: a socket there would hand every job the engine's API, and with
+    # it the ability to start a container that mounts the host.
+    #
+    # `/run` is a tmpfs, so this is written as a tmpfiles rule to survive a reboot as well as created now. It also
+    # means a rootful Docker daemon could not claim the path later, which this design has no use for anyway.
+    - name: 'Reserve the Docker socket path'
+      ansible.builtin.copy:
+        dest: '/etc/tmpfiles.d/github-runner.conf'
+        content: |
+          d /run/docker.sock 0555 root root -
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+
+    - name: 'Create the reserved Docker socket path'
+      ansible.builtin.file:
+        path: '/run/docker.sock'
+        state: 'directory'
+        owner: 'root'
+        group: 'root'
+        mode: '0555'
+
     - name: 'Create the container engine service'
       ansible.builtin.template:
         src: 'podman.service.j2'
