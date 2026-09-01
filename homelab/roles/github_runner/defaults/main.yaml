@@ -1,2 +1,4 @@
 ---
+github_runner_dir: '/opt/github/actions-runner'
+github_runner_name: '{{ inventory_hostname }}'
 github_runner_user: 'github-runner'
