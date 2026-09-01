@@ -32,9 +32,6 @@
     mode: '0644'
   notify: 'Reload the systemd configuration'
 
-- name: 'Install the container engine'
-  ansible.builtin.import_tasks: 'containers.yaml'
-
 - name: 'Install the runner'
   ansible.builtin.include_role:
     name: 'monolithprojects.github_actions_runner'
@@ -67,6 +64,11 @@
     - '.credentials'
     - '.credentials_rsaparams'
     - '.runner'
+
+# After the runner, so that the credentials above exist by the time the engine starts: they are masked from it with
+# `InaccessiblePaths=`, and systemd skips a path that is missing at start rather than applying it later.
+- name: 'Install the container engine'
+  ansible.builtin.import_tasks: 'containers.yaml'
 
 - name: 'Sandbox the CI jobs'
   ansible.builtin.import_tasks: 'sandbox.yaml'

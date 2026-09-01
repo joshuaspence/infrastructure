@@ -148,3 +148,32 @@
           - 'unshare'
           - 'true'
       changed_when: false
+
+# `systemctl show` would report `InaccessiblePaths=` back whether or not it took effect, and the failure worth
+# catching is exactly the one it cannot see: a path that was missing when the service started is skipped for the
+# lifetime of that start, without a word in the journal. So the check is made against the engine's own view of the
+# filesystem, which `/proc/<pid>/root` resolves into. A masked path is an empty file there, mode `0000`; an unmasked
+# one is the credential a job could have named in its `container.volumes:`. Only the size is looked at, so that a
+# failure here does not put the key into the play's output.
+- name: 'Verify that the runner credentials are masked from the container engine'
+  when: 'not ansible_check_mode'
+  become: true
+  block:
+    - name: 'Find the container engine process'
+      ansible.builtin.command:
+        argv:
+          - 'systemctl'
+          - 'show'
+          - '--property=MainPID'
+          - '--value'
+          - '{{ github_runner_podman_service }}'
+      register: 'github_runner_podman_pid'
+      changed_when: false
+      failed_when: '(github_runner_podman_pid.stdout | trim | int) == 0'
+
+    - name: 'Inspect the runner credentials as the container engine sees them'
+      ansible.builtin.stat:
+        path: '/proc/{{ github_runner_podman_pid.stdout | trim }}/root{{ github_runner_dir }}/.credentials_rsaparams'
+        get_checksum: false
+      register: 'github_runner_masked_credentials'
+      failed_when: 'not github_runner_masked_credentials.stat.exists or github_runner_masked_credentials.stat.size != 0'
