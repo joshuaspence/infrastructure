@@ -1,6 +1,3 @@
 ---
-- name: 'Restart SSH'
-  become: true
-  ansible.builtin.systemd_service:
-    name: 'ssh.service'
-    state: 'restarted'
+- name: 'Handle SSH'
+  ansible.builtin.import_tasks: 'ssh.yaml'

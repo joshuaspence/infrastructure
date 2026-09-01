@@ -18,3 +18,7 @@ common_apt_packages:
   - 'unzip'
   - 'vim'
   - 'wget'
+
+  # Handing temporary files to an unprivileged `become_user` needs `setfacl`; without it Ansible falls back to
+  # a `chmod` syntax that does not exist on Linux.
+  - 'acl'

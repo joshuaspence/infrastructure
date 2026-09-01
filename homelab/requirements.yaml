@@ -2,3 +2,7 @@
 collections:
   - 'ansible.posix'
   - 'community.general'
+
+roles:
+  - name: 'monolithprojects.github_actions_runner'
+    version: '1.28.1'
