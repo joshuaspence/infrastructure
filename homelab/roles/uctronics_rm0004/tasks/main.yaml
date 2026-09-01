@@ -112,15 +112,22 @@
         version: '{{ uctronics_rm0004_version }}'
       register: 'uctronics_rm0004_clone'
 
+    # Both binaries, not just the daemon: a host built before `display-cli` existed has a `display` binary that makes
+    # the build look done, and would never produce the CLI. Checking each means the missing one is enough to rebuild.
     - name: 'Check whether the display has been built'
       ansible.builtin.stat:
-        path: '{{ uctronics_rm0004_source }}/display'
-      register: 'uctronics_rm0004_binary'
+        path: '{{ uctronics_rm0004_source }}/{{ item }}'
+      loop:
+        - 'display'
+        - 'display-cli'
+      register: 'uctronics_rm0004_binaries'
 
     # `--always-make` because the checkout above may have replaced sources that are newer than nothing, `make` having
     # no record of the previous build once the pin moves.
     - name: 'Build the display'
-      when: 'uctronics_rm0004_clone.changed or not uctronics_rm0004_binary.stat.exists'
+      when: >-
+        uctronics_rm0004_clone.changed
+        or uctronics_rm0004_binaries.results | rejectattr('stat.exists') | list | length > 0
       become: true
       ansible.builtin.command:
         argv:
@@ -142,6 +149,43 @@
         group: 'root'
         mode: '0755'
       notify: 'Restart the UCTRONICS display service'
+
+    # Named for the daemon it drives rather than the `display-cli` of upstream's README, so that the pair reads as one
+    # thing alongside `uctronics-display` and `uctronics-display.service`.
+    #
+    # Deliberately not notifying the service: the CLI is a separate program that only writes the message file, and the
+    # daemon picks a new message up by polling it. Restarting the display because the CLI changed would blank the
+    # panel for nothing.
+    - name: 'Install the display CLI'
+      become: true
+      ansible.builtin.copy:
+        src: '{{ uctronics_rm0004_source }}/display-cli'
+        dest: '/usr/local/bin/uctronics-display-cli'
+        remote_src: true
+        owner: 'root'
+        group: 'root'
+        mode: '0755'
+
+    # `/run` is emptied on every boot, so the message file needs somewhere to land each time the Pi comes up.
+    # `systemd-tmpfiles` is what puts it back.
+    - name: 'Recreate the message directory at boot'
+      become: true
+      ansible.builtin.copy:
+        dest: '/etc/tmpfiles.d/uctronics-display.conf'
+        content: 'd {{ uctronics_rm0004_message_directory }} 0755 {{ uctronics_rm0004_message_owner }} - -'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+
+    # And now, so that the CLI works on the run that installed it rather than only after the next reboot. The group is
+    # left to root, as it is in the rule above: only the owner needs to write here, and the display reads it as root.
+    - name: 'Create the message directory'
+      become: true
+      ansible.builtin.file:
+        path: '{{ uctronics_rm0004_message_directory }}'
+        state: 'directory'
+        owner: '{{ uctronics_rm0004_message_owner }}'
+        mode: '0755'
 
     - name: 'Create the display service'
       become: true
