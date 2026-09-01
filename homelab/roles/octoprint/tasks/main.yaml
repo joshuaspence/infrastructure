@@ -12,7 +12,7 @@
     state: 'present'
     version: '{{ octoprint_version }}'
     virtualenv: '{{ octoprint_virtualenv }}'
-  register: 'pip'
+  register: 'octoprint_pip'
 
 - name: 'Run OctoPrint'
   become: true
@@ -46,13 +46,13 @@
       become: false
       block:
         - name: 'Retrieve `serial.port` configuration"'
-          ansible.builtin.command: '{{ pip.virtualenv }}/bin/octoprint config get --raw serial.port'
-          register: 'config_get_serialport'
+          ansible.builtin.command: '{{ octoprint_pip.virtualenv }}/bin/octoprint config get --raw serial.port'
+          register: 'octoprint_config_get_serialport'
           changed_when: false
         - name: 'Set `serial.port` configuration"'
-          ansible.builtin.command: '{{ pip.virtualenv }}/bin/octoprint config set serial.port /dev/{{ octoprint_printer_id | mandatory }}'
+          ansible.builtin.command: '{{ octoprint_pip.virtualenv }}/bin/octoprint config set serial.port /dev/{{ octoprint_printer_id | mandatory }}'
           changed_when: true
-          when: '(config_get_serialport.stdout | trim) != "/dev/" + (octoprint_printer_id | mandatory)'
+          when: '(octoprint_config_get_serialport.stdout | trim) != "/dev/" + (octoprint_printer_id | mandatory)'
 
 - name: 'Configure user permissions'
   become: true
