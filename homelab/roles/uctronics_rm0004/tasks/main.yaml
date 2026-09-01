@@ -26,14 +26,12 @@
         raspberry_pi_boot_config_options: '{{ uctronics_rm0004_boot_config_options }}'
         raspberry_pi_rc_local_options: []
 
-    # `dtparam=i2c_arm` brings up the bus, but the character devices the display opens come from `i2c-dev`,
-    # which is not autoloaded.
+    # `dtparam=i2c_arm` brings up the bus, but the character devices the display opens come from `i2c-dev`, which is not autoloaded.
     - name: 'Load i2c-dev at boot'
       become: true
-      ansible.builtin.lineinfile:
-        path: '/etc/modules'
-        line: 'i2c-dev'
-        create: true
+      ansible.builtin.copy:
+        dest: '/etc/modules-load.d/uctronics-rm0004.conf'
+        content: 'i2c-dev'
         owner: 'root'
         group: 'root'
         mode: '0644'
