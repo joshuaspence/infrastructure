@@ -1,0 +1,5 @@
+---
+- name: 'Setup the UCTRONICS Pi Rack Pro'
+  hosts: 'homelab'
+  roles:
+    - role: 'uctronics_rm0004'

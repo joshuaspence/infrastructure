@@ -1,0 +1,21 @@
+---
+# Only names the file the reboot gate checksums; it does not choose where the boot options are written.
+# `geerlingguy.raspberry-pi` hardcodes `/boot/firmware/config.txt` in a bare `lineinfile` and takes no variable for it,
+# so this has to be updated by hand if that role ever moves the path. Point it at a file the role does not write and
+# both checksums match on every run: the reboot never fires and the boot options are silently never applied.
+uctronics_rm0004_boot_config: '/boot/firmware/config.txt'
+uctronics_rm0004_reboot_timeout: 600
+uctronics_rm0004_repository: 'https://github.com/UCTRONICS/SKU_RM0004.git'
+uctronics_rm0004_service: 'uctronics-display.service'
+uctronics_rm0004_source: '/usr/local/src/uctronics-rm0004'
+uctronics_rm0004_version: 'a9cfa2345f83d4e2f0ea8013d3634eee42105bb0'
+
+# `gpio-shutdown` is the whole of the power button: the kernel overlay turns a GPIO 4 short into an ACPI power event,
+# so a short press shuts the Pi down cleanly with nothing running in userspace to handle it.
+uctronics_rm0004_boot_config_options:
+  - regexp: '^#?dtparam=i2c_arm'
+    line: 'dtparam=i2c_arm=on,i2c_arm_baudrate=400000'
+  # Upstream sets a longer debounce on the Pi 5 and not on the Pi 4, and the model guard admits both. Without it a
+  # Pi 5 can take contact bounce on the button as a second press and shut down on a stray touch.
+  - regexp: '^#?dtoverlay=gpio-shutdown'
+    line: 'dtoverlay=gpio-shutdown,gpio_pin=4,active_low=1,gpio_pull=up{{ ",debounce=1000" if "Raspberry Pi 5" in uctronics_rm0004_board else "" }}'
