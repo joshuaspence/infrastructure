@@ -14,7 +14,10 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-Type=exec
+# `Type=exec` would call the service started as soon as the binary is executing, which is before the socket is bound:
+# the play's own `docker version` check, and any job picked up in that window, would fail against a healthy engine.
+# Podman sends `READY=1` once it is listening.
+Type=notify
 User={{ github_runner_user }}
 Group={{ github_runner_user }}
 Environment=XDG_RUNTIME_DIR={{ github_runner_podman_runtime_dir }}
@@ -51,7 +54,12 @@ RuntimeDirectory={{ github_runner_podman_runtime_dir | basename }}
 RuntimeDirectoryMode=0700
 RuntimeDirectoryPreserve=restart
 
+# `--cgroup-manager=cgroupfs` because the default, `systemd`, asks a *user* systemd instance over a session bus to
+# place each container. This account has neither: it is a system account with `nologin` and no lingering, so the
+# default fails at the first container while every check in this play still passes. `Delegate=` below is what makes
+# `cgroupfs` correct here -- podman gets a subtree of its own to write, and the slice's limits still apply to it.
 ExecStart=/usr/bin/podman \
+  --cgroup-manager=cgroupfs \
   --root {{ github_runner_containers_dir }} \
   --runroot {{ github_runner_podman_runtime_dir }}/containers \
   system service \

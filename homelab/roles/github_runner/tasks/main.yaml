@@ -32,10 +32,21 @@
     mode: '0644'
   notify: 'Reload the systemd configuration'
 
+# On a host that has one already, the upstream role leaves it running and this is `started`. On a host that does
+# not, it would install the service and start it before the drop-in below exists, and a job picked up in that window
+# would run on the host, unconfined and without the container requirement. Handing it `stopped` for that case leaves
+# the service installed and not running; `tasks/sandbox.yaml` starts it once the confinement is in place.
+- name: 'Check whether the runner is already installed'
+  become: true
+  ansible.builtin.stat:
+    path: '{{ github_runner_dir }}/.service'
+  register: 'github_runner_installed'
+
 - name: 'Install the runner'
   ansible.builtin.include_role:
     name: 'monolithprojects.github_actions_runner'
   vars:
+    runner_state: '{{ "started" if github_runner_installed.stat.exists else "stopped" }}'
     access_token: '{{ github_runner_access_token }}'
     github_account: '{{ github_runner_organization }}'
     runner_dir: '{{ github_runner_dir }}'
