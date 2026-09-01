@@ -8,3 +8,34 @@
     shell: '/usr/sbin/nologin'
     password: '!'
     system: true
+
+# Workflows expect `gh` to be on the runner. Debian does not package it, so install it from GitHub's own APT
+# repository, which keeps it current through the usual unattended upgrades.
+- name: 'Install the GitHub CLI'
+  become: true
+  block:
+    - name: 'Create the APT keyring directory'
+      ansible.builtin.file:
+        path: '{{ github_runner_gh_keyring | dirname }}'
+        state: 'directory'
+        owner: 'root'
+        group: 'root'
+        mode: '0755'
+
+    - name: 'Install the GitHub CLI APT signing key'
+      ansible.builtin.get_url:
+        url: 'https://cli.github.com/packages/githubcli-archive-keyring.gpg'
+        dest: '{{ github_runner_gh_keyring }}'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+
+    - name: 'Add the GitHub CLI APT repository'
+      ansible.builtin.apt_repository:
+        repo: 'deb [arch={{ github_runner_gh_architecture }} signed-by={{ github_runner_gh_keyring }}] https://cli.github.com/packages stable main'
+        filename: 'github-cli'
+        state: 'present'
+
+    - name: 'Install gh'
+      ansible.builtin.apt:
+        name: 'gh'
