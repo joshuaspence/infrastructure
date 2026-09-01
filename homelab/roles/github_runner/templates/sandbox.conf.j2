@@ -1,7 +1,7 @@
-# Confines the GitHub Actions runner service, and with it the CI jobs that run on it. A job is not a process the
-# runner isolates in any way: it is forked from the listener and lands in this unit's cgroup and namespaces, so
-# everything below applies to it too. The mount, device and `/proc` views in particular are set up before the runner
-# starts and a job has no privileges left to undo them.
+# Confines the GitHub Actions runner service. With a job container mandatory the job's own steps do not run here:
+# they are children of the container engine, in that unit's cgroup and mount namespace. So what is below bounds the
+# listener and the worker, the processes that hold the runner's registration credential and every job's token. The
+# engine unit carries the confinement that reaches a job, and the slice carries the limits that cover both.
 
 [Unit]
 # The API the runner creates job containers through. Ordering only: a runner that starts first simply fails the jobs
@@ -14,14 +14,16 @@ Wants={{ github_runner_podman_service }}
 Environment=ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER=true
 Environment=DOCKER_HOST=unix://{{ github_runner_podman_runtime_dir }}/podman.sock
 
+Slice={{ github_runner_slice }}
+
 # The generated unit sets `KillMode=process`, which leaves whatever a job started running after the service stops.
 KillMode=control-group
 
-# The generated unit sets no `Restart=`, so the runner stays down after any crash, the memory limit below included.
+# The generated unit sets no `Restart=`, so the runner stays down after any crash.
 Restart=always
 RestartSec=15
 
-# A job cannot gain privileges the runner was not started with.
+# The runner cannot gain privileges it was not started with.
 NoNewPrivileges=true
 CapabilityBoundingSet=
 RestrictSUIDSGID=true
@@ -29,14 +31,17 @@ RestrictNamespaces=true
 RestrictRealtime=true
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
 LockPersonality=true
-RemoveIPC=true
 SystemCallArchitectures=native
 SystemCallFilter=@system-service
 SystemCallErrorNumber=EPERM
 
-# The filesystem is read-only to a job apart from the runner's own directories, and `/home` is not there at all: the
+# `RemoveIPC=` is deliberately absent: the container engine runs as the same account, so removing that account's IPC
+# objects when this unit stops would reach into the engine and the containers it is holding open.
+
+# The filesystem is read-only apart from the runner's own directories, and `/home` is not there at all: the
 # administrative accounts and their SSH keys are the shortest path off one of these Pis and onto the rest of the
-# network. `/tmp` is private to this service, so a job shares it only with the jobs that ran since the last restart.
+# network. The same block on the engine unit is what keeps a job's `volumes:` from mounting `/home` into a
+# container. `/tmp` is private to this service, and a job container gets its own regardless.
 ProtectSystem=strict
 ProtectHome=true
 ReadWritePaths={{ ([github_runner_dir, github_runner_home] + github_runner_sandbox_read_write_paths) | join(' ') }}
@@ -53,8 +58,3 @@ ProtectKernelTunables=true
 # The runner directory itself is world-readable and `monolithprojects.github_actions_runner` resets it to that on
 # every run, so a checkout that lands in it is otherwise readable by every other account on the Pi.
 UMask=0077
-
-# A fork bomb or a build that eats all the memory costs a job rather than the host: without a limit the Pi stops
-# answering SSH long before anything notices which job is responsible.
-MemoryMax={{ github_runner_sandbox_memory_max }}
-TasksMax={{ github_runner_sandbox_tasks_max }}

@@ -3,6 +3,7 @@
 # drop-in whose directory does not match it is a file systemd never reads. Guessing wrong leaves the runner unconfined
 # and every task below reporting success.
 - name: 'Read the runner service name'
+  become: true
   ansible.builtin.slurp:
     src: '{{ github_runner_dir }}/.service'
   register: 'github_runner_service_file'
@@ -31,9 +32,9 @@
         mode: '0644'
       notify: 'Restart the GitHub Actions runner'
 
-# The confinement only reaches a job through the service, so it is worth nothing until the runner has been restarted
-# under it. Flushed here rather than at the end of the play so that the check below is made against the running
-# service and not the one that was already there.
+# The confinement only reaches the runner through the service, so it is worth nothing until the runner has been
+# restarted under it. Flushed here rather than at the end of the play so that the check below is made against the
+# running service and not the one that was already there.
 - name: 'Apply the sandbox'
   ansible.builtin.meta: 'flush_handlers'
 

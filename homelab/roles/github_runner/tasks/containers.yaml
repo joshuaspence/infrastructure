@@ -99,19 +99,25 @@
         mode: '0644'
       notify: 'Restart the container engine'
 
-    - name: 'Start the container engine service'
-      ansible.builtin.systemd_service:
-        name: '{{ github_runner_podman_service }}'
-        enabled: true
-        state: 'started'
-        daemon_reload: true
-
+# Flushed before the service is started rather than at the end of the play, so that the engine the tasks below start
+# and check is the one just configured. The handlers are the whole play's, not this role's, but the only others in it
+# restart SSH, which is no worse for happening here.
 - name: 'Apply the container engine configuration'
   ansible.builtin.meta: 'flush_handlers'
 
+- name: 'Start the container engine service'
+  become: true
+  ansible.builtin.systemd_service:
+    name: '{{ github_runner_podman_service }}'
+    enabled: true
+    state: 'started'
+    daemon_reload: true
+
 # The same check the runner makes before it will start a job container, made here so that a broken socket is one
 # failed play rather than every job on the host failing at "Initialize containers". `podman unshare` covers what the
-# version check cannot: the id range above, and the setuid helpers that apply it.
+# version check cannot: the id range above, and the setuid helpers that apply it. It is given the same store the
+# service runs on, since a check against the default rootless store would neither exercise that store nor leave the
+# host with only the one.
 - name: 'Verify the container engine'
   when: 'not ansible_check_mode'
   become: true
@@ -135,6 +141,10 @@
       ansible.builtin.command:
         argv:
           - 'podman'
+          - '--root'
+          - '{{ github_runner_containers_dir }}'
+          - '--runroot'
+          - '{{ github_runner_podman_runtime_dir }}/containers'
           - 'unshare'
           - 'true'
       changed_when: false

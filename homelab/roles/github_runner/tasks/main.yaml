@@ -10,6 +10,28 @@
     password: '!'
     system: true
 
+# Created here rather than left to whichever task first has cause to: `useradd` makes it only when the account is new,
+# `usermod` never does, and a directory that first appears as the parent of something else inherits that thing's mode.
+# The upstream role reads under here as the connection account, so it has to stay traversable by more than the runner.
+- name: 'Create the runner home directory'
+  become: true
+  ansible.builtin.file:
+    path: '{{ github_runner_home }}'
+    state: 'directory'
+    owner: '{{ github_runner_user }}'
+    group: '{{ github_runner_user }}'
+    mode: '{{ github_runner_home_mode }}'
+
+- name: 'Limit the resources of the runner and the container engine'
+  become: true
+  ansible.builtin.template:
+    src: 'slice.j2'
+    dest: '/etc/systemd/system/{{ github_runner_slice }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify: 'Reload the systemd configuration'
+
 - name: 'Install the container engine'
   ansible.builtin.import_tasks: 'containers.yaml'
 

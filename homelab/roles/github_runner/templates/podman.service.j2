@@ -1,6 +1,12 @@
 # Serves the Docker-compatible API that the runner drives to create each job's container. It runs as the runner
 # account rather than root: a container it starts is confined by a user namespace that maps the account onto the
 # subordinate id range, so root inside a job container is this unprivileged account outside it.
+#
+# A job's processes are children of this service rather than of the runner, so this unit -- not the runner's drop-in
+# -- is where a restriction has to sit to reach a job. Most of what confines the runner cannot be repeated here: the
+# engine needs the namespaces, mounts and setuid helpers that `NoNewPrivileges=`, `RestrictNamespaces=` and
+# `ProtectSystem=strict` take away. `ProtectHome=` is the exception, and it is the one that matters, since a job's
+# `container.volumes:` is free to name any host path the engine can see.
 
 [Unit]
 Description=Rootless Podman API for the GitHub Actions runner
@@ -15,11 +21,17 @@ Environment=XDG_RUNTIME_DIR={{ github_runner_podman_runtime_dir }}
 Restart=always
 RestartSec=15
 
-# `/run/github-runner`, owned by the account and emptied when the service stops. The socket lives here rather than in
-# `/run/user/<uid>`, which needs a login session the account does not have and which the runner service cannot see
-# through `ProtectHome=`.
+Slice={{ github_runner_slice }}
+
+ProtectHome=true
+
+# `/run/github-runner`, owned by the account. The socket lives here rather than in `/run/user/<uid>`, which needs a
+# login session the account does not have and which the runner service cannot see through `ProtectHome=`. Kept
+# across a restart of this service so that restarting the engine does not pull the runtime state out from under a
+# container that is still running.
 RuntimeDirectory={{ github_runner_podman_runtime_dir | basename }}
 RuntimeDirectoryMode=0700
+RuntimeDirectoryPreserve=restart
 
 ExecStart=/usr/bin/podman \
   --root {{ github_runner_containers_dir }} \
