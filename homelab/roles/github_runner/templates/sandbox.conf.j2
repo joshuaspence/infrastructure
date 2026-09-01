@@ -16,12 +16,11 @@ Wants={{ github_runner_podman_service }}
 # Where the runner finds the container engine. The socket is a Podman one, but the runner only ever speaks the
 # Docker API to it.
 Environment=DOCKER_HOST=unix://{{ github_runner_podman_runtime_dir }}/podman.sock
-{% if github_runner_require_job_container %}
 
 # Every job runs in a container, and a job that declares none is rejected rather than run on the host. This is what
-# turns the confinement below from the only boundary into the outer one.
+# turns the confinement below from the only boundary into the outer one, so it is not a setting: a runner that would
+# take a job onto the host is not the thing this role installs.
 Environment=ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER=true
-{% endif %}
 
 # The generated unit sets `KillMode=process`, which leaves whatever a job started running after the service stops.
 KillMode=control-group

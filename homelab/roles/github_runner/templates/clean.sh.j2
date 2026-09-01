@@ -2,9 +2,9 @@
 # Managed by Ansible.
 #
 # Empties everything a CI job can write, so that a job starts with nothing the job before it left behind: the
-# checkout, the actions and tool caches, and the runner's home, where toolchains keep their own caches and
-# credentials. Run by the runner after every job (`ACTIONS_RUNNER_HOOK_JOB_COMPLETED`) and by the service before it
-# starts.
+# checkout, and the actions and tool caches. A container does not cover these -- the runner bind-mounts the whole
+# work directory into every job -- which is why the per-job container does not make this redundant. Run by the runner
+# after every job (`ACTIONS_RUNNER_HOOK_JOB_COMPLETED`) and by the service before it starts.
 #
 # The paths are written in rather than read from `RUNNER_WORKSPACE` and friends, which a job can point somewhere else
 # through `$GITHUB_ENV` before the hook runs.
@@ -26,7 +26,6 @@ purge() {
 # `_temp` is left to the runner, which empties it either side of every job itself and is still reading this hook's own
 # output files out of it when the hook returns.
 purge '{{ github_runner_dir }}/_work' ! -name '_temp'
-purge '{{ github_runner_home }}'
 
 # Containers outlive the job that started them: they are the container engine's children rather than the runner's, so
 # neither the runner's `KillMode=` nor a restart of it reaches them. Images are left alone, being the one piece of

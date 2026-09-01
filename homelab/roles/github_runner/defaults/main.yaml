@@ -31,12 +31,6 @@ github_runner_podman_service: 'github-runner-podman.service'
 github_runner_subid_count: 65536
 github_runner_subid_start: 200000
 
-# Rejects any job that does not declare a `container:`, which is what makes the per-job sandbox mandatory rather than
-# a workflow's choice. Every workflow that reaches these runners has to carry one; the runner fails the rest outright,
-# naming this setting in the error, so a workflow that has not been given a container is a failed job rather than a
-# job that quietly runs on the host.
-github_runner_require_job_container: true
-
 # `ansible_facts.architecture` reports the kernel architecture (e.g. `aarch64`), whereas apt expects the Debian
 # architecture (e.g. `arm64`).
 github_runner_docker_architectures:
