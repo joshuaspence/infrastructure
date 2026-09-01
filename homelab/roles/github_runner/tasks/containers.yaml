@@ -83,6 +83,22 @@
     #
     # `/run` is a tmpfs, so this is written as a tmpfiles rule to survive a reboot as well as created now. It also
     # means a rootful Docker daemon could not claim the path later, which this design has no use for anyway.
+    # Said plainly, because the failure it replaces is `systemd-tmpfiles` refusing to make a directory of something
+    # that is already a socket, which reads as a packaging fault rather than as the thing it is: another engine
+    # serving the path the runner mounts into every job container.
+    - name: 'Check the reserved Docker socket path'
+      ansible.builtin.stat:
+        path: '/run/docker.sock'
+      register: 'github_runner_docker_socket'
+
+    - name: 'Verify that nothing else serves the Docker socket'
+      ansible.builtin.assert:
+        that: 'not github_runner_docker_socket.stat.exists or github_runner_docker_socket.stat.isdir'
+        fail_msg: >-
+          /run/docker.sock exists and is not a directory, so something is serving it -- a rootful Docker daemon, most
+          likely. The runner mounts that path into every job container, so leaving it in place would hand each job the
+          engine's API and, through it, a container that can mount the host. Remove it before applying this role.
+
     - name: 'Reserve the Docker socket path'
       ansible.builtin.copy:
         dest: '{{ github_runner_tmpfiles_conf }}'
