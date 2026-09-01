@@ -2,6 +2,7 @@ variable "unifi_access_points" {
   type = map(object({
     mac   = string
     ports = optional(number, 0)
+    tags  = optional(set(string))
 
     uplink = object({
       switch = string

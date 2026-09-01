@@ -2,16 +2,6 @@ data "unifi_ap_group" "default" {
   name = "All APs"
 }
 
-resource "unifi_ap_group" "ceiling" {
-  name        = "Ceiling"
-  device_macs = [for key, device in var.access_points : device.mac if contains(["hallway", "kitchen"], key)]
-}
-
-resource "unifi_ap_group" "wall" {
-  name        = "Wall"
-  device_macs = [for key, device in var.access_points : device.mac if !contains(["hallway", "kitchen"], key)]
-}
-
 data "unifi_client_qos_rate" "default" {
   name = "Default"
 }
