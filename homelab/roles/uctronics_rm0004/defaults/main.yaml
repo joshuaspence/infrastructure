@@ -5,10 +5,10 @@
 # both checksums match on every run: the reboot never fires and the boot options are silently never applied.
 uctronics_rm0004_boot_config: '/boot/firmware/config.txt'
 uctronics_rm0004_reboot_timeout: 600
-uctronics_rm0004_repository: 'https://github.com/UCTRONICS/SKU_RM0004.git'
+uctronics_rm0004_repository: 'https://github.com/joshuaspence/SKU_RM0004.git'
 uctronics_rm0004_service: 'uctronics-display.service'
 uctronics_rm0004_source: '/usr/local/src/uctronics-rm0004'
-uctronics_rm0004_version: 'a9cfa2345f83d4e2f0ea8013d3634eee42105bb0'
+uctronics_rm0004_version: 'a0f9d31282e0835e477c17fd8b77e2590231f1f8'
 
 # `gpio-shutdown` is the whole of the power button: the kernel overlay turns a GPIO 4 short into an ACPI power event,
 # so a short press shuts the Pi down cleanly with nothing running in userspace to handle it.
