@@ -32,6 +32,17 @@
   ansible.builtin.apt:
     name: '{{ common_apt_packages }}'
 
+- name: 'Install supporting packages'
+  become: true
+  ansible.builtin.apt:
+    name:
+      # Handing temporary files to an unprivileged `become_user` needs `setfacl`; without it Ansible falls back to
+      # a `chmod` syntax that does not exist on Linux.
+      - 'acl'
+
+      # Required by `ansible.builtin.deb822_repository`
+      - 'python3-debian'
+
 - name: 'Configure unattended upgrades'
   become: true
   block:

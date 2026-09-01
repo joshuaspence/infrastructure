@@ -1,0 +1,26 @@
+---
+- name: 'Install the GitHub CLI'
+  become: true
+  block:
+    - name: 'Install the GitHub CLI apt keyring'
+      ansible.builtin.get_url:
+        url: 'https://cli.github.com/packages/githubcli-archive-keyring.gpg'
+        dest: '/etc/apt/keyrings/githubcli-archive-keyring.gpg'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+
+    - name: 'Install the GitHub CLI apt repository'
+      ansible.builtin.deb822_repository:
+        name: 'github-cli'
+        types: 'deb'
+        uris: 'https://cli.github.com/packages'
+        suites: 'stable'
+        components: 'main'
+        architectures: '{{ github_cli_architectures[ansible_facts["architecture"]] }}'
+        signed_by: '/etc/apt/keyrings/githubcli-archive-keyring.gpg'
+
+    - name: 'Install the gh package'
+      ansible.builtin.apt:
+        name: 'gh'
+        update_cache: true
