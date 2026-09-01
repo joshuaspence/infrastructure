@@ -1,4 +1,8 @@
 ---
+# Only names the file the reboot gate checksums; it does not choose where the boot options are written.
+# `geerlingguy.raspberry-pi` hardcodes `/boot/firmware/config.txt` in a bare `lineinfile` and takes no variable for it,
+# so this has to be updated by hand if that role ever moves the path. Point it at a file the role does not write and
+# both checksums match on every run: the reboot never fires and the boot options are silently never applied.
 uctronics_rm0004_boot_config: '/boot/firmware/config.txt'
 uctronics_rm0004_reboot_timeout: 600
 uctronics_rm0004_repository: 'https://github.com/UCTRONICS/SKU_RM0004.git'

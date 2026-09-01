@@ -26,8 +26,11 @@
   block:
     # Checksummed either side of the include: the boot options only take effect at boot, and `/dev/i2c-1` alone
     # reports on `dtparam=i2c_arm`, so a host that already had I2C enabled would take the newly written
-    # `gpio-shutdown` overlay without ever rebooting into it and report success with a dead power button.
+    # `gpio-shutdown` overlay without ever rebooting into it and report success with a dead power button. Both
+    # reads are privileged because `stat` omits `checksum` for a file it cannot read, which would leave the comparison
+    # below raising an undefined-attribute error instead of rebooting.
     - name: 'Read the boot configuration'
+      become: true
       ansible.builtin.stat:
         path: '{{ uctronics_rm0004_boot_config }}'
       register: 'uctronics_rm0004_boot_config_before'
@@ -42,6 +45,7 @@
         raspberry_pi_rc_local_options: []
 
     - name: 'Re-read the boot configuration'
+      become: true
       ansible.builtin.stat:
         path: '{{ uctronics_rm0004_boot_config }}'
       register: 'uctronics_rm0004_boot_config_after'
@@ -77,6 +81,17 @@
       become: true
       ansible.builtin.reboot:
         reboot_timeout: '{{ uctronics_rm0004_reboot_timeout }}'
+
+    # The reboot does not verify itself. Without this a host whose boot options never take effect reboots on every run
+    # and still reports success, which for a whole-group play is all three Pis going down each time; failing here
+    # turns that silent loop into one error naming the thing that did not happen. Skipped under `--check`, where the
+    # reboot never ran and an unconfigured host cannot have the bus yet.
+    - name: 'Verify the boot configuration took effect'
+      when: 'not ansible_check_mode'
+      ansible.builtin.stat:
+        path: '/dev/i2c-1'
+      register: 'uctronics_rm0004_i2c_applied'
+      failed_when: 'not uctronics_rm0004_i2c_applied.stat.exists'
 
     # `update_cache` because this playbook does not apply `common`, and a freshly flashed image has no package lists
     # at all, which fails the install rather than merely leaving it stale.
