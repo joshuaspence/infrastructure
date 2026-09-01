@@ -40,28 +40,32 @@
     path: '{{ github_runner_dir }}/.runner'
   register: 'github_runner_configured'
 
-# On a host that has one already, the upstream role leaves it running and this is `started`. On a host that does not,
-# it would install the service and start it before the drop-in below exists, and a job picked up in that window would
-# run on the host, unconfined and without the container requirement. Handing it `stopped` for that case leaves the
-# service installed and not running; `tasks/sandbox.yaml` starts it once the confinement is in place.
-- name: 'Check whether the runner is already installed'
+# On a host already running a confined runner, the upstream role leaves it running and it is handed `started`. On any
+# other -- no runner at all, or one left by a run that stopped before the drop-in was written -- it would start the
+# runner before the confinement exists, and a job picked up in that window would run on the host, unconfined and
+# without the container requirement. Handing those `stopped` leaves the service installed and not running;
+# `tasks/sandbox.yaml` starts it once the confinement is in place.
+#
+# The drop-in is named after the unit, which `svc.sh install` chooses and records in `.service`, so a host that has
+# not got that far has no drop-in to look for either.
+- name: 'Read the name of the installed runner service'
+  become: true
+  ansible.builtin.slurp:
+    src: '{{ github_runner_dir }}/.service'
+  register: 'github_runner_installed_service'
+  failed_when: false
+
+- name: 'Check whether the runner is already confined'
+  when: 'github_runner_installed_service.content is defined'
   become: true
   ansible.builtin.stat:
-    path: '{{ github_runner_dir }}/.service'
-  register: 'github_runner_installed'
+    path: '/etc/systemd/system/{{ github_runner_installed_service.content | b64decode | trim }}.d/sandbox.conf'
+  register: 'github_runner_confined'
 
 - name: 'Install the runner'
   ansible.builtin.include_role:
     name: 'monolithprojects.github_actions_runner'
   vars:
-    # The upstream role sets this itself, from whether GitHub reports the runner offline, and acts on it by running
-    # `config.sh --replace` over the runner directory -- which the runner refuses outright when that directory is
-    # already configured, failing the play. Offline is this deployment's normal state between the runner being
-    # registered and `tasks/sandbox.yaml` starting it, so a run interrupted anywhere in between could never complete
-    # another. What that task is good for is a registration the host has lost, so it is driven from exactly that. A
-    # role parameter outranks the `set_fact` the role would otherwise decide this with.
-    reinstall_runner: '{{ not github_runner_configured.stat.exists }}'
-    runner_state: '{{ "started" if github_runner_installed.stat.exists else "stopped" }}'
     access_token: '{{ github_runner_access_token }}'
     github_account: '{{ github_runner_organization }}'
     runner_dir: '{{ github_runner_dir }}'
@@ -70,6 +74,15 @@
     runner_org: true
     runner_user: '{{ github_runner_user }}'
     runner_version: '{{ github_runner_version }}'
+
+    # The upstream role sets this itself, from whether GitHub reports the runner offline, and acts on it by running
+    # `config.sh --replace` over the runner directory -- which the runner refuses outright when that directory is
+    # already configured, failing the play. Offline is this deployment's normal state between the runner being
+    # registered and `tasks/sandbox.yaml` starting it, so a run interrupted anywhere in between could never complete
+    # another. What that task is good for is a registration the host has lost, so it is driven from exactly that. A
+    # role parameter outranks the `set_fact` the role would otherwise decide this with.
+    reinstall_runner: '{{ not github_runner_configured.stat.exists }}'
+    runner_state: '{{ "started" if github_runner_confined.stat.exists | default(false) else "stopped" }}'
 
 # `config.sh` writes these as the runner account but under the connection umask, not the runner service's `UMask`,
 # which only governs what the service itself creates. So they land world-readable in a directory the upstream role
