@@ -1,11 +1,15 @@
 ---
 - name: 'Install the container engine'
   become: true
+  vars:
+    github_runner_tmpfiles_conf: '/etc/tmpfiles.d/github-runner.conf'
   block:
     - name: 'Install Podman'
       ansible.builtin.apt:
         name:
+          - 'containernetworking-plugins'
           - 'fuse-overlayfs'
+          - 'iptables'
           - 'podman'
           - 'slirp4netns'
           - 'uidmap'
@@ -74,21 +78,40 @@
     #
     # `/run` is a tmpfs, so this is written as a tmpfiles rule to survive a reboot as well as created now. It also
     # means a rootful Docker daemon could not claim the path later, which this design has no use for anyway.
+    # Said plainly, because the failure it replaces is `systemd-tmpfiles` refusing to make a directory of something
+    # that is already a socket, which reads as a packaging fault rather than as the thing it is: another engine
+    # serving the path the runner mounts into every job container.
+    - name: 'Check the reserved Docker socket path'
+      ansible.builtin.stat:
+        path: '/run/docker.sock'
+      register: 'github_runner_docker_socket'
+
+    - name: 'Verify that nothing else serves the Docker socket'
+      ansible.builtin.assert:
+        that: 'not github_runner_docker_socket.stat.exists or github_runner_docker_socket.stat.isdir'
+        fail_msg: >-
+          /run/docker.sock exists and is not a directory, so something is serving it -- a rootful Docker daemon, most
+          likely. The runner mounts that path into every job container, so leaving it in place would hand each job the
+          engine's API and, through it, a container that can mount the host. Remove it before applying this role.
+
     - name: 'Reserve the Docker socket path'
       ansible.builtin.copy:
-        dest: '/etc/tmpfiles.d/github-runner.conf'
+        dest: '{{ github_runner_tmpfiles_conf }}'
         content: 'd /run/docker.sock 0555 root root -'
         owner: 'root'
         group: 'root'
         mode: '0644'
 
+    # Created by applying the rule above rather than by a second task describing the same directory, so that the owner
+    # and mode are stated in one place. Applied on every run rather than only when the rule changes: the path has to be
+    # there before the engine starts, and a handler would not restore it on a host where something had removed it.
     - name: 'Create the reserved Docker socket path'
-      ansible.builtin.file:
-        path: '/run/docker.sock'
-        state: 'directory'
-        owner: 'root'
-        group: 'root'
-        mode: '0555'
+      ansible.builtin.command:
+        argv:
+          - 'systemd-tmpfiles'
+          - '--create'
+          - '{{ github_runner_tmpfiles_conf }}'
+      changed_when: false
 
     - name: 'Create the container engine service'
       ansible.builtin.template:
@@ -125,6 +148,8 @@
   environment:
     DOCKER_HOST: 'unix://{{ github_runner_podman_runtime_dir }}/podman.sock'
     XDG_RUNTIME_DIR: '{{ github_runner_podman_runtime_dir }}'
+  vars:
+    github_runner_verify_network: 'github-runner-verify'
   block:
     - name: 'Verify that the container engine answers as a Docker daemon'
       ansible.builtin.command:
@@ -149,13 +174,50 @@
           - 'true'
       changed_when: false
 
+    # The one thing every job does that the checks above do not reach: `docker version` answers from the API socket
+    # without touching the network stack, so a host with no network backend passes every check here and then fails
+    # each job at "Initialize containers". Removed either side of the create, since a run interrupted between the two
+    # would otherwise leave behind a name the next run cannot create.
+    - name: 'Remove the verification network left by an interrupted run'
+      ansible.builtin.command:
+        argv:
+          - 'docker'
+          - 'network'
+          - 'rm'
+          - '{{ github_runner_verify_network }}'
+      changed_when: false
+      failed_when: false
+
+    - name: 'Verify that the container engine can create a job network'
+      ansible.builtin.command:
+        argv:
+          - 'docker'
+          - 'network'
+          - 'create'
+          - '{{ github_runner_verify_network }}'
+      changed_when: false
+
+    - name: 'Remove the verification network'
+      ansible.builtin.command:
+        argv:
+          - 'docker'
+          - 'network'
+          - 'rm'
+          - '{{ github_runner_verify_network }}'
+      changed_when: false
+      failed_when: false
+
 # `systemctl show` would report `InaccessiblePaths` back whether or not it took effect, and the failure worth catching
 # is exactly the one it cannot see: a path that was missing when the service started is skipped for the lifetime of
 # that start, without a word in the journal. So the check is made against the engine's own view of the filesystem,
-# which `/proc/<pid>/root` resolves into. A masked path is an empty file there, mode `0000`; an unmasked one is the
-# credential a job could have named in its `container.volumes`. Only the size is looked at, so that a failure here does
-# not put the key into the play's output.
-- name: 'Verify that the runner credentials are masked from the container engine'
+# which `/proc/<pid>/root` resolves into. Every masked path is checked rather than only the key: they are masked by one
+# directive and skipped by one rule, so any of them can be the one that was missing.
+#
+# What is looked at is the mode. systemd mounts an empty file, or an empty directory, of mode `0000` over each path, so
+# `0000` is the mask and anything else is the real thing a job could have named in its `container.volumes`. The mode
+# also covers `_diag`, which being a directory has no size worth reading. Nothing of the contents is looked at, so a
+# failure here does not put the key into the play's output.
+- name: 'Verify that the runner state is masked from the container engine'
   when: 'not ansible_check_mode'
   become: true
   block:
@@ -171,9 +233,14 @@
       changed_when: false
       failed_when: '(github_runner_podman_pid.stdout | trim | int) == 0'
 
-    - name: 'Inspect the runner credentials as the container engine sees them'
+    - name: 'Inspect the masked paths as the container engine sees them'
       ansible.builtin.stat:
-        path: '/proc/{{ github_runner_podman_pid.stdout | trim }}/root{{ github_runner_dir }}/.credentials_rsaparams'
+        path: '/proc/{{ github_runner_podman_pid.stdout | trim }}/root{{ github_runner_dir }}/{{ item }}'
         get_checksum: false
-      register: 'github_runner_masked_credentials'
-      failed_when: 'not github_runner_masked_credentials.stat.exists or github_runner_masked_credentials.stat.size != 0'
+      register: 'github_runner_masked'
+      failed_when: 'not github_runner_masked.stat.exists or github_runner_masked.stat.mode != "0000"'
+      loop:
+        - '.credentials'
+        - '.credentials_rsaparams'
+        - '.runner'
+        - '_diag'

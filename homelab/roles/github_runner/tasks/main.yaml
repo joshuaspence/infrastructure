@@ -46,8 +46,11 @@
 # without the container requirement. Handing those `stopped` leaves the service installed and not running;
 # `tasks/sandbox.yaml` starts it once the confinement is in place.
 #
-# The drop-in is named after the unit, which `svc.sh install` chooses and records in `.service`, so a host that has
-# not got that far has no drop-in to look for either.
+# What is asked is whether the runner is confined, not whether it is installed: `.service` is written by `svc.sh
+# install`, which the upstream role runs before this one has ever written a drop-in, so a first run that failed
+# anywhere after it -- an apt failure, an unreachable Docker repository, an engine that would not verify -- would
+# leave the next run taking the runner for established and starting it unconfined. The drop-in is named after the
+# unit `svc.sh install` chose, and recorded in `.service`, so a host that has not got that far has nothing to look for.
 - name: 'Read the name of the installed runner service'
   become: true
   ansible.builtin.slurp:
@@ -66,15 +69,6 @@
   ansible.builtin.include_role:
     name: 'monolithprojects.github_actions_runner'
   vars:
-    access_token: '{{ github_runner_access_token }}'
-    github_account: '{{ github_runner_organization }}'
-    runner_dir: '{{ github_runner_dir }}'
-    runner_group: '{{ github_runner_group }}'
-    runner_name: '{{ github_runner_name }}'
-    runner_org: true
-    runner_user: '{{ github_runner_user }}'
-    runner_version: '{{ github_runner_version }}'
-
     # The upstream role sets this itself, from whether GitHub reports the runner offline, and acts on it by running
     # `config.sh --replace` over the runner directory -- which the runner refuses outright when that directory is
     # already configured, failing the play. Offline is this deployment's normal state between the runner being
@@ -83,6 +77,14 @@
     # role parameter outranks the `set_fact` the role would otherwise decide this with.
     reinstall_runner: '{{ not github_runner_configured.stat.exists }}'
     runner_state: '{{ "started" if github_runner_confined.stat.exists | default(false) else "stopped" }}'
+    access_token: '{{ github_runner_access_token }}'
+    github_account: '{{ github_runner_organization }}'
+    runner_dir: '{{ github_runner_dir }}'
+    runner_group: '{{ github_runner_group }}'
+    runner_name: '{{ github_runner_name }}'
+    runner_org: true
+    runner_user: '{{ github_runner_user }}'
+    runner_version: '{{ github_runner_version }}'
 
 # `config.sh` writes these as the runner account but under the connection umask, not the runner service's `UMask`,
 # which only governs what the service itself creates. So they land world-readable in a directory the upstream role
@@ -103,6 +105,18 @@
     - '.credentials'
     - '.credentials_rsaparams'
     - '.runner'
+
+# The engine is handed write access to this one path inside an otherwise read-only runner root, and systemd skips a
+# carve-out whose path is missing when the service starts. Left to the runner, it would appear at the first job, which
+# is well after the engine has started -- and the runner cannot mount a work directory the engine may not write.
+- name: 'Create the runner work directory'
+  become: true
+  ansible.builtin.file:
+    path: '{{ github_runner_dir }}/_work'
+    state: 'directory'
+    owner: '{{ github_runner_user }}'
+    group: '{{ github_runner_user }}'
+    mode: '0700'
 
 # After the runner, so that the credentials above exist by the time the engine starts: they are masked from it with
 # `InaccessiblePaths`, and systemd skips a path that is missing at start rather than applying it later.

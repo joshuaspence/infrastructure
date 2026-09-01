@@ -55,6 +55,22 @@ InaccessiblePaths=-{{ github_runner_dir }}/.credentials \
   -{{ github_runner_dir }}/.runner \
   -{{ github_runner_dir }}/_diag
 
+# Masking the credentials does not settle it on its own: the rest of the runner root belongs to this account too, and
+# `runsvc.sh` is the generated unit's `ExecStart` while `bin` holds the listener behind it. A job that named the runner
+# root in its `container.volumes` would be writing, as a container root that maps back onto this account, the code the
+# runner service executes at its next start -- which its own auto-update and `Restart` both bring about -- and that
+# process is not masked from the credentials at all.
+#
+# `_work` is the only part of the runner root the runner asks to have mounted writable. `externals` it already asks for
+# read-only (`ContainerOperationProvider.MountWellKnownDirectories`), so read-only here takes nothing from a job. The
+# kernel locks these flags for a mount namespace that did not create them, so a container cannot remount them away.
+#
+# `_work` is created in `tasks/main.yaml` rather than left to the first job for the same reason as the paths above: a
+# carve-out whose path is missing when the service starts is skipped for the lifetime of that start, and the runner
+# would then be unable to mount the work directory into any container.
+ReadOnlyPaths=-{{ github_runner_dir }}
+ReadWritePaths=-{{ github_runner_dir }}/_work
+
 # `/run/github-runner`, owned by the account. The socket lives here rather than in `/run/user/<uid>`, which needs a
 # login session the account does not have and which the runner service cannot see through `ProtectHome`. Kept across a
 # restart of this service so that restarting the engine does not pull the runtime state out from under a container that
