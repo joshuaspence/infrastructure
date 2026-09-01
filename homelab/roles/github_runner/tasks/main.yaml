@@ -1,0 +1,220 @@
+---
+- name: 'Assert that a repository was given'
+  ansible.builtin.assert:
+    that: 'github_runner_repository is truthy'
+    fail_msg: '`github_runner_repository` must be set to an `owner/name` repository.'
+
+- name: 'Assert that the architecture is supported'
+  ansible.builtin.assert:
+    that: 'ansible_facts.architecture in github_runner_architectures'
+    fail_msg: 'GitHub does not publish a runner for `{{ ansible_facts.architecture }}`.'
+
+# Registering the runner drops from root to the unprivileged runner account. Ansible hands the temporary files over
+# with `setfacl`, and without it falls back to a `chmod` syntax that does not exist on Linux, so this is a hard
+# requirement of this role rather than a general baseline package.
+- name: 'Install the become dependencies'
+  become: true
+  ansible.builtin.apt:
+    name: 'acl'
+
+- name: 'Create the runner account'
+  become: true
+  ansible.builtin.user:
+    name: '{{ github_runner_user }}'
+    shell: '/usr/sbin/nologin'
+    password: '!'
+    system: true
+
+- name: 'Create the runner directory'
+  become: true
+  ansible.builtin.file:
+    path: '{{ github_runner_directory }}'
+    state: 'directory'
+    owner: '{{ github_runner_user }}'
+    group: '{{ github_runner_user }}'
+    mode: '0750'
+
+- name: 'Download the runner'
+  become: true
+  ansible.builtin.get_url:
+    url: '{{ github_runner_release }}/{{ github_runner_archive }}'
+    dest: '/var/cache/{{ github_runner_archive }}'
+    checksum: '{{ github_runner_checksum }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+
+# The sentinel is stamped with the version so that bumping `github_runner_version` unpacks the new release. Gating on
+# an unversioned path such as `config.sh` would let the first install satisfy the check forever, leaving every later
+# version bump downloaded and checksummed but never actually installed.
+- name: 'Unpack the runner'
+  become: true
+  ansible.builtin.unarchive:
+    src: '/var/cache/{{ github_runner_archive }}'
+    dest: '{{ github_runner_directory }}'
+    remote_src: true
+    creates: '{{ github_runner_version_path }}'
+    owner: '{{ github_runner_user }}'
+    group: '{{ github_runner_user }}'
+  notify: 'Install the runner dependencies'
+  register: 'github_runner_unpack'
+
+- name: 'Stamp the unpacked version'
+  become: true
+  ansible.builtin.copy:
+    dest: '{{ github_runner_version_path }}'
+    content: |
+      {{ github_runner_version }}
+    owner: '{{ github_runner_user }}'
+    group: '{{ github_runner_user }}'
+    mode: '0640'
+
+- name: 'Flush handlers'
+  ansible.builtin.meta: 'flush_handlers'
+
+- name: 'Check whether the runner is already registered'
+  become: true
+  ansible.builtin.stat:
+    path: '{{ github_runner_directory }}/.runner'
+  register: 'github_runner_registration'
+
+- name: 'Check whether the runner configuration was recorded'
+  become: true
+  ansible.builtin.stat:
+    path: '{{ github_runner_configuration_path }}'
+  register: 'github_runner_record'
+
+- name: 'Read the recorded runner configuration'
+  when: 'github_runner_record.stat.exists'
+  become: true
+  ansible.builtin.slurp:
+    src: '{{ github_runner_configuration_path }}'
+  register: 'github_runner_record_contents'
+
+# `config.sh` bakes the repository, name and labels into the runner's own state and `svc.sh` derives the unit name from
+# them at install time, so none of them can be changed by rewriting a file. Recording what the runner was last
+# configured with is what lets a changed `github_runner_repository`, `github_runner_name` or `github_runner_labels`
+# tear the stale registration down, rather than leaving the runner attached to the previous repository and then failing
+# inside `svc.sh install` with a unit that already exists under the previous name.
+- name: 'Determine whether the runner is configured as desired'
+  ansible.builtin.set_fact:
+    github_runner_configured: >-
+      {{ github_runner_record.stat.exists
+         and (github_runner_record_contents.content | b64decode | from_json) == github_runner_configuration }}
+    github_runner_registered_repository: >-
+      {{ (github_runner_record_contents.content | b64decode | from_json).repository
+         if github_runner_record.stat.exists else github_runner_repository }}
+
+# Reconfiguring is a teardown. `config.sh` refuses to run against an existing registration and `svc.sh install` aborts
+# when a unit is already present, so the old service and registration have to go first. The removal token is minted
+# against the repository the runner is currently attached to rather than the one it is moving to.
+- name: 'Mint a removal token'
+  when:
+    - 'github_runner_registration.stat.exists'
+    - 'not github_runner_configured'
+  become: false
+  delegate_to: 'localhost'
+  ansible.builtin.command:
+    argv:
+      - 'gh'
+      - 'api'
+      - '--method'
+      - 'POST'
+      - '/repos/{{ github_runner_registered_repository }}/actions/runners/remove-token'
+      - '--jq'
+      - '.token'
+  changed_when: false
+  no_log: true
+  register: 'github_runner_removal_token'
+
+- name: 'Uninstall the runner service'
+  when:
+    - 'github_runner_registration.stat.exists'
+    - 'not github_runner_configured'
+  become: true
+  ansible.builtin.command:
+    argv:
+      - './svc.sh'
+      - 'uninstall'
+    chdir: '{{ github_runner_directory }}'
+    removes: '{{ github_runner_directory }}/.service'
+
+- name: 'Unregister the runner'
+  when:
+    - 'github_runner_registration.stat.exists'
+    - 'not github_runner_configured'
+  become: true
+  become_user: '{{ github_runner_user }}'
+  ansible.builtin.command:
+    argv:
+      - './config.sh'
+      - 'remove'
+      - '--token={{ github_runner_removal_token.stdout }}'
+    chdir: '{{ github_runner_directory }}'
+    removes: '{{ github_runner_directory }}/.runner'
+  no_log: true
+
+# Registration tokens last an hour and are single use, so one is minted only when there is a registration to perform.
+# Delegated to the control node, which is where `gh` holds a credential; the runner host is never given one.
+- name: 'Mint a registration token'
+  when: 'not github_runner_configured'
+  become: false
+  delegate_to: 'localhost'
+  ansible.builtin.command:
+    argv:
+      - 'gh'
+      - 'api'
+      - '--method'
+      - 'POST'
+      - '/repos/{{ github_runner_repository }}/actions/runners/registration-token'
+      - '--jq'
+      - '.token'
+  changed_when: false
+  no_log: true
+  register: 'github_runner_token'
+
+- name: 'Register the runner'
+  when: 'not github_runner_configured'
+  become: true
+  become_user: '{{ github_runner_user }}'
+  ansible.builtin.command:
+    argv:
+      - './config.sh'
+      - '--unattended'
+      - '--replace'
+      - '--url=https://github.com/{{ github_runner_repository }}'
+      - '--token={{ github_runner_token.stdout }}'
+      - '--name={{ github_runner_name }}'
+      - '--labels={{ github_runner_labels | join(",") }}'
+      - '--work=_work'
+    chdir: '{{ github_runner_directory }}'
+  changed_when: true
+  no_log: true
+
+- name: 'Record the runner configuration'
+  become: true
+  ansible.builtin.copy:
+    dest: '{{ github_runner_configuration_path }}'
+    content: '{{ github_runner_configuration | to_nice_json }}'
+    owner: '{{ github_runner_user }}'
+    group: '{{ github_runner_user }}'
+    mode: '0640'
+
+- name: 'Install the runner service'
+  become: true
+  ansible.builtin.command:
+    argv:
+      - './svc.sh'
+      - 'install'
+      - '{{ github_runner_user }}'
+    chdir: '{{ github_runner_directory }}'
+    creates: '/etc/systemd/system/{{ github_runner_service }}'
+
+# A version bump unpacks new binaries underneath a service that is already running, so the unit is restarted rather
+# than merely started whenever the archive was extracted.
+- name: 'Start the runner service'
+  become: true
+  ansible.builtin.systemd_service:
+    name: '{{ github_runner_service }}'
+    enabled: true
+    state: '{{ "restarted" if github_runner_unpack is changed else "started" }}'

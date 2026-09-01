@@ -1,0 +1,55 @@
+---
+- name: 'Upgrade the system'
+  become: true
+  block:
+    - name: 'Update apt cache'
+      ansible.builtin.apt:
+        cache_valid_time: 3600
+        update_cache: true
+
+    - name: 'Upgrade installed packages'
+      ansible.builtin.apt:
+        upgrade: 'full'
+
+    - name: 'Remove orphaned packages'
+      ansible.builtin.apt:
+        autoremove: true
+
+    - name: 'Check whether a reboot is required'
+      ansible.builtin.stat:
+        path: '/var/run/reboot-required'
+      register: 'common_apt_reboot_required'
+
+    - name: 'Reboot'
+      when:
+        - 'common_apt_reboot'
+        - 'common_apt_reboot_required.stat.exists'
+      ansible.builtin.reboot:
+        reboot_timeout: '{{ common_apt_reboot_timeout }}'
+
+- name: 'Install the base packages'
+  become: true
+  ansible.builtin.apt:
+    name: '{{ common_apt_packages }}'
+
+- name: 'Configure unattended upgrades'
+  become: true
+  block:
+    - name: 'Install unattended-upgrades'
+      ansible.builtin.apt:
+        name: 'unattended-upgrades'
+
+    - name: 'Enable unattended-upgrades'
+      ansible.builtin.copy:
+        dest: '/etc/apt/apt.conf.d/20auto-upgrades'
+        content: |
+          APT::Periodic::Update-Package-Lists "1";
+          APT::Periodic::Unattended-Upgrade "1";
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+
+- name: 'Remove cached apt archives'
+  become: true
+  ansible.builtin.apt:
+    clean: true

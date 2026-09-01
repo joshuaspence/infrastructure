@@ -1,0 +1,5 @@
+---
+- name: 'Install the runner dependencies'
+  ansible.builtin.command: '{{ github_runner_directory }}/bin/installdependencies.sh'
+  become: true
+  changed_when: true

@@ -1,0 +1,8 @@
+---
+- name: 'Setup the GitHub Actions runners'
+  hosts: 'github_runners'
+  roles:
+    - role: 'common'
+    - role: 'github_runner'
+      vars:
+        github_runner_repository: 'joshuaspence/invoice-tool'
