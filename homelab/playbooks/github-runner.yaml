@@ -9,12 +9,13 @@
     - role: 'monolithprojects.github_actions_runner'
       vars:
         access_token: '{{ lookup("pipe", "gh auth token") }}'
-        all_runners_in_same_repo: true
-        github_account: 'joshuaspence'
+        github_account: 'spence-com-au'
         github_repo: 'invoice-tool'
         runner_dir: '/opt/github/actions-runner'
+        runner_group: 'Homelab'
         runner_labels:
           - 'homelab'
         runner_name: '{{ inventory_hostname }}'
+        runner_org: true
         runner_user: '{{ github_runner_user }}'
         runner_version: '2.337.0'
