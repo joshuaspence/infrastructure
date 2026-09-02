@@ -117,33 +117,8 @@ module "unifi" {
   ssh_config          = var.unifi_ssh_config
   switches            = var.unifi_switches
   vpn                 = merge(var.unifi_vpn, { gateway = aws_route53_record.vpn.fqdn })
-
-  certbot = {
-    email = format("josh@%s", googleworkspace_domain.secondary["spence.network"].domain_name)
-
-    credentials = {
-      aws_access_key_id     = aws_iam_access_key.certbot.id
-      aws_secret_access_key = aws_iam_access_key.certbot.secret
-    }
-
-    domains = {
-      drive   = aws_route53_record.unifi_client["storage"].fqdn
-      network = aws_route53_record.unifi_client["unifi"].fqdn
-      protect = aws_route53_record.unifi_client["protect"].fqdn
-    }
-  }
 }
 
-resource "aws_route53_record" "unifi_client" {
-  zone_id  = aws_route53_zone.main["spence.network"].zone_id
-  name     = each.key
-  type     = "A"
-  ttl      = 60 * 5
-  records  = [each.value]
-  for_each = module.unifi.dns_records
-}
-
-# TODO: Use IPv6 address for VPN.
 resource "aws_route53_record" "vpn" {
   zone_id = aws_route53_zone.main["spence.network"].zone_id
   name    = "vpn"

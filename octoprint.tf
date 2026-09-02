@@ -2,7 +2,7 @@ resource "terraform_data" "octoprint_certbot" {
   connection {
     type        = "ssh"
     user        = "root"
-    host        = aws_route53_record.unifi_client["octoprint"].fqdn
+    host        = var.unifi_clients.octoprint.dns_record
     private_key = try(file(pathexpand("~/.ssh/keys/rpi.key")), null)
   }
 
@@ -27,16 +27,16 @@ resource "terraform_data" "octoprint_certbot" {
 
       format(
         "test -d .acme.sh/%s || (%s && %s)",
-        aws_route53_record.unifi_client["octoprint"].fqdn,
+        var.unifi_clients.octoprint.dns_record,
         format(
           "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s .acme.sh/acme.sh --dns dns_aws --domain %s --issue",
           aws_iam_access_key.certbot.id,
           nonsensitive(aws_iam_access_key.certbot.secret),
-          aws_route53_record.unifi_client["octoprint"].fqdn,
+          var.unifi_clients.octoprint.dns_record,
         ),
         format(
           ".acme.sh/acme.sh --deploy --deploy-hook haproxy --domain %s",
-          aws_route53_record.unifi_client["octoprint"].fqdn,
+          var.unifi_clients.octoprint.dns_record,
         ),
       ),
     ]

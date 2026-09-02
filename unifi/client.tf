@@ -18,13 +18,3 @@ resource "unifi_client" "client" {
 
   for_each = var.clients
 }
-
-output "dns_records" {
-  value = {
-    homeassistant = unifi_client.client["home_assistant"].fixed_ip
-    octoprint     = unifi_client.client["octoprint"].fixed_ip
-    protect       = unifi_client.client["unifi_protect_nvr"].fixed_ip
-    storage       = unifi_client.client["unifi_drive_nas"].fixed_ip
-    unifi         = unifi_client.client["unifi_network_controller"].fixed_ip
-  }
-}
