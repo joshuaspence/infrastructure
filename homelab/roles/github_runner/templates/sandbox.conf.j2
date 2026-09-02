@@ -46,13 +46,31 @@ ProtectHome=true
 ReadWritePaths={{ ([github_runner_dir, github_runner_home] + github_runner_sandbox_read_write_paths) | join(' ') }}
 PrivateTmp=true
 PrivateDevices=true
-ProtectProc=invisible
 ProtectClock=true
 ProtectHostname=true
 ProtectControlGroups=true
 ProtectKernelLogs=true
 ProtectKernelModules=true
 ProtectKernelTunables=true
+
+# The process table is hidden from the runner, but not by `ProtectProc` alone. That hides every process this account
+# does not own, PID 1 among them, and the runner reads `/proc/1/cgroup` before it will start a job container: it
+# refuses the container feature when it is itself running in one, which it decides by looking for `:/docker/` in that
+# file (`ContainerOperationProvider.AssertCompatibleOS`). The read is not guarded by so much as an `Exists`, so with
+# PID 1 hidden it throws `Could not find a part of the path '/proc/1/cgroup'` and, with a job container mandatory here,
+# every job fails at "Initialize containers" -- and then again at "Stop containers", which asserts on the container id
+# and the network that the failed step never set. Those two are what the job's log leads with; neither is the fault.
+#
+# `PrivatePIDs` settles it without handing the process table back. The runner gets a PID namespace of its own, in which
+# PID 1 is its own `runsvc.sh` -- owned by this account, so `hidepid` does not hide it, and its cgroup line names the
+# slice rather than a container. Less of the host is visible than before, not more: a namespace also hides the
+# container engine, which runs as this same account and was therefore never covered by `ProtectProc`.
+#
+# systemd ignores a directive it does not know with nothing louder than a line in the journal, and this one arrived in
+# 257, so on anything older the drop-in still applies and the jobs still fail. `tasks/sandbox.yaml` checks the file the
+# runner reads rather than the directive, which covers that as well as a `ProtectProc` set back to `invisible` alone.
+ProtectProc=invisible
+PrivatePIDs=yes
 
 # The runner directory itself is world-readable and `monolithprojects.github_actions_runner` resets it to that on
 # every run, so a checkout that lands in it is otherwise readable by every other account on the Pi.

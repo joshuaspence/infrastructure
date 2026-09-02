@@ -69,3 +69,53 @@
   register: 'github_runner_sandbox_applied'
   changed_when: false
   failed_when: '(github_runner_sandbox_applied.stdout | trim) != "yes"'
+
+# The check above proves systemd read the drop-in, not that the runner can still do its job under it. The directive
+# that decides the latter is `ProtectProc`: it hides PID 1, and the runner reads `/proc/1/cgroup` at the start of
+# every containerised job to refuse the container feature when it is itself in a container. Every job on the host
+# fails at "Initialize containers" if that read does not answer, so it is worth one command here rather than a job
+# log per push. See `templates/sandbox.conf.j2` for what makes it readable again.
+#
+# Asked of the running service and as the runner account, not of the unit file and not as root: `systemctl show`
+# would report a directive back whether or not this systemd knows it, and root is exempt from `hidepid` and would
+# read the file whether or not the runner could. `--pid` is what puts the reader in front of the runner's PID 1
+# rather than the host's, which is the whole of the difference being checked.
+- name: 'Verify that the runner can make the container compatibility check'
+  when: 'not ansible_check_mode'
+  become: true
+  block:
+    - name: 'Find the runner process'
+      ansible.builtin.command:
+        argv:
+          - 'systemctl'
+          - 'show'
+          - '--property=MainPID'
+          - '--value'
+          - '{{ github_runner_service }}'
+      register: 'github_runner_main_pid'
+      changed_when: false
+      failed_when: '(github_runner_main_pid.stdout | trim | int) == 0'
+
+    # The content is read as well as the exit status. A namespace whose PID 1 reported a Docker cgroup would leave the
+    # runner refusing every job with `Container feature is not supported when runner is already running inside
+    # container`, which is a working read and an equally broken host.
+    - name: 'Read the init cgroup as the runner sees it'
+      ansible.builtin.command:
+        argv:
+          - 'nsenter'
+          - '--target'
+          - '{{ github_runner_main_pid.stdout | trim }}'
+          - '--mount'
+          - '--pid'
+          - '--'
+          - 'setpriv'
+          - '--reuid'
+          - '{{ github_runner_user }}'
+          - '--regid'
+          - '{{ github_runner_user }}'
+          - '--clear-groups'
+          - 'cat'
+          - '/proc/1/cgroup'
+      register: 'github_runner_init_cgroup'
+      changed_when: false
+      failed_when: 'github_runner_init_cgroup.rc != 0 or ":/docker/" in github_runner_init_cgroup.stdout'
