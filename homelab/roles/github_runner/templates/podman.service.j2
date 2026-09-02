@@ -32,6 +32,13 @@ NotifyAccess=all
 User={{ github_runner_user }}
 Group={{ github_runner_user }}
 Environment=XDG_RUNTIME_DIR={{ github_runner_podman_runtime_dir }}
+
+# netavark looks `systemd-run` up on `PATH` when it starts `aardvark-dns`, and the wrapper it asks for cannot work for
+# an account with no user session. The directory ahead of the rest holds a stand-in that runs the command without the
+# scope; `templates/systemd-run.j2` is where the whole of it is explained. The remainder is systemd's own default,
+# restated because naming `PATH` at all replaces it.
+Environment=PATH={{ github_runner_podman_helper_dir }}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
 Restart=always
 RestartSec=15
 Slice={{ github_runner_slice }}

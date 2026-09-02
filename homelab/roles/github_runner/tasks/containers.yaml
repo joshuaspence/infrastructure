@@ -113,6 +113,28 @@
           - '{{ github_runner_tmpfiles_conf }}'
       changed_when: false
 
+    # Ahead of the real `systemd-run` on the engine's `PATH`, for netavark's sake; `templates/systemd-run.j2` explains
+    # what it is for. Owned by root and not writable by the engine account, which is what executes it, outside any
+    # container: a job able to rewrite this would be running its own code on the host as the account that owns the
+    # image store. Installed before the service that puts it on `PATH`, so that no start of the engine ever resolves
+    # `systemd-run` to the real one.
+    - name: 'Create the container engine helper directory'
+      ansible.builtin.file:
+        path: '{{ github_runner_podman_helper_dir }}'
+        state: 'directory'
+        owner: 'root'
+        group: 'root'
+        mode: '0755'
+
+    - name: 'Install the systemd-run stand-in'
+      ansible.builtin.template:
+        src: 'systemd-run.j2'
+        dest: '{{ github_runner_podman_helper_dir }}/systemd-run'
+        owner: 'root'
+        group: 'root'
+        mode: '0755'
+      notify: 'Restart the container engine'
+
     - name: 'Create the container engine service'
       ansible.builtin.template:
         src: 'podman.service.j2'
@@ -207,17 +229,29 @@
       changed_when: false
       failed_when: false
 
-# `systemctl show` would report `InaccessiblePaths` back whether or not it took effect, and the failure worth catching
-# is exactly the one it cannot see: a path that was missing when the service started is skipped for the lifetime of
-# that start, without a word in the journal. So the check is made against the engine's own view of the filesystem,
-# which `/proc/<pid>/root` resolves into. Every masked path is checked rather than only the key: they are masked by one
-# directive and skipped by one rule, so any of them can be the one that was missing.
-#
-# What is looked at is the mode. systemd mounts an empty file, or an empty directory, of mode `0000` over each path, so
-# `0000` is the mask and anything else is the real thing a job could have named in its `container.volumes`. The mode
-# also covers `_diag`, which being a directory has no size worth reading. Nothing of the contents is looked at, so a
-# failure here does not put the key into the play's output.
-- name: 'Verify that the runner state is masked from the container engine'
+    # Creating a network above does not start `aardvark-dns`; attaching a container to one does, which is why a host
+    # whose DNS server cannot start passes every check before this and then fails each job at "Initialize containers".
+    # The stand-in is exercised the way netavark calls it -- its options, then a command -- rather than looked for,
+    # since it is worth nothing unless it drops the options and runs what follows. It refuses an option it does not
+    # know rather than guessing, so a netavark that changed its invocation is a failure here and not a wrong command
+    # run in the dark.
+    - name: 'Verify that the systemd-run stand-in runs the command it is given'
+      ansible.builtin.command:
+        argv:
+          - '{{ github_runner_podman_helper_dir }}/systemd-run'
+          - '-q'
+          - '--scope'
+          - '--user'
+          - '/bin/echo'
+          - '{{ github_runner_verify_network }}'
+      register: 'github_runner_systemd_run'
+      changed_when: false
+      failed_when: '(github_runner_systemd_run.stdout | trim) != github_runner_verify_network'
+
+# Both checks below are put to the running engine rather than to its unit file, and for the same reason: `systemctl
+# show` reports a directive back whether or not it took effect, and what is worth catching here is exactly what it
+# cannot see.
+- name: 'Verify the container engine as it is running'
   when: 'not ansible_check_mode'
   become: true
   block:
@@ -233,6 +267,33 @@
       changed_when: false
       failed_when: '(github_runner_podman_pid.stdout | trim | int) == 0'
 
+    - name: 'Read the environment the container engine is running with'
+      ansible.builtin.slurp:
+        src: '/proc/{{ github_runner_podman_pid.stdout | trim }}/environ'
+      register: 'github_runner_podman_environ'
+
+    # netavark reaches the stand-in by name, so whether a containerised job starts at all comes down to the engine
+    # holding this directory ahead of `/usr/bin`. Read off the process because a unit that was edited and not
+    # restarted reports the `PATH` it would take next time while serving with the one it has.
+    - name: 'Verify that the container engine took the helper directory onto its PATH'
+      vars:
+        github_runner_podman_path: 'PATH={{ github_runner_podman_helper_dir }}:'
+      ansible.builtin.assert:
+        that: 'github_runner_podman_path in (github_runner_podman_environ.content | b64decode)'
+        fail_msg: >-
+          The container engine is not running with {{ github_runner_podman_helper_dir }} at the front of its PATH, so
+          netavark will find the real systemd-run, which cannot start aardvark-dns for an account with no user
+          session. Every containerised job would fail at "Initialize containers".
+
+    # A path that was missing when the service started is skipped for the lifetime of that start, without a word in
+    # the journal, so this is asked of the engine's own view of the filesystem, which `/proc/<pid>/root` resolves
+    # into. Every masked path is checked rather than only the key: they are masked by one directive and skipped by one
+    # rule, so any of them can be the one that was missing.
+    #
+    # What is looked at is the mode. systemd mounts an empty file, or an empty directory, of mode `0000` over each
+    # path, so `0000` is the mask and anything else is the real thing a job could have named in its
+    # `container.volumes`. The mode also covers `_diag`, which being a directory has no size worth reading. Nothing of
+    # the contents is looked at, so a failure here does not put the key into the play's output.
     - name: 'Inspect the masked paths as the container engine sees them'
       ansible.builtin.stat:
         path: '/proc/{{ github_runner_podman_pid.stdout | trim }}/root{{ github_runner_dir }}/{{ item }}'

@@ -1,0 +1,55 @@
+#!/bin/sh
+# Stands in front of the real `systemd-run` on the container engine's `PATH`, for one caller: netavark, which starts
+# `aardvark-dns` -- the DNS server every container on a user-defined network resolves through -- by running
+# `systemd-run -q --scope --user <aardvark-dns> ...` whenever `/run/systemd/system` exists. `--user` needs a systemd
+# user manager and a session bus, and the engine account is a system account with `nologin` and no lingering, so that
+# call fails with `Failed to connect to user scope bus via local transport` and the job's container never starts. It is
+# the same trap as the `--cgroup-manager` default documented in `podman.service.j2`, reached by a different route.
+#
+# Every job hits it, because the runner creates a network per job (`docker network create github_network_<id>`) and
+# podman enables DNS on a user-defined network. Nothing here can turn that off from the outside: the container's
+# `resolv.conf` is pointed at the bridge gateway because the *network* has DNS enabled, so suppressing only the server
+# leaves every name -- `github.com` included -- resolving against an address nothing answers on, which fails
+# `actions/checkout` rather than merely stopping containers from finding each other.
+#
+# So `aardvark-dns` is started, just not in a scope. Dropping the wrapper costs nothing this deployment wants: the
+# scope exists to outlive the engine, and here the engine is the only thing that starts containers, so a DNS server
+# that dies with it is correct. It also keeps `aardvark-dns` in the engine's cgroup, and so inside the slice's
+# `MemoryMax` and `TasksMax`, which a user scope would have sat outside.
+#
+# Owned by root and not writable by the engine account on purpose. It runs as that account, outside any container, so
+# a job that could rewrite it would have arbitrary execution on the host as the account that holds the image store.
+set -eu
+
+# Only the options systemd-run itself is known to be given here are dropped. Anything else is refused rather than
+# skipped: an option that takes its value as a separate argument -- `--property X` -- would otherwise leave `X` as the
+# command, and this would silently run the wrong thing. Refusing puts the offending option in the job's log instead,
+# where `aardvark-dns failed to start` already points.
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        -q | --quiet | --scope | --user | --system | --collect)
+            shift
+            ;;
+        --description=* | --property=* | --setenv=* | --slice=* | --unit=*)
+            shift
+            ;;
+        --)
+            shift
+            break
+            ;;
+        -*)
+            echo "${0}: refusing to run: unrecognised systemd-run option '${1}'" >&2
+            exit 64
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+if [ "$#" -eq 0 ]; then
+    echo "${0}: refusing to run: no command after the systemd-run options" >&2
+    exit 64
+fi
+
+exec "$@"
