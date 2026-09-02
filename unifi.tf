@@ -118,11 +118,3 @@ module "unifi" {
   switches            = var.unifi_switches
   vpn                 = merge(var.unifi_vpn, { gateway = aws_route53_record.vpn.fqdn })
 }
-
-resource "aws_route53_record" "vpn" {
-  zone_id = aws_route53_zone.main["spence.network"].zone_id
-  name    = "vpn"
-  type    = "A"
-  ttl     = 60 * 60
-  records = [var.unifi_vpn.gateway]
-}

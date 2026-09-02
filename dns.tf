@@ -110,3 +110,27 @@ resource "aws_route53_record" "spf" {
   records  = ["v=spf1 include:_spf.google.com -all"]
   for_each = var.domains
 }
+
+resource "aws_route53_record" "home_assistant" {
+  zone_id = aws_route53_zone.main["spence.network"].zone_id
+  name    = "homeassistant"
+  type    = "CNAME"
+  ttl     = 60 * 60
+  records = ["x3fjq8zfm86p1bjfmut1852xach02obw.ui.nabu.casa"]
+}
+
+resource "aws_route53_record" "home_assistant_acme" {
+  zone_id = aws_route53_zone.main["spence.network"].zone_id
+  name    = "_acme-challenge.homeassistant"
+  type    = "CNAME"
+  ttl     = 60 * 60
+  records = ["_acme-challenge.x3fjq8zfm86p1bjfmut1852xach02obw.ui.nabu.casa"]
+}
+
+resource "aws_route53_record" "vpn" {
+  zone_id = aws_route53_zone.main["spence.network"].zone_id
+  name    = "vpn"
+  type    = "A"
+  ttl     = 60 * 60
+  records = [var.unifi_vpn.gateway]
+}
