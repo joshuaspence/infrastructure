@@ -1,0 +1,5 @@
+---
+multicast_relay_interfaces: []
+multicast_relay_path: '/usr/local/bin/multicast-relay'
+multicast_relay_relays: []
+multicast_relay_url: 'https://raw.githubusercontent.com/joshuaspence/multicast-relay/optional-http/multicast-relay.py'

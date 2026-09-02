@@ -1,0 +1,17 @@
+---
+- name: 'Setup the multicast relay'
+  hosts: 'gateway'
+  roles:
+    - role: 'multicast_relay'
+      vars:
+        # TODO: List the subnets of the non-guest networks. These used to be derived from the `networks` variable of
+        # the Terraform `unifi` module, whose values live in the Terraform Cloud workspace rather than in this
+        # repository.
+        multicast_relay_interfaces: []
+
+        # Keep these in step with the discovery ports that `unifi/device_discovery.tf` opens in the firewall.
+        multicast_relay_relays:
+          - '255.255.255.255:67'  # DHCP
+          - '255.255.255.255:30050'  # Daikin Airbase
+          - '255.255.255.255:9999'  # TP-Link Kasa
+          - '255.255.255.255:6667'  # Tuya

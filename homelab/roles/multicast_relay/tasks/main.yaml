@@ -1,0 +1,38 @@
+---
+# `multicast-relay` refuses to start with fewer than two interfaces, and relaying nothing is never intentional.
+- name: 'Check that the relay is configured'
+  ansible.builtin.assert:
+    that:
+      - 'multicast_relay_interfaces | length >= 2'
+      - 'multicast_relay_relays | length >= 1'
+
+- name: 'Install the multicast relay'
+  become: true
+  block:
+    - name: 'Download the multicast relay'
+      ansible.builtin.get_url:
+        url: '{{ multicast_relay_url }}'
+        dest: '{{ multicast_relay_path }}'
+        force: true
+        owner: 'root'
+        group: 'root'
+        mode: '0755'
+      notify: 'Restart the multicast relay'
+
+    - name: 'Create the systemd unit'
+      ansible.builtin.template:
+        src: 'multicast-relay.service.j2'
+        dest: '/etc/systemd/system/multicast-relay.service'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      notify:
+        - 'Reload systemctl daemon'
+        - 'Restart the multicast relay'
+
+    - name: 'Start the multicast relay'
+      ansible.builtin.systemd_service:
+        name: 'multicast-relay.service'
+        daemon_reload: true
+        enabled: true
+        state: 'started'
