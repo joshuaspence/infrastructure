@@ -1,0 +1,18 @@
+#!/bin/sh
+# Run on the host after a job's last step, named to the runner by `ACTIONS_RUNNER_HOOK_JOB_COMPLETED` in the service
+# drop-in. It takes the panel back to its default header, so that an idle Pi does not go on advertising the last
+# thing it built. See `hook-job-started.j2` for the half that puts the message there.
+#
+# Run whatever the job did, so the panel clears on a failed or cancelled job as well as a passing one. It cannot be
+# relied on for every case even so: a runner killed mid-job -- which restarting the service does, `KillMode` being
+# `control-group` -- leaves the message behind until the next job sets its own. The message lives in `/run`, so a
+# reboot clears it regardless.
+set -u
+
+display_cli='{{ github_runner_hook_display_cli }}'
+
+[ -x "${display_cli}" ] || exit 0
+
+"${display_cli}" --clear || :
+
+exit 0

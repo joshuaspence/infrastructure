@@ -47,3 +47,12 @@ github_runner_podman_helper_dir: '/usr/local/lib/github-runner'
 # without a range gives every container a single uid, which almost no image survives.
 github_runner_subid_count: 65536
 github_runner_subid_start: 200000
+
+# The scripts the runner runs on the host either side of every job, and the program they drive. They put the
+# repository and pull request onto the Pi rack's front panel while a job runs and clear it afterwards.
+#
+# The CLI belongs to the `uctronics_rm0004` role, which is applied to the same three hosts. Named here rather than
+# depended on: the hooks check for it and do nothing when it is absent, so a host without a display is a host whose
+# jobs run exactly as before rather than one whose jobs fail.
+github_runner_hook_dir: '/usr/local/lib/github-runner/hooks'
+github_runner_hook_display_cli: '/usr/local/bin/uctronics-display-cli'

@@ -123,5 +123,10 @@
 - name: 'Install the container engine'
   ansible.builtin.import_tasks: 'containers.yaml'
 
+# Before the sandbox, which is where the drop-in names these to the runner: the runner fails a job whose hook script
+# is not where the variable said it would be.
+- name: 'Install the job hooks'
+  ansible.builtin.import_tasks: 'hooks.yaml'
+
 - name: 'Sandbox the CI jobs'
   ansible.builtin.import_tasks: 'sandbox.yaml'

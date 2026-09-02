@@ -172,20 +172,24 @@
       become: true
       ansible.builtin.copy:
         dest: '/etc/tmpfiles.d/uctronics-display.conf'
-        content: 'd {{ uctronics_rm0004_message_directory }} 0755 {{ uctronics_rm0004_message_owner }} - -'
+        content: >
+          d {{ uctronics_rm0004_message_directory }} {{ uctronics_rm0004_message_mode }}
+          {{ uctronics_rm0004_message_owner }} {{ uctronics_rm0004_message_group }} -
         owner: 'root'
         group: 'root'
         mode: '0644'
 
-    # And now, so that the CLI works on the run that installed it rather than only after the next reboot. The group is
-    # left to root, as it is in the rule above: only the owner needs to write here, and the display reads it as root.
+    # And now, so that the CLI works on the run that installed it rather than only after the next reboot. Owner, group
+    # and mode all come from the same variables as the rule above, so that a host does not end up with one thing until
+    # it reboots and another afterwards.
     - name: 'Create the message directory'
       become: true
       ansible.builtin.file:
         path: '{{ uctronics_rm0004_message_directory }}'
         state: 'directory'
         owner: '{{ uctronics_rm0004_message_owner }}'
-        mode: '0755'
+        group: '{{ uctronics_rm0004_message_group }}'
+        mode: '{{ uctronics_rm0004_message_mode }}'
 
     - name: 'Create the display service'
       become: true
