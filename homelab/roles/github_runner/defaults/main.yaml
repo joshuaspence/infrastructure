@@ -38,6 +38,11 @@ github_runner_podman_service: 'github-runner-podman.service'
 # Has to be a directory directly under `/run`: it is served by `RuntimeDirectory`, which is always relative to it.
 github_runner_podman_runtime_dir: '/run/github-runner'
 
+# Prepended to the container engine's `PATH`, and holding one file: the `systemd-run` in `templates/systemd-run.j2`,
+# which is what lets netavark start `aardvark-dns` for an account with no user session. Owned by root rather than by
+# the engine account, since what is in here is executed on the host by that account; see the template.
+github_runner_podman_helper_dir: '/usr/local/lib/github-runner'
+
 # Rootless containers map the account onto a range of unused ids. `useradd --system` allocates none, and Podman
 # without a range gives every container a single uid, which almost no image survives.
 github_runner_subid_count: 65536
