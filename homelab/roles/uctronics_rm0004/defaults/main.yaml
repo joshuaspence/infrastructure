@@ -32,3 +32,14 @@ uctronics_rm0004_message_directory: '/run/uctronics-display'
 # root, so the CLI cannot create the directory for itself and has to be handed one. `uctronics-display` runs as root
 # and only ever reads the file, so nothing is given up by handing the directory to the account that logs in.
 uctronics_rm0004_message_owner: '{{ ansible_user_id }}'
+
+# And who else may, alongside the owner. One account can own the directory and the panel is worth more than one:
+# the GitHub Actions runner sets a message from its job hooks, and it runs under an account of its own that is not
+# the one that logs in. Naming a group here and widening the mode is what lets both write; leaving it at the default
+# keeps the directory exactly as it was, owner-writable and nothing else.
+#
+# The group has to exist on the host by the time this role runs. Where it names another role's account -- as the
+# homelab playbook does with the runner's -- that role has to have been applied first, and a host where it has not
+# fails here on a group it cannot find rather than quietly leaving the panel unwritable.
+uctronics_rm0004_message_group: 'root'
+uctronics_rm0004_message_mode: '0755'

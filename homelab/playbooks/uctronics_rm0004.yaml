@@ -3,3 +3,13 @@
   hosts: 'homelab'
   roles:
     - role: 'uctronics_rm0004'
+      vars:
+        # The runner's job hooks put the repository and pull request on the panel while a job runs, and they run under
+        # the runner's own account rather than the one that logs in, so the message directory is group-writable by it.
+        # Named rather than taken from `github_runner_user`, which belongs to a role this play does not apply.
+        #
+        # Every host in `homelab` is also in `github_runners`, so the group is there -- but it is `playbooks/
+        # github-runner.yaml` that creates it, and this play does not depend on that one. On a host that has never had
+        # the runner play applied, the two tasks that name the group fail on a group that does not exist.
+        uctronics_rm0004_message_group: 'github-runner'
+        uctronics_rm0004_message_mode: '0775'
