@@ -1,0 +1,98 @@
+---
+# Imported before `tasks/sandbox.yaml`, which is where the drop-in names these to the runner and starts it under them.
+# The runner takes each hook variable as a path and fails a job whose hook is not there, so a run that wrote the
+# drop-in first would leave every job on the host failing until it reached this file.
+- name: 'Install the job hooks'
+  become: true
+  block:
+    - name: 'Create the job hook directory'
+      ansible.builtin.file:
+        path: '{{ github_runner_hook_dir }}'
+        state: 'directory'
+        owner: 'root'
+        group: 'root'
+        mode: '0755'
+
+    # Owned by root and not writable by the runner account, which is what runs them -- on the host, outside any
+    # container, and as the account holding the registration credential. A job able to rewrite one of these would have
+    # arbitrary execution there, which is the whole of what the job container was keeping it from.
+    #
+    # Deliberately not notifying the runner: the value the runner reads at start is the path, and the script behind it
+    # is read afresh for each job. Restarting to pick up an edited hook would abort whatever job the host was running
+    # to no purpose. A change to the paths themselves is a change to the drop-in, which does notify.
+    - name: 'Install the job hooks'
+      ansible.builtin.template:
+        src: 'hook-{{ item }}.j2'
+        dest: '{{ github_runner_hook_dir }}/{{ item }}.sh'
+        owner: 'root'
+        group: 'root'
+        mode: '0755'
+      loop:
+        - 'job-started'
+        - 'job-completed'
+
+# What is worth checking is not that the scripts are there but that the runner account can do what they ask, and the
+# part of that which is not obvious is the message directory: it belongs to `uctronics_rm0004`, is owned by the
+# account that installed the display, and was not group-writable until that role was told to make it so. A hook that
+# cannot write it fails silently -- it is written to, so that a display never fails a job -- and the panel simply
+# stays blank, which reads as a display fault rather than a permissions one.
+#
+# Run as the runner account for that reason. The sandbox does not come into it: `/run` is read-write inside it, so
+# what decides this is the uid, which is the same either way.
+- name: 'Verify the job hooks'
+  when: 'not ansible_check_mode'
+  become: true
+  block:
+    - name: 'Check whether the display CLI is installed'
+      ansible.builtin.stat:
+        path: '{{ github_runner_hook_display_cli }}'
+      register: 'github_runner_display_cli'
+
+    # Skipped wholesale on a host without the display, where the hooks are meant to do nothing and there is nothing to
+    # read back. The hooks themselves make the same check, so this is the same condition and not a second opinion.
+    - name: 'Verify that the hooks drive the display'
+      when: 'github_runner_display_cli.stat.exists'
+      become: true
+      become_user: '{{ github_runner_user }}'
+      vars:
+        github_runner_hook_check_message: 'hook-check 0'
+      block:
+        # A repository and a pull request the hook has to take apart to get right: the owner dropped, the number
+        # pulled out of the ref. Numbered zero because no pull request is, so a panel found showing this is a panel
+        # left behind by this check rather than by a job.
+        - name: 'Run the job started hook'
+          environment:
+            GITHUB_REF: 'refs/pull/0/merge'
+            GITHUB_REPOSITORY: '{{ github_runner_organization }}/hook-check'
+          ansible.builtin.command:
+            argv:
+              - '{{ github_runner_hook_dir }}/job-started.sh'
+          changed_when: false
+
+        - name: 'Read back what the hook put on the display'
+          ansible.builtin.command:
+            argv:
+              - '{{ github_runner_hook_display_cli }}'
+              - '--show'
+          register: 'github_runner_hook_message'
+          changed_when: false
+          failed_when: '(github_runner_hook_message.stdout | trim) != github_runner_hook_check_message'
+
+      # Run whether or not the read above passed, so that a failing check does not leave the panel advertising it
+      # until the next job comes along. These are the other half of what is being checked, not a cleanup, so they
+      # assert as much as the pair above does.
+      always:
+        - name: 'Run the job completed hook'
+          ansible.builtin.command:
+            argv:
+              - '{{ github_runner_hook_dir }}/job-completed.sh'
+          changed_when: false
+
+        - name: 'Verify that the display was cleared'
+          ansible.builtin.command:
+            argv:
+              - '{{ github_runner_hook_display_cli }}'
+              - '--show'
+          register: 'github_runner_hook_cleared'
+          changed_when: false
+          failed_when: '(github_runner_hook_cleared.stdout | trim) == github_runner_hook_check_message'

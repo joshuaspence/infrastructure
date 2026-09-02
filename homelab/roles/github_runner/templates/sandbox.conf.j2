@@ -13,6 +13,13 @@ Wants={{ github_runner_podman_service }}
 [Service]
 Environment=ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER=true
 Environment=DOCKER_HOST=unix://{{ github_runner_podman_runtime_dir }}/podman.sock
+
+# Run on the host either side of every job; `tasks/hooks.yaml` installs them and the scripts say what they are for.
+# Each names a script and not a command: the runner takes the value as a path, and a value with an argument in it is
+# a path that does not exist and a job that fails before its first step with `File not found`. What the display is
+# told is worked out inside the script, from the job's own environment.
+Environment=ACTIONS_RUNNER_HOOK_JOB_STARTED={{ github_runner_hook_dir }}/job-started.sh
+Environment=ACTIONS_RUNNER_HOOK_JOB_COMPLETED={{ github_runner_hook_dir }}/job-completed.sh
 Slice={{ github_runner_slice }}
 
 # The generated unit sets `KillMode=process`, which leaves whatever a job started running after the service stops.

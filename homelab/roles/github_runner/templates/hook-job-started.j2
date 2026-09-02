@@ -1,0 +1,66 @@
+#!/bin/sh
+# Run on the host before a job's first step, named to the runner by `ACTIONS_RUNNER_HOOK_JOB_STARTED` in the service
+# drop-in. It puts what the host is building onto the Pi rack's front panel, so that a rack of three can be read at a
+# glance rather than from three tabs.
+#
+# Run on the host rather than in the job container, which is what lets it reach the display at all: the container has
+# neither the CLI nor the message directory, and with a job container mandatory here everything else about a job is
+# inside one.
+#
+# Nothing below is allowed to fail. The runner fails the job when its job-started hook exits non-zero, and a display
+# is a convenience while a CI job is not, so a Pi that never had the display installed -- or whose message directory
+# has gone -- runs jobs exactly as it did before.
+set -u
+
+display_cli='{{ github_runner_hook_display_cli }}'
+
+{# Everything below is shell and not template. `${#pull_request}` in particular opens a Jinja comment, which is a
+   templating error and not a rendered script, so the rest of the file is handed through untouched. #}
+{% raw %}
+# The CLI belongs to the `uctronics_rm0004` role. This role does not depend on it, so a host without the display falls
+# out here rather than failing a job over a panel it does not have.
+[ -x "${display_cli}" ] || exit 0
+
+# `owner/repo` is more than the panel can hold, and the owner is the same for everything these runners build, so the
+# repository name is all that is worth the room.
+repository="${GITHUB_REPOSITORY:-}"
+name="${repository##*/}"
+
+# `refs/pull/<number>/merge` on a pull request, and a branch or tag ref on anything else. Taken from the ref rather
+# than from the event payload so that this needs no JSON parser, and left empty for a push or a schedule -- those have
+# a repository worth showing and no number to show beside it.
+case "${GITHUB_REF:-}" in
+    refs/pull/*)
+        pull_request="${GITHUB_REF#refs/pull/}"
+        pull_request="${pull_request%%/*}"
+        ;;
+    *)
+        pull_request=''
+        ;;
+esac
+
+# Nothing to say. The runner sets `GITHUB_REPOSITORY` for every job, so this is the case where the hook has been run
+# by hand rather than one worth reporting.
+[ -n "${name}" ] || exit 0
+
+# The panel takes 19 characters and the CLI trims what is past them, which would drop the number rather than the tail
+# of a long repository name -- the number being the part that says which job this is. So the name is trimmed here
+# instead, to whatever is left once the number and the space before it are accounted for.
+limit=19
+
+if [ -n "${pull_request}" ]; then
+    width=$((limit - ${#pull_request} - 1))
+
+    if [ "${width}" -ge 1 ]; then
+        message="$(printf '%.*s %s' "${width}" "${name}" "${pull_request}")"
+    else
+        message="${pull_request}"
+    fi
+else
+    message="${name}"
+fi
+
+"${display_cli}" "${message}" || :
+
+exit 0
+{% endraw %}
