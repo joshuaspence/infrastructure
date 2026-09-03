@@ -1,0 +1,48 @@
+---
+# Upstream defaults to 32 concurrent sessions, which is sized for a workstation. These are Raspberry Pis that are also
+# running CI jobs, so the daemon takes a small share of them. Raising it is safe for the host but not for the work:
+# `same-dir` spawning gives every session the same scratch directory, so two sessions can fight over the same files.
+claude_daemon_capacity: 2
+
+# `stable` trails `latest` by about a week and skips releases with known major regressions, which is the right trade
+# for a host nobody is watching. Package manager installs never self-update, so new versions arrive through the
+# `common` role's `apt upgrade` rather than behind our back.
+claude_daemon_channel: 'stable'
+
+claude_daemon_executable: '/usr/bin/claude'
+claude_daemon_group: 'claude'
+claude_daemon_name: 'claude-daemon'
+claude_daemon_service: '{{ claude_daemon_name }}.service'
+claude_daemon_session_name_prefix: '{{ inventory_hostname }}'
+claude_daemon_spawn: 'same-dir'
+claude_daemon_user: 'claude'
+
+# Null tracks whatever the channel above is serving. Pin an exact package version here to hold a host still.
+claude_daemon_version: null
+
+# Both directories are created by systemd, from the `StateDirectory=` and `CacheDirectory=` in the unit, so they have
+# to keep these prefixes: those settings name a directory *under* `/var/lib` and `/var/cache` and cannot be given a
+# path anywhere else.
+claude_daemon_home: '/var/lib/{{ claude_daemon_name }}'
+claude_daemon_working_directory: '/var/cache/{{ claude_daemon_name }}'
+
+# Only read to decide whether the daemon has anything to start with; nothing writes it. Remote Control needs a
+# full-scope claude.ai login, which is interactive and cannot be provisioned from here, so a fresh host is expected to
+# sit here until someone runs `claude auth login` on it.
+claude_daemon_credentials: '{{ claude_daemon_home }}/.claude/.credentials.json'
+
+# `ansible_facts.architecture` reports the kernel architecture (e.g. `aarch64`), whereas apt expects the Debian
+# architecture (e.g. `arm64`). Unlike `github_cli_architectures` there is no `armv7l` entry, because the Claude Code
+# repository publishes `amd64` and `arm64` only: this doubles as the guard that skips a 32-bit host altogether, rather
+# than registering a repository that would leave every later `apt update` on it failing.
+claude_daemon_architectures:
+  aarch64: 'arm64'
+  x86_64: 'amd64'
+
+claude_daemon_apt_keyring: '/etc/apt/keyrings/claude-code.asc'
+claude_daemon_apt_key_url: 'https://downloads.claude.ai/keys/claude-code.asc'
+claude_daemon_apt_uri: 'https://downloads.claude.ai/claude-code/apt/{{ claude_daemon_channel }}'
+
+# Published by Anthropic as the Claude Code release signing key. Checked after every download so that a swapped or
+# truncated key fails the play here, rather than silently becoming the thing apt trusts the packages against.
+claude_daemon_apt_key_fingerprint: '31DDDE24DDFAB679F42D7BD2BAA929FF1A7ECACE'
