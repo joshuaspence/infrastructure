@@ -125,10 +125,18 @@ variable "switches" {
     ports = optional(number, 0)
 
     port_overrides = optional(map(object({
-      name    = optional(string)
-      op_mode = optional(string)
+      name              = optional(string)
+      op_mode           = optional(string)
+      aggregate_members = optional(list(number))
     })), {})
   }))
+
+  # A LAG needs its member ports. Without them the controller rejects the whole device
+  # update with `api.err.InvalidAggregateMember`.
+  validation {
+    condition     = length([for key, switch in var.switches : key if length([for idx, port in switch.port_overrides : idx if port.op_mode == "aggregate" && port.aggregate_members == null]) > 0]) == 0
+    error_message = format("A port in `aggregate` mode must list its members: %s.", join(", ", flatten([for key, switch in var.switches : [for idx, port in switch.port_overrides : format("%s/%s", key, idx) if port.op_mode == "aggregate" && port.aggregate_members == null]])))
+  }
 }
 
 variable "vpn" {

@@ -52,9 +52,10 @@ resource "unifi_device" "switch" {
   dynamic "port_override" {
     for_each = {
       for idx in range(1, each.value.ports + 1) : idx => {
-        name       = try(each.value.port_overrides[idx].name, null)
-        op_mode    = try(each.value.port_overrides[idx].op_mode, null)
-        network_id = try(local.client_networks[local.switch_port_networks[each.key][idx]], null)
+        name              = try(each.value.port_overrides[idx].name, null)
+        op_mode           = try(each.value.port_overrides[idx].op_mode, null)
+        aggregate_members = try(each.value.port_overrides[idx].aggregate_members, null)
+        network_id        = try(local.client_networks[local.switch_port_networks[each.key][idx]], null)
       }
     }
 
@@ -62,6 +63,7 @@ resource "unifi_device" "switch" {
       name                  = port_override.value.name
       index                 = port_override.key
       op_mode               = port_override.value.op_mode
+      aggregate_members     = port_override.value.aggregate_members
       native_networkconf_id = port_override.value.network_id
       setting_preference    = port_override.value.network_id != null ? "manual" : null
     }
