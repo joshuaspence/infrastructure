@@ -4,23 +4,27 @@ locals {
   # declared uplink are left alone -- this manages the ports we know about, not every
   # port on the device.
   #
-  # `client_networks` maps a network to null when it has no VLAN, which is how the
-  # default network is handled (the controller rejects overrides on it). Ports on such
-  # a network therefore resolve to null and stay unmanaged, same as an unknown port.
-  access_point_port_networks = {
+  # The default network is excluded because the controller rejects an override on it.
+  # That is decided from `var.networks`, which is what the network is meant to be, and
+  # not from the network resource, so that a VLAN the provider fails to read back does
+  # not quietly turn into an unmanaged port.
+  access_point_port_network_ids = {
     for key, access_point in var.access_points : key => {
-      for name, client in var.clients : client.uplink.port => client.uplink.network
-      if try(client.uplink.access_point, null) == key && try(client.uplink.network, null) != null
+      for name, client in var.clients : client.uplink.port => unifi_network.network[client.uplink.network].id
+      if try(client.uplink.access_point, null) == key
+      && try(client.uplink.network, null) != null
+      && try(var.networks[client.uplink.network].vlan, null) != null
     }
   }
 
-  switch_port_networks = {
+  switch_port_network_ids = {
     for key, switch in var.switches : key => {
-      for name, client in var.clients : client.uplink.port => client.uplink.network
-      if try(client.uplink.switch, null) == key && try(client.uplink.network, null) != null
+      for name, client in var.clients : client.uplink.port => unifi_network.network[client.uplink.network].id
+      if try(client.uplink.switch, null) == key
+      && try(client.uplink.network, null) != null
+      && try(var.networks[client.uplink.network].vlan, null) != null
     }
   }
-
 }
 
 resource "unifi_device" "access_point" {
@@ -31,7 +35,7 @@ resource "unifi_device" "access_point" {
     for_each = {
       for idx in range(1, each.value.ports + 1) : idx => {
         name       = null
-        network_id = try(local.client_networks[local.access_point_port_networks[each.key][idx]], null)
+        network_id = lookup(local.access_point_port_network_ids[each.key], tostring(idx), null)
       }
     }
 
@@ -55,7 +59,7 @@ resource "unifi_device" "switch" {
         name              = try(each.value.port_overrides[idx].name, null)
         op_mode           = try(each.value.port_overrides[idx].op_mode, null)
         aggregate_members = try(each.value.port_overrides[idx].aggregate_members, null)
-        network_id        = try(local.client_networks[local.switch_port_networks[each.key][idx]], null)
+        network_id        = lookup(local.switch_port_network_ids[each.key], tostring(idx), null)
       }
     }
 
