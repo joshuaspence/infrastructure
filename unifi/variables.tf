@@ -31,10 +31,34 @@ variable "clients" {
     }))
   }))
 
-  # `network` and `fixed_ip` are paired.
+  # `network` and `fixed_ip` are paired. A reservation needs to say which network it belongs to, and `network` on its
+  # own only overrides the VLAN, which the port does.
   validation {
-    condition     = length([for client in var.clients : client.mac if(client.network != null) != (client.fixed_ip != null)]) == 0
-    error_message = "Parameters network and fixed_ip must either both be set or both be unset."
+    condition     = length([for key, client in var.clients : key if(client.network != null) != (client.fixed_ip != null)]) == 0
+    error_message = format("Clients must set both `network` and `fixed_ip` or neither: %s.", join(", ", [for key, client in var.clients : key if(client.network != null) != (client.fixed_ip != null)]))
+  }
+
+  # An uplink must configure a switch OR access point port.
+  validation {
+    condition     = length([for key, client in var.clients : key if client.uplink != null && (client.uplink.switch != null) == (client.uplink.access_point != null)]) == 0
+    error_message = format("An uplink must name either a switch or an access point, not both and not neither: %s.", join(", ", [for key, client in var.clients : key if client.uplink != null && (client.uplink.switch != null) == (client.uplink.access_point != null)]))
+  }
+
+  validation {
+    condition     = length([for key, client in var.clients : key if client.uplink != null && client.uplink.port > (client.uplink.switch != null ? try(var.switches[client.uplink.switch].ports, 0) : try(var.access_points[client.uplink.access_point].ports, 0))]) == 0
+    error_message = format("An uplink must name a port that exists on the device it names: %s.", join(", ", [for key, client in var.clients : key if client.uplink != null && client.uplink.port > (client.uplink.switch != null ? try(var.switches[client.uplink.switch].ports, 0) : try(var.access_points[client.uplink.access_point].ports, 0))]))
+  }
+
+  validation {
+    condition     = length([for key, client in var.clients : key if try(client.uplink.network, null) != null && !contains(keys(var.networks), client.uplink.network)]) == 0
+    error_message = format("An uplink must name a network that exists: %s.", join(", ", [for key, client in var.clients : key if try(client.uplink.network, null) != null && !contains(keys(var.networks), client.uplink.network)]))
+  }
+
+  # Two clients on one port would collide when the ports are built, and the resulting duplicate key error does not say
+  # which clients are involved.
+  validation {
+    condition     = length([for port, keys in { for key, client in var.clients : format("%s/%d", coalesce(client.uplink.switch, client.uplink.access_point, "?"), client.uplink.port) => key... if client.uplink != null } : port if length(keys) > 1]) == 0
+    error_message = format("Each device port takes one client: %s.", join("; ", [for port, keys in { for key, client in var.clients : format("%s/%d", coalesce(client.uplink.switch, client.uplink.access_point, "?"), client.uplink.port) => key... if client.uplink != null } : format("%s has %s", port, join(" and ", keys)) if length(keys) > 1]))
   }
 }
 
