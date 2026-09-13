@@ -4,6 +4,7 @@ terraform {
       source = "tenstad/remote"
     }
 
+    # NOTE: Applied from https://github.com/ubiquiti-community/terraform-provider-unifi/commit/7de99eee9944a00ea21c8f53ea3cc01ccfaf9903
     unifi = {
       source  = "ubiquiti-community/unifi"
       version = ">= 0.55.0"

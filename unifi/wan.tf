@@ -4,7 +4,7 @@ resource "unifi_wan" "primary" {
   type               = "dhcp"
   type_v6            = "dhcpv6"
   setting_preference = "manual"
-  
+
   dns = {
     preference      = "manual"
     primary         = "1.1.1.1"
