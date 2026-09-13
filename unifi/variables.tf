@@ -38,6 +38,12 @@ variable "clients" {
   }
 }
 
+variable "dns_records" {
+  type     = map(string)
+  default  = {}
+  nullable = false
+}
+
 variable "network_ipv6_subnet" {
   type = string
 }

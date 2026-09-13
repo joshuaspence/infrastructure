@@ -117,4 +117,8 @@ module "unifi" {
   ssh_config          = var.unifi_ssh_config
   switches            = var.unifi_switches
   vpn                 = merge(var.unifi_vpn, { gateway = aws_route53_record.vpn.fqdn })
+
+  dns_records = {
+    one(aws_route53_record.home_assistant.records) = var.unifi_clients["home_assistant"].fixed_ip
+  }
 }

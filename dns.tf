@@ -124,7 +124,7 @@ resource "aws_route53_record" "home_assistant_acme" {
   name    = "_acme-challenge.homeassistant"
   type    = "CNAME"
   ttl     = 60 * 60
-  records = ["_acme-challenge.x3fjq8zfm86p1bjfmut1852xach02obw.ui.nabu.casa"]
+  records = formatlist("_acme-challenge.%s", aws_route53_record.home_assistant.records)
 }
 
 resource "aws_route53_record" "vpn" {
