@@ -27,7 +27,7 @@ variable "unifi_clients" {
       access_point = optional(string)
       switch       = optional(string)
       port         = number
-      profile      = optional(string)
+      network      = optional(string)
     }))
   }))
 }
@@ -84,8 +84,9 @@ variable "unifi_switches" {
     ports = optional(number, 0)
 
     port_overrides = optional(map(object({
-      name    = optional(string)
-      op_mode = optional(string)
+      name              = optional(string)
+      op_mode           = optional(string)
+      aggregate_members = optional(list(number))
     })), {})
 
     uplink = optional(object({

@@ -39,6 +39,14 @@ variable "clients" {
   }
 
   # An uplink must configure a switch OR access point port.
+  # An uplink with no network configures nothing. Requiring one means a field dropped
+  # on the way in -- the root variable declaring a different name, say -- fails here
+  # instead of quietly leaving every port alone.
+  validation {
+    condition     = length([for key, client in var.clients : key if client.uplink != null && client.uplink.network == null]) == 0
+    error_message = format("An uplink must name the network its port carries: %s.", join(", ", [for key, client in var.clients : key if client.uplink != null && client.uplink.network == null]))
+  }
+
   validation {
     condition     = length([for key, client in var.clients : key if client.uplink != null && (client.uplink.switch != null) == (client.uplink.access_point != null)]) == 0
     error_message = format("An uplink must name either a switch or an access point, not both and not neither: %s.", join(", ", [for key, client in var.clients : key if client.uplink != null && (client.uplink.switch != null) == (client.uplink.access_point != null)]))
