@@ -27,7 +27,7 @@ variable "clients" {
       access_point = optional(string)
       switch       = optional(string)
       port         = number
-      profile      = optional(string)
+      network      = optional(string)
     }))
   }))
 
