@@ -1,0 +1,36 @@
+[Unit]
+Description=Claude Code Remote Control
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User={{ claude_daemon_user }}
+Group={{ claude_daemon_group }}
+
+# Two directories because they have opposite lifetimes, and systemd creates and owns both so neither needs to exist
+# beforehand. The state directory is `$HOME`: it holds the claude.ai credentials from `claude auth login` and has to
+# survive restarts. The cache directory is the scratch space the server actually works in, holds nothing worth
+# keeping, and can be emptied at any time with `systemctl clean --what=cache {{ claude_daemon_service }}`. It is
+# deliberately not a `RuntimeDirectory=`, which would put it on `/run`: that is a tmpfs, so anything a session checked
+# out there would come out of the Pi's RAM.
+StateDirectory={{ claude_daemon_name }}
+StateDirectoryMode=0700
+CacheDirectory={{ claude_daemon_name }}
+WorkingDirectory={{ claude_daemon_working_directory }}
+Environment=HOME={{ claude_daemon_home }}
+
+# `script` is here only for the pty it allocates: `remote-control` draws an interactive terminal UI and exits without
+# a TTY, which systemd never gives a service. `--return` hands the server's own exit status back so that a crash still
+# trips `Restart=` below, and `SHELL` is set because `script` runs `--command` through it and inherits nothing here.
+Environment=SHELL=/bin/sh
+ExecStart=/usr/bin/script --quiet --return --command '{{ claude_daemon_executable }} remote-control --spawn {{ claude_daemon_spawn }} --capacity {{ claude_daemon_capacity }} --remote-control-session-name-prefix {{ claude_daemon_session_name_prefix }}' /dev/null
+
+# 30 seconds rather than the usual few, so that retries never fall inside systemd's default 10 second start-rate
+# window. A host that cannot reach claude.ai, or that has not been signed in yet, then keeps retrying indefinitely
+# instead of exhausting five attempts in the first minute and staying down once the network comes back.
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

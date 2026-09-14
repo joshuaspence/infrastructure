@@ -3,6 +3,7 @@
   hosts: 'github_runners'
   roles:
     - role: 'common'
+    - role: 'claude_daemon'
     - role: 'github_cli'
     - role: 'github_runner'
       vars:
