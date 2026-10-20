@@ -120,3 +120,11 @@ resource "aws_route53_record" "github_pages_verification" {
   ttl     = 6 * 60 * 60
   records = ["cd4f4698ab85e0895bb5aa9f277484"]
 }
+
+resource "aws_route53_record" "github_verification" {
+  zone_id = aws_route53_zone.main["spence.com.au"].zone_id
+  name    = "_gh-spence-com-au-o"
+  type    = "TXT"
+  ttl     = 6 * 60 * 60
+  records = ["88bcea3109"]
+}
