@@ -126,7 +126,7 @@ resource "aws_route53_record" "github_pages_www" {
   name    = "www"
   type    = "CNAME"
   ttl     = 60 * 60
-  records = [aws_route53_record.github_pages_apex_ipv4.fqdn]
+  records = ["spence-com-au.github.io"]
 }
 
 resource "aws_route53_record" "github_verification" {
