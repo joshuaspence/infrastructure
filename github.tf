@@ -121,6 +121,14 @@ resource "aws_route53_record" "github_pages_verification" {
   records = ["cd4f4698ab85e0895bb5aa9f277484"]
 }
 
+resource "aws_route53_record" "github_pages_www" {
+  zone_id = aws_route53_zone.main["spence.com.au"].zone_id
+  name    = "www"
+  type    = "CNAME"
+  ttl     = 60 * 60
+  records = [aws_route53_record.github_pages_apex_ipv4.fqdn]
+}
+
 resource "aws_route53_record" "github_verification" {
   zone_id = aws_route53_zone.main["spence.com.au"].zone_id
   name    = "_gh-spence-com-au-o"
