@@ -1,0 +1,17 @@
+[Unit]
+Description=Multicast and broadcast packet relay
+Documentation=https://github.com/alsmith/multicast-relay
+Wants=udapi-server.service
+After=udapi-server.service
+
+[Service]
+# Quoted so that systemd reads each as a single assignment rather than splitting the list into further assignments.
+Environment="INTERFACES={{ multicast_relay_interfaces | join(' ') }}"
+Environment="RELAY={{ multicast_relay_relays | join(' ') }}"
+ExecStart={{ multicast_relay_path }} --interfaces $INTERFACES --relay $RELAY --noMDNS --noSSDP --noSonosDiscovery --homebrewNetifaces --foreground
+Restart=on-failure
+DynamicUser=true
+AmbientCapabilities=CAP_NET_RAW
+
+[Install]
+WantedBy=multi-user.target
