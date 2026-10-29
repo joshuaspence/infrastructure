@@ -98,8 +98,16 @@ provider "github" {
   token = var.github_token
 }
 
-data "github_user" "current" {
-  username = ""
+provider "github" {
+  alias = "organization"
+  owner = "spence-com-au"
+  token = var.github_token
+}
+
+provider "github" {
+  alias = "spence_com_au"
+  owner = "spence-com-au"
+  token = var.github_token
 }
 
 #===============================================================================
