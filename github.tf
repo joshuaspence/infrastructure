@@ -113,26 +113,10 @@ resource "aws_route53_record" "github_pages_apex_ipv6" {
   ]
 }
 
-resource "aws_route53_record" "github_pages_verification" {
-  zone_id = aws_route53_zone.main["spence.com.au"].zone_id
-  name    = "_github-pages-challenge-spence-com-au"
-  type    = "TXT"
-  ttl     = 6 * 60 * 60
-  records = ["cd4f4698ab85e0895bb5aa9f277484"]
-}
-
 resource "aws_route53_record" "github_pages_www" {
   zone_id = aws_route53_zone.main["spence.com.au"].zone_id
   name    = "www"
   type    = "CNAME"
   ttl     = 60 * 60
   records = ["spence-com-au.github.io"]
-}
-
-resource "aws_route53_record" "github_verification" {
-  zone_id = aws_route53_zone.main["spence.com.au"].zone_id
-  name    = "_gh-spence-com-au-o"
-  type    = "TXT"
-  ttl     = 6 * 60 * 60
-  records = ["88bcea3109"]
 }

@@ -8,18 +8,37 @@ resource "unifi_site" "default" {
 
 # TODO: Manage SSH username and password.
 resource "unifi_setting" "default" {
-  mgmt = {
-    auto_upgrade = false
-    ssh_enabled  = var.ssh_config.username != ""
+  auto_speedtest = {
+    enabled   = true
+    cron_expr = "0 4 * * *"
+  }
 
-    ssh_keys = [
-      for key in var.ssh_config.keys : {
-        name    = key.name
-        type    = key.type
-        comment = key.comment
-        key     = key.key
-      }
-    ]
+  country = {
+    code = 36
+  }
+
+  dpi = {
+    enabled                = true
+    fingerprinting_enabled = true
+  }
+
+  mgmt = {
+    auto_upgrade = {
+      enabled = false
+    }
+
+    ssh = {
+      enabled = var.ssh_config.username != ""
+
+      keys = [
+        for key in var.ssh_config.keys : {
+          name    = key.name
+          type    = key.type
+          comment = key.comment
+          key     = key.key
+        }
+      ]
+    }
   }
 
   radius = {

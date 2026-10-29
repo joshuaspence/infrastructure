@@ -14,8 +14,13 @@ resource "unifi_network" "network" {
     stop    = cidrhost(each.value.subnet, -2)
   }
 
-  ipv6_interface_type = "pd"
-  ipv6_pd_interface   = "wan"
+  ipv6 = {
+    interface_type = "pd"
+
+    pd = {
+      interface = "wan"
+    }
+  }
 
   for_each = var.networks
 }
@@ -28,7 +33,6 @@ resource "unifi_wlan" "wlan" {
 
   wlan_band            = each.value.wifi.bands != null ? (length(each.value.wifi.bands) > 1 ? "both" : one(tolist(each.value.wifi.bands))) : null
   wlan_bands           = each.value.wifi.bands
-  ap_group_ids         = [data.unifi_ap_group.default.id]
   user_group_id        = data.unifi_client_qos_rate.default.id
   multicast_enhance    = true
   no2ghz_oui           = false
@@ -39,9 +43,23 @@ resource "unifi_wlan" "wlan" {
   enhanced_iot         = each.value.wifi.enhanced_iot
   group_rekey          = !each.value.wifi.enhanced_iot ? 3600 : 0
 
-  wpa3_support   = each.value.wifi.security == "wpa3"
   pmf_mode       = each.value.wifi.security == "wpa3" ? "required" : "disabled"
   bss_transition = each.value.wifi.bss_transition
+
+  ap_group = {
+    ids = [data.unifi_ap_group.default.id]
+  }
+
+  # The provider defaults `policy` to `deny`. Leaving it unset on a WLAN whose controller-side policy is `allow` makes
+  # every plan re-plan `bandsteering_mode` as unknown, even though the filter itself is disabled.
+  mac_filter = {
+    enabled = false
+    policy  = "deny"
+  }
+
+  wpa3 = {
+    support = each.value.wifi.security == "wpa3"
+  }
 
   for_each = { for network_name, network in var.networks : network_name => network if network.wifi != null }
 }

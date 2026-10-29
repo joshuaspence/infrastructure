@@ -6,12 +6,15 @@ resource "unifi_wan" "primary" {
   setting_preference = "manual"
 
   dns = {
-    preference      = "manual"
-    primary         = "1.1.1.1"
-    secondary       = "8.8.8.8"
-    ipv6_preference = "manual"
-    ipv6_primary    = "2606:4700:4700::1111"
-    ipv6_secondary  = "2001:4860:4860::8888"
+    preference = "manual"
+    primary    = "1.1.1.1"
+    secondary  = "8.8.8.8"
+
+    ipv6 = {
+      preference = "manual"
+      primary    = "2606:4700:4700::1111"
+      secondary  = "2001:4860:4860::8888"
+    }
   }
 
   load_balance = {

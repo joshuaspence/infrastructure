@@ -7,7 +7,13 @@ variable "domains" {
     }))
 
     github_pages_verification = optional(object({
-      value = string
+      username = string
+      value    = string
+    }))
+
+    github_verification = optional(object({
+      organization = string
+      value        = string
     }))
 
     google_site_verification = optional(object({
@@ -67,11 +73,20 @@ resource "aws_route53_record" "dmarc" {
 
 resource "aws_route53_record" "github_pages_verification" {
   zone_id  = aws_route53_zone.main[each.key].zone_id
-  name     = format("_github-pages-challenge-%s", data.github_user.current.login)
+  name     = format("_github-pages-challenge-%s", each.value.username)
   type     = "TXT"
   ttl      = 24 * 60 * 60
   records  = [each.value.value]
   for_each = { for domain_name, domain in var.domains : domain_name => domain.github_pages_verification if domain.github_pages_verification != null }
+}
+
+resource "aws_route53_record" "github_verification" {
+  zone_id  = aws_route53_zone.main[each.key].zone_id
+  name     = format("_gh-%s-o", each.value.organization)
+  type     = "TXT"
+  ttl      = 24 * 60 * 60
+  records  = [each.value.value]
+  for_each = { for domain_name, domain in var.domains : domain_name => domain.github_verification if domain.github_verification != null }
 }
 
 # TODO: Ideally the validation record would be pulled out of the GSuite API,

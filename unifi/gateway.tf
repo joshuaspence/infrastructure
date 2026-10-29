@@ -1,6 +1,15 @@
 # TODO: Configure port overrides.
 resource "unifi_device" "gateway" {
   name = "Gateway"
+
+  outlet_overrides = [
+    {
+      index         = 1
+      name          = "NBN NTD"
+      relay_state   = true
+      cycle_enabled = false
+    },
+  ]
 }
 
 data "http" "multicast_relay" {

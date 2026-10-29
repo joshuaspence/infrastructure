@@ -18,7 +18,13 @@ domains = {
     }
 
     github_pages_verification = {
-      value = "4aa9b01113d2fba7c2bf04ff577d2d"
+      username = "spence-com-au"
+      value    = "cd4f4698ab85e0895bb5aa9f277484"
+    }
+
+    github_verification = {
+      organization = "spence-com-au"
+      value        = "88bcea3109"
     }
 
     google_site_verification = {
@@ -38,10 +44,6 @@ domains = {
       registrar = "aws"
     }
 
-    github_pages_verification = {
-      value = "8240bb71daf590e7740564358ef5f1"
-    }
-
     google_site_verification = {
       key   = "a6bfmanqta6v"
       value = "7cfhlaayo7k56n"
@@ -57,10 +59,6 @@ domains = {
 
     domain_registration = {
       registrar = "aws"
-    }
-
-    github_pages_verification = {
-      value = "37b0e8d4f71f558b9e0ac7999813b5"
     }
 
     google_site_verification = {
@@ -80,10 +78,6 @@ domains = {
       registrar = "godaddy"
     }
 
-    github_pages_verification = {
-      value = "86c5c0313c954cb8d87478f40b6507"
-    }
-
     google_site_verification = {
       key   = "dkxbd6ayrn2v"
       value = "mbz5rfkvm54ygt"
@@ -99,10 +93,6 @@ domains = {
 
     domain_registration = {
       registrar = "aws"
-    }
-
-    github_pages_verification = {
-      value = "2eb8f97e2b7efb7014335b37e3c430"
     }
 
     google_site_verification = {

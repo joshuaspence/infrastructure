@@ -16,10 +16,18 @@ resource "unifi_firewall_rule" "established" {
   action   = "accept"
   protocol = "all"
 
-  state_established      = true
-  state_related          = true
-  src_firewall_group_ids = [unifi_firewall_group.xot.id]
-  dst_network_id         = unifi_network.network["trusted"].id
+  state = {
+    established = true
+    related     = true
+  }
+
+  source = {
+    firewall_group_ids = [unifi_firewall_group.xot.id]
+  }
+
+  destination = {
+    network_id = unifi_network.network["trusted"].id
+  }
 }
 
 resource "unifi_firewall_rule" "xot_hass" {
@@ -30,8 +38,13 @@ resource "unifi_firewall_rule" "xot_hass" {
   action   = "accept"
   protocol = "tcp"
 
-  src_firewall_group_ids = [unifi_firewall_group.xot.id]
-  dst_address            = unifi_client.client["home_assistant"].fixed_ip
+  source = {
+    firewall_group_ids = [unifi_firewall_group.xot.id]
+  }
+
+  destination = {
+    address = unifi_client.client["home_assistant"].fixed_ip
+  }
 
   logging = true
 }
@@ -44,8 +57,11 @@ resource "unifi_firewall_rule" "inter_vlan" {
   action   = "drop"
   protocol = "all"
 
-  logging                = false
-  src_firewall_group_ids = [unifi_firewall_group.xot.id]
+  logging = false
+
+  source = {
+    firewall_group_ids = [unifi_firewall_group.xot.id]
+  }
 }
 
 resource "unifi_firewall_rule" "ntp" {
@@ -56,7 +72,9 @@ resource "unifi_firewall_rule" "ntp" {
   action   = "accept"
   protocol = "udp"
 
-  dst_port = 123
+  destination = {
+    port = 123
+  }
 }
 
 resource "unifi_firewall_rule" "not_wan" {
@@ -67,5 +85,7 @@ resource "unifi_firewall_rule" "not_wan" {
   action   = "drop"
   protocol = "all"
 
-  src_network_id = unifi_network.network["not"].id
+  source = {
+    network_id = unifi_network.network["not"].id
+  }
 }
