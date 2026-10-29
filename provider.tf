@@ -104,12 +104,6 @@ provider "github" {
   token = var.github_token
 }
 
-provider "github" {
-  alias = "spence_com_au"
-  owner = "spence-com-au"
-  token = var.github_token
-}
-
 #===============================================================================
 # Google
 #===============================================================================
